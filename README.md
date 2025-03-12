@@ -56,4 +56,3 @@ network:
 - installing nextjs
 - pnpm dlx shadcn@latest init
 
-trap 'psql "postgresql://admin:host-machine@192.168.1.26:5432/logs_database" -c "INSERT INTO logs.logs (name, host) VALUES (\'logout\', \'vm01\')"; [ -x /usr/bin/clear_console ] && /usr/bin/clear_console -q' EXIT

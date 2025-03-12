@@ -10,7 +10,9 @@
     "S": "prisma studio",
     "g": "prisma generate",
     "p": "prisma db push",
-    "l": "prisma db pull"
+    "l": "prisma db pull",
+    "postinstall": "prisma generate"
+
   },
   "dependencies": {
     "@prisma/client": "6.4.1",

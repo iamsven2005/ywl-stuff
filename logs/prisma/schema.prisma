@@ -8,10 +8,23 @@ datasource db {
 }
 
 model logs {
-  id        Int   @id @default(autoincrement())
+  id        Int      @id @default(autoincrement())
   name      String
   host      String?
   timestamp DateTime @default(now())
 
   @@map("logs")
+}
+
+model auth {
+  id         Int      @id @default(autoincrement())
+  timestamp  DateTime @default(now())
+  username   String
+  ip_address String
+  log_entry  String
+}
+
+model copy {
+  id         Int      @id @default(autoincrement())
+  text       String
 }
