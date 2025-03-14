@@ -9,10 +9,17 @@ datasource db {
 
 model logs {
   id        Int      @id @default(autoincrement())
-  name      String
+  name      String //PORT SCAN
   host      String?
   timestamp DateTime @default(now())
-
+  piuser      String?
+  pid       Int?
+  action    String? //PROTOCOL
+  cpu       Float?
+  mem       Float?
+  command   String? //SCANTYPE
+  port      Int?
+  ipAddress String?
   @@map("logs")
 }
 
@@ -20,11 +27,41 @@ model auth {
   id         Int      @id @default(autoincrement())
   timestamp  DateTime @default(now())
   username   String
-  ip_address String
   log_entry  String
 }
 
-model copy {
+model memory_usage{
   id         Int      @id @default(autoincrement())
-  text       String
+  total_memory BigInt
+  used_memory BigInt
+  free_memory BigInt
+  available_memory BigInt
+  percent_usage Float
+  host  String?
+  time  DateTime @default(now())
+}
+
+model system_metrics {
+  id         Int      @id @default(autoincrement())
+  timestamp DateTime @default(now())
+  sensor_name String
+  value_type String
+  value Float
+  host  String
+}
+
+model notes{
+  id         Int      @id @default(autoincrement())
+  title      String
+  time       DateTime @default(now())
+  description String
+}
+model devices{
+  id         Int      @id @default(autoincrement())
+  name       String
+  ip_address String?
+  mac_address String?
+  password   String?
+  time       DateTime @default(now())
+  notes      String
 }

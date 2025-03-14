@@ -19,6 +19,7 @@ export function LogsTableSkeleton() {
               <TableHead>Name</TableHead>
               <TableHead>Host</TableHead>
               <TableHead>Timestamp</TableHead>
+              <TableHead>Session</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -38,6 +39,9 @@ export function LogsTableSkeleton() {
                 </TableCell>
                 <TableCell>
                   <Skeleton className="h-4 w-[150px]" />
+                </TableCell>
+                <TableCell>
+                  <Skeleton className="h-8 w-[150px]" />
                 </TableCell>
               </TableRow>
             ))}
