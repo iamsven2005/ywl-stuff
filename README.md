@@ -59,3 +59,15 @@ network:
 
 
 Using smb windows share
+
+~/.pgpass
+192.168.1.26:5432:logs_database:admin:host-machine
+
+sven@sventan:~$ sudo PGPASSFILE=~/.pgpass pg_dump -h 192.168.1.26 -U admin -d logs_database -F c -b -v -f "/mnt/nas/sven.tan/MyDocs/new.sql"
+
+
+sudo nano /usr/local/bin/db_backup.sh
+#!/bin/bash
+export PGPASSFILE=/home/sven/.pgpass
+sudo /usr/bin/pg_dump -h 192.168.1.26 -U admin -d logs_database -F c -b -v -f "/mnt/nas/sven.tan/MyDocs/backup-$(date +'%Y-%m-%d_%H-%M-%S').sql"
+sudo chmod +x /usr/local/bin/db_backup.sh
