@@ -56,3 +56,6 @@ network:
 - installing nextjs
 - pnpm dlx shadcn@latest init
 
+
+
+Using smb windows share
