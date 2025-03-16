@@ -71,3 +71,6 @@ sudo nano /usr/local/bin/db_backup.sh
 export PGPASSFILE=/home/sven/.pgpass
 sudo /usr/bin/pg_dump -h 192.168.1.26 -U admin -d logs_database -F c -b -v -f "/mnt/nas/sven.tan/MyDocs/backup-$(date +'%Y-%m-%d_%H-%M-%S').sql"
 sudo chmod +x /usr/local/bin/db_backup.sh
+
+
+todo: change all prisma to db.

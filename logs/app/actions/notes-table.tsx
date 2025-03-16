@@ -21,8 +21,8 @@ import {
 import { toast } from "sonner"
 import { Search, RefreshCw, Trash2, Edit, Plus, FileText, Download } from "lucide-react"
 import { getNotes, deleteMultipleNotes } from "./note-actions"
-import { exportToExcel } from "./export-utils"
-import { NoteEditor } from "./note-editor"
+import { exportToExcel } from "../export-utils"
+import { NoteEditor } from "../note-editor"
 
 // Debounce function to limit how often a function can run
 function debounce<T extends (...args: any[]) => any>(func: T, wait: number): (...args: Parameters<T>) => void {

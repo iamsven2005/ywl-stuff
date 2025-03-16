@@ -1,6 +1,8 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import type React from "react"
+
+import { useCallback, useState, useEffect, useRef } from "react"
 import { useEditor, EditorContent } from "@tiptap/react"
 import StarterKit from "@tiptap/starter-kit"
 import Underline from "@tiptap/extension-underline"
@@ -11,7 +13,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { toast } from "sonner"
-import { createNote, updateNote } from "./note-actions"
+import { createNote, updateNote } from "./actions/note-actions"
 import {
   Bold,
   Italic,
@@ -39,10 +41,18 @@ interface NoteEditorProps {
   onCancel: () => void
 }
 
+// Define the max file size constant
+const MAX_FILE_SIZE = 5 * 1024 * 1024 // 5MB
+
 export function NoteEditor({ note, isCreating, onSaved, onCancel }: NoteEditorProps) {
+  // Move the useRef hook inside the component
+  const fileInputRef = useRef<HTMLInputElement>(null)
   const [title, setTitle] = useState("")
   const [isSaving, setIsSaving] = useState(false)
+  // Add state for tracking drag state
+  const [isDragging, setIsDragging] = useState(false)
 
+  // Update the Image extension configuration to ensure proper rendering of base64 images
   const editor = useEditor({
     extensions: [
       StarterKit,
@@ -53,7 +63,12 @@ export function NoteEditor({ note, isCreating, onSaved, onCancel }: NoteEditorPr
       TextAlign.configure({
         types: ["heading", "paragraph"],
       }),
-      Image,
+      Image.configure({
+        HTMLAttributes: {
+          class: "rounded-md max-w-full",
+        },
+        allowBase64: true, // Explicitly allow base64 images
+      }),
     ],
     content: "",
     editorProps: {
@@ -64,11 +79,21 @@ export function NoteEditor({ note, isCreating, onSaved, onCancel }: NoteEditorPr
     },
   })
 
+  // Update the useEffect hook that loads note content to properly handle images
   useEffect(() => {
     if (note) {
       setTitle(note.title)
       if (editor) {
-        editor.commands.setContent(note.description)
+        // Add a small delay to ensure the editor is fully initialized
+        setTimeout(() => {
+          editor.commands.setContent(note.description)
+
+          // Log for debugging
+          console.log("Loaded note content:", note.description)
+
+          // Force editor to update after content is set
+          editor.commands.focus("end")
+        }, 50)
       }
     } else {
       setTitle("")
@@ -77,6 +102,88 @@ export function NoteEditor({ note, isCreating, onSaved, onCancel }: NoteEditorPr
       }
     }
   }, [note, editor])
+
+  // Add these handlers to the component
+  const handleDragEnter = useCallback((e: React.DragEvent) => {
+    e.preventDefault()
+    setIsDragging(true)
+  }, [])
+
+  const handleDragLeave = useCallback((e: React.DragEvent) => {
+    e.preventDefault()
+    setIsDragging(false)
+  }, [])
+
+  const handleDragOver = useCallback((e: React.DragEvent) => {
+    e.preventDefault()
+  }, [])
+
+  // Update the handleImageDrop function to include file size validation
+  const handleImageDrop = useCallback(
+    (event: React.DragEvent) => {
+      event.preventDefault()
+      setIsDragging(false)
+
+      if (!editor) return
+
+      const files = Array.from(event.dataTransfer.files).filter((file) => file.type.startsWith("image/"))
+
+      if (files.length === 0) return
+
+      files.forEach((file) => {
+        if (file.size > MAX_FILE_SIZE) {
+          toast.error(`Image "${file.name}" is too large. Maximum size is ${MAX_FILE_SIZE / (1024 * 1024)}MB.`)
+          return
+        }
+
+        const reader = new FileReader()
+        reader.onload = (e) => {
+          const base64 = e.target?.result as string
+          if (base64) {
+            editor.chain().focus().setImage({ src: base64 }).run()
+            toast.success(`Image "${file.name}" added successfully`)
+          }
+        }
+        reader.readAsDataURL(file)
+      })
+    },
+    [editor],
+  )
+
+  // Update the handleImagePaste function to include file size validation
+  const handleImagePaste = useCallback(
+    (event: React.ClipboardEvent) => {
+      if (!editor) return
+
+      const items = Array.from(event.clipboardData.items)
+      const imageItems = items.filter((item) => item.type.startsWith("image/"))
+
+      if (imageItems.length === 0) return
+
+      event.preventDefault()
+
+      imageItems.forEach((item) => {
+        const file = item.getAsFile()
+        if (!file) return
+
+        if (file.size > MAX_FILE_SIZE) {
+          toast.error(`Pasted image is too large. Maximum size is ${MAX_FILE_SIZE / (1024 * 1024)}MB.`)
+          return
+        }
+
+        const reader = new FileReader()
+        reader.onload = (e) => {
+          const base64 = e.target?.result as string
+          if (base64) {
+            editor.chain().focus().setImage({ src: base64 }).run()
+            toast.success("Image pasted successfully")
+          }
+        }
+        reader.readAsDataURL(file)
+      })
+    },
+    [editor],
+  )
 
   const handleSave = async () => {
     if (!title.trim()) {
@@ -222,13 +329,13 @@ export function NoteEditor({ note, isCreating, onSaved, onCancel }: NoteEditorPr
               <ListOrdered className="h-4 w-4" />
             </Button>
             <div className="h-6 border-l mx-1"></div>
+            {/* Replace the Image button with this improved version */}
             <Button
               variant="ghost"
               size="sm"
               onClick={() => {
-                const url = window.prompt("Image URL")
-                if (url) {
-                  editor.chain().focus().setImage({ src: url }).run()
+                if (fileInputRef.current) {
+                  fileInputRef.current.click()
                 }
               }}
               title="Insert Image"
@@ -267,9 +374,9 @@ export function NoteEditor({ note, isCreating, onSaved, onCancel }: NoteEditorPr
             <Button
               variant="ghost"
               size="sm"
-              onClick={() => editor.chain().focus().toggleCodeBlock().run()}
-              className={editor.isActive("codeBlock") ? "bg-muted" : ""}
-              title="Code Block"
+              onClick={() => editor.chain().focus().toggleCode().run()}
+              className={editor.isActive("code") ? "bg-muted" : ""}
+              title="Code"
             >
               <Code className="h-4 w-4" />
             </Button>
@@ -278,41 +385,75 @@ export function NoteEditor({ note, isCreating, onSaved, onCancel }: NoteEditorPr
               size="sm"
               onClick={() => editor.chain().focus().toggleBlockquote().run()}
               className={editor.isActive("blockquote") ? "bg-muted" : ""}
-              title="Blockquote"
+              title="Quote"
             >
               <Quote className="h-4 w-4" />
             </Button>
             <div className="h-6 border-l mx-1"></div>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => editor.chain().focus().undo().run()}
-              disabled={!editor.can().undo()}
-              title="Undo"
-            >
+            <Button variant="ghost" size="sm" onClick={() => editor.chain().focus().undo().run()} title="Undo">
               <Undo className="h-4 w-4" />
             </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => editor.chain().focus().redo().run()}
-              disabled={!editor.can().redo()}
-              title="Redo"
-            >
+            <Button variant="ghost" size="sm" onClick={() => editor.chain().focus().redo().run()} title="Redo">
               <Redo className="h-4 w-4" />
             </Button>
           </div>
-          <div className="p-2">
-            <EditorContent editor={editor} />
+          {/* Add this input element after the toolbar */}
+          <input
+            type="file"
+            ref={fileInputRef}
+            className="hidden"
+            accept="image/*"
+            onChange={(event) => {
+              const file = event.target.files?.[0]
+              if (!file) return
+
+              if (file.size > MAX_FILE_SIZE) {
+                toast.error(`Image is too large. Maximum size is ${MAX_FILE_SIZE / (1024 * 1024)}MB.`)
+                return
+              }
+
+              const reader = new FileReader()
+              reader.onload = (e) => {
+                const base64 = e.target?.result as string
+                if (base64 && editor) {
+                  editor.chain().focus().setImage({ src: base64 }).run()
+                  toast.success(`Image "${file.name}" added successfully`)
+                }
+              }
+              reader.readAsDataURL(file)
+
+              // Reset the input
+              event.target.value = ""
+            }}
+          />
+          <div
+            className={`border-2 rounded-md transition-colors ${isDragging ? "border-primary border-dashed bg-primary/5" : "border-transparent"}`}
+            onDragEnter={handleDragEnter}
+            onDragLeave={handleDragLeave}
+            onDragOver={handleDragOver}
+            onDrop={handleImageDrop}
+          >
+            <EditorContent editor={editor} onPaste={handleImagePaste} className="p-4 min-h-[300px]" />
+            {isDragging && (
+              <div className="absolute inset-0 flex items-center justify-center bg-primary/10 rounded-md pointer-events-none">
+                <div className="bg-background p-4 rounded-md shadow-lg border border-primary">
+                  <p className="text-center font-medium">Drop image here</p>
+                </div>
+              </div>
+            )}
+          </div>
+          <div className="mt-2 text-xs text-muted-foreground flex items-center gap-2">
+            <ImageIcon className="h-3 w-3" />
+            <span>Tip: Drag and drop images directly into the editor, or paste from clipboard</span>
           </div>
         </div>
       </div>
 
-      <div className="flex justify-end gap-2 pt-4">
+      <div className="flex justify-between">
         <Button variant="outline" onClick={onCancel} disabled={isSaving}>
           Cancel
         </Button>
-        <Button onClick={handleSave} disabled={isSaving}>
+        <Button disabled={isSaving} onClick={handleSave}>
           {isSaving ? "Saving..." : isCreating ? "Create Note" : "Update Note"}
         </Button>
       </div>

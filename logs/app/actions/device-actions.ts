@@ -21,6 +21,7 @@ interface GetDevicesParams {
   pageSize?: number
 }
 
+// Update the getDevices function to include user information
 export async function getDevices({ search = "", page = 1, pageSize = 10 }: GetDevicesParams) {
   try {
     // Build where conditions
@@ -39,9 +40,20 @@ export async function getDevices({ search = "", page = 1, pageSize = 10 }: GetDe
     // Get total count for pagination
     const totalCount = await prisma.devices.count({ where })
 
-    // Get devices with pagination
+    // Get devices with pagination and include users
     const devices = await prisma.devices.findMany({
       where,
+      include: {
+        users: {
+          include: {
+            user: {
+              select: {
+                username: true,
+              },
+            },
+          },
+        },
+      },
       orderBy: {
         time: "desc",
       },

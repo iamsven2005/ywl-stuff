@@ -7,7 +7,6 @@ import { Button } from "@/components/ui/button"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Skeleton } from "@/components/ui/skeleton"
-import { getSensorData } from "./actions"
 import { toast } from "sonner"
 import { Thermometer, Zap } from "lucide-react"
 import { X, ChevronDown } from "lucide-react"
@@ -17,8 +16,9 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { Badge } from "@/components/ui/badge"
 
 // Add the import for export utilities at the top of the file
-import { exportToExcel, prepareChartDataForExport } from "./export-utils"
 import { Download } from "lucide-react"
+import { exportToExcel, prepareChartDataForExport } from "../export-utils"
+import { getSensorData } from "../actions/actions"
 
 // Color palette for different sensors
 const TEMP_COLORS = {
