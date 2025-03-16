@@ -44,11 +44,11 @@ import {
   Upload,
 } from "lucide-react"
 import { toast } from "sonner"
-import { getDevices, addDevice, updateDevice, deleteDevice } from "./device-actions"
 import type { devices } from "@prisma/client"
 // Add the import for export utilities at the top of the file
-import { exportToExcel, prepareDevicesForExport, generateDeviceImportTemplate } from "./export-utils"
 import * as XLSX from "xlsx"
+import { addDevice, deleteDevice, getDevices, updateDevice } from "../actions/device-actions"
+import { exportToExcel, generateDeviceImportTemplate, prepareDevicesForExport } from "../export-utils"
 
 // Debounce function to limit how often a function can run
 function debounce<T extends (...args: any[]) => any>(func: T, wait: number): (...args: Parameters<T>) => void {

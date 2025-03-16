@@ -19,14 +19,14 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Skeleton } from "@/components/ui/skeleton"
-import { getMemoryUsageData } from "./actions"
 import { toast } from "sonner"
 import { ChevronDown, ChevronRight, Server, Monitor, X, Download } from "lucide-react"
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Badge } from "@/components/ui/badge"
-import { exportToExcel, prepareChartDataForExport } from "./export-utils"
+import { getMemoryUsageData } from "../actions/actions"
+import { exportToExcel, prepareChartDataForExport } from "../export-utils"
 
 // Color palette for different hosts
 const COLORS = [

@@ -12,7 +12,7 @@ model logs {
   name      String //PORT SCAN
   host      String?
   timestamp DateTime @default(now())
-  piuser      String?
+  piuser    String?
   pid       Int?
   action    String? //PROTOCOL
   cpu       Float?
@@ -30,38 +30,105 @@ model auth {
   log_entry  String
 }
 
-model memory_usage{
-  id         Int      @id @default(autoincrement())
-  total_memory BigInt
-  used_memory BigInt
-  free_memory BigInt
+model memory_usage {
+  id             Int      @id @default(autoincrement())
+  total_memory   BigInt
+  used_memory    BigInt
+  free_memory    BigInt
   available_memory BigInt
-  percent_usage Float
-  host  String?
-  time  DateTime @default(now())
+  percent_usage  Float
+  host           String?
+  time           DateTime @default(now())
 }
 
 model system_metrics {
-  id         Int      @id @default(autoincrement())
-  timestamp DateTime @default(now())
+  id          Int      @id @default(autoincrement())
+  timestamp   DateTime @default(now())
   sensor_name String
-  value_type String
-  value Float
-  host  String
+  value_type  String
+  value       Float
+  host        String
 }
 
-model notes{
-  id         Int      @id @default(autoincrement())
-  title      String
-  time       DateTime @default(now())
+model notes {
+  id          Int      @id @default(autoincrement())
+  title       String
+  time        DateTime @default(now())
   description String
 }
-model devices{
-  id         Int      @id @default(autoincrement())
-  name       String
-  ip_address String?
+
+model devices {
+  id          Int      @id @default(autoincrement())
+  name        String
+  ip_address  String?
   mac_address String?
-  password   String?
-  time       DateTime @default(now())
-  notes      String
+  password    String?
+  time        DateTime @default(now())
+  notes       String
+  users       DeviceUser[]
+}
+
+model User {
+  id          Int      @id @default(autoincrement())
+  username    String  @unique
+  password    String
+  email       String? @unique
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  devices     DeviceUser[]
+
+  ActivityLog ActivityLog[]
+}
+
+model DeviceUser {
+  id       Int    @id @default(autoincrement())
+  userId   Int
+  deviceId Int
+  role     String // Example: "admin", "viewer", "operator"
+  
+  user     User   @relation(fields: [userId], references: [id])
+  device   devices @relation(fields: [deviceId], references: [id])
+
+  @@unique([userId, deviceId]) // Ensure a user-device pair is unique
+}
+
+model RuleGroup {
+  id        Int      @id @default(autoincrement())
+  name      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  rules     Rule[]
+}
+
+model Rule {
+  id          Int      @id @default(autoincrement())
+  name        String
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  groupId     Int?
+  
+  group       RuleGroup? @relation(fields: [groupId], references: [id])
+  commands    Command[]
+}
+
+model Command {
+  id        Int      @id @default(autoincrement())
+  ruleId    Int
+  command   String  // Example: "ls -la", "rm -rf /"
+  
+  rule      Rule @relation(fields: [ruleId], references: [id])
+}
+model ActivityLog {
+  id         Int      @id @default(autoincrement())
+  userId     Int
+  actionType String   // e.g., "Created User", "Deleted Device"
+  targetType String   // e.g., "User", "Device"
+  targetId   Int?     // ID of the affected entity (if applicable)
+  details    String?  // Optional additional details
+  timestamp  DateTime @default(now())
+
+  user       User     @relation(fields: [userId], references: [id])
+
+  @@index([userId])
 }

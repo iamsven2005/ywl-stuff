@@ -34,8 +34,6 @@ import {
   Download,
 } from "lucide-react"
 import { toast } from "sonner"
-import { getAuthLogs, deleteMultipleAuthLogs, deleteAuthLogsByTimePeriod } from "./auth-actions"
-import { getAllDeviceNames } from "./device-actions"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -54,9 +52,11 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
+import { getAllDeviceNames } from "../actions/device-actions"
+import { deleteAuthLogsByTimePeriod, deleteMultipleAuthLogs, getAuthLogs } from "../actions/auth-actions"
+import { exportToExcel, prepareAuthLogsForExport } from "../export-utils"
 
 // Add the import for export utilities at the top of the file
-import { exportToExcel, prepareAuthLogsForExport } from "./export-utils"
 
 // Debounce function to limit how often a function can run
 function debounce<T extends (...args: any[]) => any>(func: T, wait: number): (...args: Parameters<T>) => void {

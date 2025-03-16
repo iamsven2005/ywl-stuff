@@ -7,7 +7,6 @@ import { Button } from "@/components/ui/button"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Skeleton } from "@/components/ui/skeleton"
-import { getDeviceUsageData } from "./actions"
 import { toast } from "sonner"
 import { X, Download } from "lucide-react"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
@@ -15,7 +14,8 @@ import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, Command
 import { Checkbox } from "@/components/ui/checkbox"
 import { ChevronDown } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
-import { exportToExcel, prepareChartDataForExport } from "./export-utils"
+import { getDeviceUsageData } from "../actions/actions"
+import { exportToExcel, prepareChartDataForExport } from "../export-utils"
 
 // Color palette for different devices
 const COLORS = [

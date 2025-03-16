@@ -60,6 +60,20 @@ export function prepareDevicesForExport(devices: any[]) {
   })
 }
 
+// Function to prepare users data for export
+export function prepareUsersForExport(users: any[]) {
+  return users.map((user) => {
+    return {
+      ID: user.id,
+      Username: user.username,
+      Email: user.email || "",
+      "Created At": new Date(user.createdAt).toLocaleString(),
+      "Updated At": new Date(user.updatedAt).toLocaleString(),
+      "Device Count": user.devices?.length || 0,
+    }
+  })
+}
+
 // Function to prepare chart data for export
 export function prepareChartDataForExport(chartData: any[], metricType: string) {
   return chartData.map((entry) => {
@@ -190,5 +204,28 @@ export function generateDeviceImportTemplate() {
 
   // Generate Excel file
   XLSX.writeFile(workbook, "device-import-template.xlsx")
+}
+
+// Add a template generator function for user imports
+export function generateUserImportTemplate() {
+  const template = [
+    {
+      Username: "example_user1",
+      Email: "user1@example.com",
+      Password: "password123",
+    },
+    {
+      Username: "example_user2",
+      Email: "user2@example.com",
+      Password: "securepass456",
+    },
+  ]
+
+  const worksheet = XLSX.utils.json_to_sheet(template)
+  const workbook = XLSX.utils.book_new()
+  XLSX.utils.book_append_sheet(workbook, worksheet, "Users")
+
+  // Generate Excel file
+  XLSX.writeFile(workbook, "user-import-template.xlsx")
 }
 
