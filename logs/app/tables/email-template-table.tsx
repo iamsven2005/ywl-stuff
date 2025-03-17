@@ -63,11 +63,15 @@ export default function EmailTemplateTable() {
     setIsLoading(true);
     try {
       const fetchedTemplates = await getAllEmailTemplates();
-      
+  
+      if (!Array.isArray(fetchedTemplates)) {
+        throw new Error("Invalid response format");
+      }
+  
       setTemplates(
         fetchedTemplates.map(template => ({
           ...template,
-          assignedUsers: template.assignedUsers || [], // Ensure it's always an array
+          assignedUsers: template.assignedUsers || [], // Ensure assignedUsers is always an array
         }))
       );
     } catch (error) {
@@ -77,6 +81,12 @@ export default function EmailTemplateTable() {
       setIsLoading(false);
     }
   };
+  
+  // ✅ Run `fetchTemplates` when component mounts
+  useEffect(() => {
+    fetchTemplates();
+  }, []);
+  
   
   const handleEditTemplate = (template: EmailTemplate) => {
     setSelectedTemplate({

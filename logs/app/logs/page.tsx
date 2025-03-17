@@ -24,7 +24,26 @@ export default function LogsPage({userId}: any) {
   const [isBackingUp, setIsBackingUp] = useState(false)
   const [isRestoring, setIsRestoring] = useState(false);
   const [activeTab, setActiveTab] = useState("system-logs")
-
+  async function sendEmail() {
+    const response = await fetch("/api/send-email", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        to: "sven.tan@int.ywlgroup.com",
+        subject: "Hello from Next.js!",
+        text: "This is a plain text email.",
+        html: "<p>This is an <b>HTML</b> email.</p>",
+      }),
+    });
+  
+    const data = await response.json();
+    if (data.success) {
+      alert("Email sent successfully!");
+    } else {
+      alert("Failed to send email: " + data.error);
+    }
+  }
+  
 
   const handleBackupDatabase = async () => {
     setIsBackingUp(true)
@@ -85,6 +104,7 @@ export default function LogsPage({userId}: any) {
             {isRestoring ? "Restoring..." : "Restore Database"}
             <RefreshCcw className="ml-2 h-4 w-4" />
           </Button>
+          <button onClick={sendEmail}>Send Test Email</button>
 
           <ThemeToggle />
           <UserNav />
