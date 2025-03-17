@@ -1,13 +1,11 @@
 "use server"
 
-import { PrismaClient, type system_metrics } from "@prisma/client"
+import { db } from "@/lib/db"
+import { system_metrics } from "@prisma/client"
 
-const prisma = new PrismaClient({
-  log: ["query", "info", "warn", "error"],
-})
 
 // Log middleware for performance monitoring
-prisma.$use(async (params, next) => {
+db.$use(async (params, next) => {
   const before = Date.now()
   const result = await next(params)
   const after = Date.now()
@@ -15,21 +13,26 @@ prisma.$use(async (params, next) => {
   return result
 })
 
+// Update the GetLogsParams interface to include rule groups and rules
 interface GetLogsParams {
   search?: string
   hosts?: string[]
   actions?: string[]
+  ruleGroups?: string[]
+  rules?: string[]
   cpuThreshold?: number | null
   memThreshold?: number | null
   page?: number
   pageSize?: number
 }
 
-// Update the getLogs function to handle device names more effectively
+// Update the getLogs function to include rule group and rule filtering
 export async function getLogs({
   search = "",
   hosts = [],
   actions = [],
+  ruleGroups = [],
+  rules = [],
   cpuThreshold = null,
   memThreshold = null,
   page = 1,
@@ -63,6 +66,47 @@ export async function getLogs({
       ]
     }
 
+    // Add rule group filter if provided
+    const commandsFromRules: string[] = []
+
+    if ((ruleGroups && ruleGroups.length > 0) || (rules && rules.length > 0)) {
+      // Fetch commands from selected rule groups and rules
+      const ruleGroupsData = await db.ruleGroup.findMany({
+        where: {
+          id: ruleGroups.length > 0 ? { in: ruleGroups.map(Number) } : undefined,
+        },
+        include: {
+          rules: {
+            where: {
+              id: rules.length > 0 ? { in: rules.map(Number) } : undefined,
+            },
+            include: {
+              commands: true,
+            },
+          },
+        },
+      })
+
+      // Extract all commands from the rule groups and rules
+      ruleGroupsData.forEach((group) => {
+        group.rules.forEach((rule) => {
+          rule.commands.forEach((cmd) => {
+            commandsFromRules.push(cmd.command)
+          })
+        })
+      })
+
+      // If we have commands from rules, add them to the where condition
+      if (commandsFromRules.length > 0) {
+        where.OR = [
+          ...(where.OR || []),
+          ...commandsFromRules.map((cmd) => ({
+            command: { contains: cmd },
+          })),
+        ]
+      }
+    }
+
     // Add CPU threshold filter if provided
     if (cpuThreshold !== null) {
       where.cpu = {
@@ -78,10 +122,10 @@ export async function getLogs({
     }
 
     // Get total count for pagination
-    const totalCount = await prisma.logs.count({ where })
+    const totalCount = await db.logs.count({ where })
 
     // Get logs with pagination
-    const logs = await prisma.logs.findMany({
+    const logs = await db.logs.findMany({
       where,
       orderBy: {
         timestamp: "desc",
@@ -97,6 +141,7 @@ export async function getLogs({
       logs: processedLogs,
       totalCount,
       pageCount: Math.ceil(totalCount / pageSize),
+      matchedCommands: commandsFromRules,
     }
   } catch (error) {
     console.error("Error fetching logs:", error)
@@ -198,7 +243,7 @@ export async function getDeviceUsageData(timeRange: string) {
     }
 
     // Get logs with CPU and memory usage within the time range
-    const logs = await prisma.logs.findMany({
+    const logs = await db.logs.findMany({
       where: {
         timestamp: {
           gte: startDate,
@@ -290,7 +335,7 @@ export async function getMemoryUsageData(timeRange: string) {
     }
 
     // Get memory usage data within the time range
-    const memoryData = await prisma.memory_usage.findMany({
+    const memoryData = await db.memory_usage.findMany({
       where: {
         time: {
           gte: startDate,
@@ -389,7 +434,7 @@ function roundTimestampToInterval(date: Date, interval: number): Date {
 
 export async function deleteLog(id: number) {
   try {
-    await prisma.logs.delete({
+    await db.logs.delete({
       where: { id },
     })
     return { success: true }
@@ -401,7 +446,7 @@ export async function deleteLog(id: number) {
 
 export async function deleteMultipleLogs(ids: number[]) {
   try {
-    await prisma.logs.deleteMany({
+    await db.logs.deleteMany({
       where: {
         id: {
           in: ids,
@@ -415,7 +460,7 @@ export async function deleteMultipleLogs(ids: number[]) {
   }
 }
 
-// Function to get sensor data for the chart
+// Function to get sensor data for the chart - updated to include host information
 export async function getSensorData(timeRange: string) {
   try {
     // Calculate the start date based on the time range
@@ -440,7 +485,7 @@ export async function getSensorData(timeRange: string) {
     }
 
     // Get sensor data within the time range
-    const sensorData = await prisma.system_metrics.findMany({
+    const sensorData = await db.system_metrics.findMany({
       where: {
         timestamp: {
           gte: startDate,
@@ -475,17 +520,19 @@ export async function getSensorData(timeRange: string) {
 
       const entry = timeSeriesMap.get(key)
 
-      // Initialize or update sensor data
+      // Initialize or update sensor data with host information
       if (!entry[data.sensor_name]) {
         entry[data.sensor_name] = {
           value: data.value,
           type: data.value_type,
+          host: data.host,
         }
       } else {
         // Update with the latest values in the interval
         entry[data.sensor_name] = {
           value: data.value,
           type: data.value_type,
+          host: data.host,
         }
       }
     })
@@ -533,7 +580,7 @@ export async function deleteLogsByTimePeriod(period: string) {
     }
 
     // Delete logs older than the cutoff date
-    const result = await prisma.logs.deleteMany({
+    const result = await db.logs.deleteMany({
       where: {
         timestamp: {
           lt: cutoffDate,
@@ -581,7 +628,7 @@ export async function deleteAuthLogsByTimePeriod(period: string) {
     }
 
     // Delete auth logs older than the cutoff date
-    const result = await prisma.auth.deleteMany({
+    const result = await db.auth.deleteMany({
       where: {
         timestamp: {
           lt: cutoffDate,

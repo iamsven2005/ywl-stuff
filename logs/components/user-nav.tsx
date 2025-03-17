@@ -18,7 +18,7 @@ import { getCurrentUser, logoutUser } from "@/app/login/actions"
 
 export function UserNav() {
   const router = useRouter()
-  const [user, setUser] = useState<{ id: number; username: string; email?: string } | null>(null)
+  const [user, setUser] = useState<{ id: number; username: string; email: string | null } | null>(null)
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {

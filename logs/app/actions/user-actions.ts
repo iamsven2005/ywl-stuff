@@ -1,44 +1,45 @@
 "use server"
 
-import { PrismaClient, Prisma } from "@prisma/client"
+import { db } from "@/lib/db"
 import { revalidatePath } from "next/cache"
-import * as bcrypt from "bcrypt"
-
-
-const prisma = new PrismaClient()
+import { logActivity } from "@/lib/activity-logger"
 
 export async function getUsers({
   search = "",
   page = 1,
   pageSize = 10,
+  role = "",
 }: {
   search?: string
   page?: number
   pageSize?: number
+  role?: "ADMIN" | "USER" | "DRAFTER" | ""
 }) {
   const skip = (page - 1) * pageSize
 
-  const where: Prisma.UserWhereInput = search
-    ? {
-        OR: [
-          { username: { contains: search, mode: Prisma.QueryMode.insensitive } },
-          { email: { contains: search, mode: Prisma.QueryMode.insensitive } },
-        ],
-      }
-    : {}
+  const where: any = {}
 
-  const totalCount = await prisma.user.count({ where })
+  if (search) {
+    where.OR = [
+      { username: { contains: search, mode: "insensitive" } },
+      { email: { contains: search, mode: "insensitive" } },
+    ]
+  }
+
+  if (role) {
+    where.role = role
+  }
+
+  const totalCount = await db.user.count({ where })
   const pageCount = Math.ceil(totalCount / pageSize)
 
-  const users = await prisma.user.findMany({
+  const users = await db.user.findMany({
     where,
     include: {
       devices: {
         include: {
           device: {
-            select: {
-              name: true,
-            },
+            select: { name: true },
           },
         },
       },
@@ -56,56 +57,90 @@ export async function getUsers({
 }
 
 
-// Add a new user
+// Get all admin users
+export async function getAdminUsers() {
+  const adminUsers = await db.user.findMany({
+    where: {
+      role: "admin",
+    },
+    select: {
+      id: true,
+      username: true,
+      email: true,
+    },
+  })
+
+  return adminUsers
+}
+
 export async function addUser({
   username,
   email,
   password,
+  role = "USER", // Default to "USER"
 }: {
   username: string
   email: string | null
   password: string
+  role?: "ADMIN" | "USER" | "DRAFTER"
 }) {
-  // Hash the password
-  const hashedPassword = await bcrypt.hash(password, 10)
-
-  const user = await prisma.user.create({
+  const user = await db.user.create({
     data: {
       username,
       email,
-      password: hashedPassword,
+      password, // ⚠️ Consider hashing this before saving
+      role,
     },
+  })
+
+  await logActivity({
+    actionType: "Created User",
+    targetType: "User",
+    targetId: user.id,
+    details: `Created user: ${username} with role: ${role}`,
   })
 
   revalidatePath("/logs")
   return user
 }
 
-// Update an existing user
+
 export async function updateUser({
   id,
   username,
   email,
   password,
+  role,
 }: {
   id: number
   username: string
   email: string | null
   password?: string
+  role?: "ADMIN" | "USER" | "DRAFTER"
 }) {
   const data: any = {
     username,
     email,
   }
 
-  // Only update password if provided
   if (password) {
-    data.password = await bcrypt.hash(password, 10)
+    data.password = password // ⚠️ Hashing is recommended before saving
   }
 
-  const user = await prisma.user.update({
+  if (role) {
+    data.role = role
+  }
+
+  const user = await db.user.update({
     where: { id },
     data,
+  })
+
+  await logActivity({
+    actionType: "Updated User",
+    targetType: "User",
+    targetId: user.id,
+    details: `Updated user: ${username}${role ? ` with role: ${role}` : ""}`,
   })
 
   revalidatePath("/logs")
@@ -114,23 +149,35 @@ export async function updateUser({
 
 // Delete a user
 export async function deleteUser(id: number) {
-  // First delete all device associations
-  await prisma.deviceUser.deleteMany({
+  // Get user details before deletion
+  const user = await db.user.findUnique({
+    where: { id },
+    select: { username: true, role: true },
+  })
+
+  await db.deviceUser.deleteMany({
     where: { userId: id },
   })
 
-  // Then delete the user
-  const user = await prisma.user.delete({
+  await db.user.delete({
     where: { id },
   })
 
+  // Log the activity
+  await logActivity({
+    actionType: "Deleted User",
+    targetType: "User",
+    targetId: id,
+    details: `Deleted user: ${user?.username || "Unknown"}${user?.role ? ` with role: ${user.role}` : ""}`,
+  })
+
   revalidatePath("/logs")
-  return user
+  return { success: true }
 }
 
 // Get devices associated with a user
 export async function getUserDevices(userId: number) {
-  const devices = await prisma.deviceUser.findMany({
+  const devices = await db.deviceUser.findMany({
     where: { userId },
     include: {
       device: {
@@ -145,36 +192,51 @@ export async function getUserDevices(userId: number) {
 }
 
 export async function assignDeviceToUser({
-    userId,
-    deviceId,
-    role = "viewer", // Default role set to "viewer"
-  }: {
-    userId: number
-    deviceId: number
-    role?: string
-  }) {
-    const existing = await prisma.deviceUser.findFirst({
-      where: {
-        userId,
-        deviceId,
-      },
-    })
-  
-    if (existing) {
-      return existing
-    }
-  
-    const deviceUser = await prisma.deviceUser.create({
-      data: {
-        userId,
-        deviceId,
-        role, // Now required
-      },
-    })
-  
-    return deviceUser
+  userId,
+  deviceId,
+  role = "viewer",
+}: {
+  userId: number
+  deviceId: number
+  role?: string
+}) {
+  const existing = await db.deviceUser.findFirst({
+    where: {
+      userId,
+      deviceId,
+    },
+  })
+
+  if (existing) {
+    return existing
   }
-  
+
+  const deviceUser = await db.deviceUser.create({
+    data: {
+      userId,
+      deviceId,
+      role,
+    },
+    include: {
+      user: {
+        select: { username: true },
+      },
+      device: {
+        select: { name: true },
+      },
+    },
+  })
+
+  // Log the activity
+  await logActivity({
+    actionType: "Assigned Device",
+    targetType: "Device",
+    targetId: deviceId,
+    details: `Assigned device: ${deviceUser.device.name} to user: ${deviceUser.user.username} with role: ${role}`,
+  })
+
+  return deviceUser
+}
 
 // Remove a device from a user
 export async function removeDeviceFromUser({
@@ -184,14 +246,40 @@ export async function removeDeviceFromUser({
   userId: number
   deviceId: number
 }) {
-  const deviceUser = await prisma.deviceUser.deleteMany({
+  // Get details before removal
+  const deviceUser = await db.deviceUser.findFirst({
+    where: {
+      userId,
+      deviceId,
+    },
+    include: {
+      user: {
+        select: { username: true },
+      },
+      device: {
+        select: { name: true },
+      },
+    },
+  })
+
+  await db.deviceUser.deleteMany({
     where: {
       userId,
       deviceId,
     },
   })
 
+  // Log the activity
+  if (deviceUser) {
+    await logActivity({
+      actionType: "Removed Device",
+      targetType: "Device",
+      targetId: deviceId,
+      details: `Removed device: ${deviceUser.device.name} from user: ${deviceUser.user.username}`,
+    })
+  }
+
   revalidatePath("/logs")
-  return deviceUser
+  return { success: true }
 }
 

@@ -1,19 +1,7 @@
 "use server"
 
-import { PrismaClient } from "@prisma/client"
-
-const prisma = new PrismaClient({
-  log: ["query", "info", "warn", "error"],
-})
-
-// Log middleware for performance monitoring
-prisma.$use(async (params, next) => {
-  const before = Date.now()
-  const result = await next(params)
-  const after = Date.now()
-  console.log(`Query ${params.model}.${params.action} took ${after - before}ms`)
-  return result
-})
+import { db } from "@/lib/db"
+import { logActivity } from "@/lib/activity-logger"
 
 interface GetNotesParams {
   search?: string
@@ -35,10 +23,10 @@ export async function getNotes({ search = "", page = 1, pageSize = 10 }: GetNote
     }
 
     // Get total count for pagination
-    const totalCount = await prisma.notes.count({ where })
+    const totalCount = await db.notes.count({ where })
 
     // Get notes with pagination
-    const notes = await prisma.notes.findMany({
+    const notes = await db.notes.findMany({
       where,
       orderBy: {
         time: "desc",
@@ -60,7 +48,7 @@ export async function getNotes({ search = "", page = 1, pageSize = 10 }: GetNote
 
 export async function getNote(id: number) {
   try {
-    const note = await prisma.notes.findUnique({
+    const note = await db.notes.findUnique({
       where: { id },
     })
     return note
@@ -77,12 +65,21 @@ interface NoteData {
 
 export async function createNote(data: NoteData) {
   try {
-    const note = await prisma.notes.create({
+    const note = await db.notes.create({
       data: {
         title: data.title,
         description: data.description,
       },
     })
+
+    // Log the activity
+    await logActivity({
+      actionType: "Created Note",
+      targetType: "Note",
+      targetId: note.id,
+      details: `Created note: ${data.title}`,
+    })
+
     return { success: true, note }
   } catch (error) {
     console.error("Error creating note:", error)
@@ -96,13 +93,22 @@ interface UpdateNoteData extends NoteData {
 
 export async function updateNote(data: UpdateNoteData) {
   try {
-    const note = await prisma.notes.update({
+    const note = await db.notes.update({
       where: { id: data.id },
       data: {
         title: data.title,
         description: data.description,
       },
     })
+
+    // Log the activity
+    await logActivity({
+      actionType: "Updated Note",
+      targetType: "Note",
+      targetId: note.id,
+      details: `Updated note: ${data.title}`,
+    })
+
     return { success: true, note }
   } catch (error) {
     console.error("Error updating note:", error)
@@ -112,9 +118,23 @@ export async function updateNote(data: UpdateNoteData) {
 
 export async function deleteNote(id: number) {
   try {
-    await prisma.notes.delete({
+    const note = await db.notes.findUnique({
+      where: { id },
+      select: { title: true },
+    })
+
+    await db.notes.delete({
       where: { id },
     })
+
+    // Log the activity
+    await logActivity({
+      actionType: "Deleted Note",
+      targetType: "Note",
+      targetId: id,
+      details: `Deleted note: ${note?.title || "Unknown"}`,
+    })
+
     return { success: true }
   } catch (error) {
     console.error("Error deleting note:", error)
@@ -124,13 +144,37 @@ export async function deleteNote(id: number) {
 
 export async function deleteMultipleNotes(ids: number[]) {
   try {
-    await prisma.notes.deleteMany({
+    // Get note titles before deletion for logging
+    const notes = await db.notes.findMany({
+      where: {
+        id: {
+          in: ids,
+        },
+      },
+      select: {
+        id: true,
+        title: true,
+      },
+    })
+
+    await db.notes.deleteMany({
       where: {
         id: {
           in: ids,
         },
       },
     })
+
+    // Log the activity for each deleted note
+    for (const note of notes) {
+      await logActivity({
+        actionType: "Deleted Note",
+        targetType: "Note",
+        targetId: note.id,
+        details: `Deleted note: ${note.title}`,
+      })
+    }
+
     return { success: true }
   } catch (error) {
     console.error("Error deleting notes:", error)

@@ -85,8 +85,10 @@ interface UserForm {
   username: string
   email: string
   password: string
+  role: "ADMIN" | "USER" | "DRAFTER"
   devices: number[]
 }
+
 
 export default function UsersTable() {
   const router = useRouter()
@@ -113,9 +115,10 @@ export default function UsersTable() {
     username: "",
     email: "",
     password: "",
+    role: "USER", // ✅ Provide a default valid role
     devices: [],
   })
-
+  
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1)
   const [pageSize, setPageSize] = useState(10)
@@ -211,10 +214,12 @@ export default function UsersTable() {
       username: "",
       email: "",
       password: "",
+      role: "USER", // ✅ Ensure it's a valid value
       devices: [],
     })
     setAddModalOpen(true)
   }
+  
 
   // Open edit user modal
   const openEditModal = async (user: any) => {
@@ -227,9 +232,11 @@ export default function UsersTable() {
       setUserForm({
         username: user.username,
         email: user.email || "",
-        password: "", // Don't populate password for security
+        password: user.password,
+        role: user.role ?? "USER", // ✅ Default to "USER" if role is missing
         devices: userDevices.map((d: any) => d.deviceId),
       })
+      
       setEditModalOpen(true)
     } catch (error) {
       toast.error("Failed to load user details")
@@ -243,13 +250,14 @@ export default function UsersTable() {
   }
 
   // Handle form input change
-  const handleFormChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFormChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target
     setUserForm((prev) => ({
       ...prev,
       [name]: value,
     }))
   }
+  
 
   // Handle device selection change
   const handleDeviceChange = (selectedDevices: string[]) => {
@@ -310,8 +318,10 @@ export default function UsersTable() {
         username: userForm.username,
         email: userForm.email || null,
         password: userForm.password || undefined, // Only update if provided
+        role: userForm.role, // ✅ Ensure role is updated
       })
-
+      
+      
       // Get current user devices
       const currentDevices = await getUserDevices(currentUser.id)
       const currentDeviceIds = currentDevices.map((d: any) => d.deviceId)
@@ -772,6 +782,25 @@ export default function UsersTable() {
               </div>
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
+            <Label htmlFor="role" className="text-right">
+              Role
+            </Label>
+            <div className="col-span-3">
+              <select
+                id="role"
+                name="role"
+                value={userForm.role}
+                onChange={handleFormChange}
+                className="h-8 w-full border border-input bg-background px-2 text-sm rounded-md"
+              >
+                <option value="USER">User</option>
+                <option value="ADMIN">Admin</option>
+                <option value="DRAFTER">Drafter</option>
+              </select>
+            </div>
+          </div>
+
+            <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="password" className="text-right">
                 Password <span className="text-red-500">*</span>
               </Label>
@@ -863,6 +892,25 @@ export default function UsersTable() {
                 />
               </div>
             </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+            <Label htmlFor="edit-role" className="text-right">
+              Role
+            </Label>
+            <div className="col-span-3">
+              <select
+                id="edit-role"
+                name="role"
+                value={userForm.role}
+                onChange={handleFormChange}
+                className="h-8 w-full border border-input bg-background px-2 text-sm rounded-md"
+              >
+                <option value="USER">User</option>
+                <option value="ADMIN">Admin</option>
+                <option value="DRAFTER">Drafter</option>
+              </select>
+            </div>
+          </div>
+
             <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="edit-password" className="text-right">
                 Password

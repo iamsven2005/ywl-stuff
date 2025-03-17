@@ -1,6 +1,6 @@
 "use client"
 
-import type React from "react"
+import React from "react"
 
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
@@ -10,7 +10,14 @@ import { Input } from "@/components/ui/input"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog"
 import {
   Pagination,
   PaginationContent,
@@ -32,6 +39,9 @@ import {
   Clock,
   AlertTriangle,
   Download,
+  Plus,
+  BookOpen,
+  FileCode,
 } from "lucide-react"
 import { toast } from "sonner"
 import {
@@ -53,10 +63,17 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
 import { getAllDeviceNames } from "../actions/device-actions"
-import { deleteAuthLogsByTimePeriod, deleteMultipleAuthLogs, getAuthLogs } from "../actions/auth-actions"
+import {
+  addAuthLogCommandToRule,
+  deleteAuthLogsByTimePeriod,
+  deleteMultipleAuthLogs,
+  getAuthLogs,
+} from "../actions/auth-actions"
 import { exportToExcel, prepareAuthLogsForExport } from "../export-utils"
-
-// Add the import for export utilities at the top of the file
+import { getAllRuleGroupsAndRules } from "../actions/rule-actions"
+import { Label } from "@/components/ui/label"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Rule } from "@prisma/client"
 
 // Debounce function to limit how often a function can run
 function debounce<T extends (...args: any[]) => any>(func: T, wait: number): (...args: Parameters<T>) => void {
@@ -105,6 +122,20 @@ export default function AuthLogsTable() {
   const [selectedTimePeriod, setSelectedTimePeriod] = useState<string>("")
   const [isTimeDeleteLoading, setIsTimeDeleteLoading] = useState(false)
 
+  // Add state for rule groups and rules
+  const [ruleGroups, setRuleGroups] = useState<any[]>([])
+  const [selectedRuleGroups, setSelectedRuleGroups] = useState<string[]>([])
+  const [selectedRules, setSelectedRules] = useState<string[]>([])
+  const [ruleGroupDropdownOpen, setRuleGroupDropdownOpen] = useState(false)
+  const [ruleDropdownOpen, setRuleDropdownOpen] = useState(false)
+  const [matchedCommands, setMatchedCommands] = useState<string[]>([])
+
+  // Add state for the "Add to Rule" dialog
+  const [addToRuleDialogOpen, setAddToRuleDialogOpen] = useState(false)
+  const [selectedRuleId, setSelectedRuleId] = useState<string>("")
+  const [commandText, setCommandText] = useState<string>("")
+  const [isAddingCommand, setIsAddingCommand] = useState(false)
+
   useEffect(() => {
     const fetchDeviceNames = async () => {
       try {
@@ -121,6 +152,21 @@ export default function AuthLogsTable() {
     }
 
     fetchDeviceNames()
+  }, [])
+
+  // Add useEffect to fetch rule groups and rules
+  useEffect(() => {
+    const fetchRuleGroupsAndRules = async () => {
+      try {
+        const ruleGroupsData = await getAllRuleGroupsAndRules()
+        setRuleGroups(ruleGroupsData)
+      } catch (error) {
+        console.error("Failed to fetch rule groups and rules:", error)
+        toast.error("Failed to load rule groups and rules")
+      }
+    }
+
+    fetchRuleGroupsAndRules()
   }, [])
 
   // Apply debounced search
@@ -146,6 +192,8 @@ export default function AuthLogsTable() {
       const result = await getAuthLogs({
         search: debouncedSearchQuery,
         hosts,
+        ruleGroups: selectedRuleGroups,
+        rules: selectedRules,
         page: currentPage,
         pageSize: pageSize,
       })
@@ -153,6 +201,7 @@ export default function AuthLogsTable() {
       setLogs(result.logs)
       setTotalPages(result.pageCount)
       setTotalItems(result.totalCount)
+      setMatchedCommands(result.matchedCommands || [])
     } catch (error) {
       toast.error("Failed to fetch auth logs")
     } finally {
@@ -163,7 +212,7 @@ export default function AuthLogsTable() {
   // Load logs when filters or pagination changes
   useEffect(() => {
     fetchLogs()
-  }, [debouncedSearchQuery, selectedHosts, currentPage, pageSize])
+  }, [debouncedSearchQuery, selectedHosts, selectedRuleGroups, selectedRules, currentPage, pageSize])
 
   // Handle host selection
   const handleHostSelect = (value: string) => {
@@ -186,6 +235,25 @@ export default function AuthLogsTable() {
 
     setSelectedHosts(newSelectedHosts)
     // Reset to first page when filters change
+    setCurrentPage(1)
+  }
+
+  // Add handlers for rule group and rule selection
+  const handleRuleGroupSelect = (value: string) => {
+    if (selectedRuleGroups.includes(value)) {
+      setSelectedRuleGroups(selectedRuleGroups.filter((id) => id !== value))
+    } else {
+      setSelectedRuleGroups([...selectedRuleGroups, value])
+    }
+    setCurrentPage(1)
+  }
+
+  const handleRuleSelect = (value: string) => {
+    if (selectedRules.includes(value)) {
+      setSelectedRules(selectedRules.filter((id) => id !== value))
+    } else {
+      setSelectedRules([...selectedRules, value])
+    }
     setCurrentPage(1)
   }
 
@@ -243,6 +311,42 @@ export default function AuthLogsTable() {
       parsedData,
     })
     setModalOpen(true)
+  }
+
+  // Open add to rule dialog
+  const openAddToRuleDialog = (log: any) => {
+    // Extract command from log entry if possible
+    const parsedData = parseLogEntry(log.log_entry)
+    const extractedCommand = parsedData.command || ""
+
+    setSelectedLogEntry(log)
+    setCommandText(extractedCommand)
+    setSelectedRuleId("")
+    setAddToRuleDialogOpen(true)
+  }
+
+  // Handle adding command to rule
+  const handleAddCommandToRule = async () => {
+    if (!selectedLogEntry || !selectedRuleId || !commandText.trim()) {
+      toast.error("Please select a rule and enter a command")
+      return
+    }
+
+    setIsAddingCommand(true)
+    try {
+      const result = await addAuthLogCommandToRule(selectedLogEntry.id, Number.parseInt(selectedRuleId), commandText)
+
+      toast.success(result.message)
+      setAddToRuleDialogOpen(false)
+
+      // Refresh rule groups to show the new command
+      const ruleGroupsData = await getAllRuleGroupsAndRules()
+      setRuleGroups(ruleGroupsData)
+    } catch (error) {
+      toast.error(`Failed to add command: ${error instanceof Error ? error.message : "Unknown error"}`)
+    } finally {
+      setIsAddingCommand(false)
+    }
   }
 
   // Parse log entry to extract structured data
@@ -423,7 +527,7 @@ export default function AuthLogsTable() {
           </Button>
         </div>
 
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2">
           <Popover open={open} onOpenChange={setOpen}>
             <PopoverTrigger asChild>
               <Button variant="outline" className="justify-between">
@@ -448,6 +552,67 @@ export default function AuthLogsTable() {
                         {selectedHosts.includes(host.value) && <Check className="ml-auto h-4 w-4" />}
                       </CommandItem>
                     ))}
+                  </CommandGroup>
+                </CommandList>
+              </Command>
+            </PopoverContent>
+          </Popover>
+
+          {/* Add Rule Group filter */}
+          <Popover open={ruleGroupDropdownOpen} onOpenChange={setRuleGroupDropdownOpen}>
+            <PopoverTrigger asChild>
+              <Button variant="outline" className="justify-between">
+                {selectedRuleGroups.length > 0
+                  ? `${selectedRuleGroups.length} rule group${selectedRuleGroups.length > 1 ? "s" : ""} selected`
+                  : "Rule Groups"}
+                <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-[300px] p-0" align="start">
+              <Command>
+                <CommandInput placeholder="Search rule groups..." />
+                <CommandList className="max-h-[300px]">
+                  <CommandEmpty>No rule group found.</CommandEmpty>
+                  <CommandGroup>
+                    {ruleGroups.map((group) => (
+                      <CommandItem key={group.id} onSelect={() => handleRuleGroupSelect(group.id.toString())}>
+                        <Checkbox checked={selectedRuleGroups.includes(group.id.toString())} className="mr-2" />
+                        <span>{group.name}</span>
+                        {selectedRuleGroups.includes(group.id.toString()) && <Check className="ml-auto h-4 w-4" />}
+                      </CommandItem>
+                    ))}
+                  </CommandGroup>
+                </CommandList>
+              </Command>
+            </PopoverContent>
+          </Popover>
+
+          {/* Add Rule filter */}
+          <Popover open={ruleDropdownOpen} onOpenChange={setRuleDropdownOpen}>
+            <PopoverTrigger asChild>
+              <Button variant="outline" className="justify-between">
+                {selectedRules.length > 0
+                  ? `${selectedRules.length} rule${selectedRules.length > 1 ? "s" : ""} selected`
+                  : "Rules"}
+                <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-[300px] p-0" align="start">
+              <Command>
+                <CommandInput placeholder="Search rules..." />
+                <CommandList className="max-h-[300px]">
+                  <CommandEmpty>No rule found.</CommandEmpty>
+                  <CommandGroup>
+                    {ruleGroups.flatMap((group) =>
+                      group.rules.map((rule: Rule) => (
+                        <CommandItem key={rule.id} onSelect={() => handleRuleSelect(rule.id.toString())}>
+                          <Checkbox checked={selectedRules.includes(rule.id.toString())} className="mr-2" />
+                          <span>{rule.name}</span>
+                          <span className="ml-2 text-xs text-muted-foreground">({group.name})</span>
+                          {selectedRules.includes(rule.id.toString()) && <Check className="ml-auto h-4 w-4" />}
+                        </CommandItem>
+                      )),
+                    )}
                   </CommandGroup>
                 </CommandList>
               </Command>
@@ -524,9 +689,11 @@ export default function AuthLogsTable() {
         </div>
       </div>
 
-      {selectedHosts.length > 0 && !selectedHosts.includes("all") && (
-        <div className="flex flex-wrap gap-2">
-          {selectedHosts.map((host) => (
+      {/* Selected filters badges */}
+      <div className="flex flex-wrap gap-2">
+        {selectedHosts.length > 0 &&
+          !selectedHosts.includes("all") &&
+          selectedHosts.map((host) => (
             <Badge key={host} variant="secondary" className="gap-1">
               {hostOptions.find((h) => h.value === host)?.label}
               <button onClick={() => handleHostSelect(host)} className="ml-1 rounded-full hover:bg-muted p-0.5">
@@ -534,8 +701,36 @@ export default function AuthLogsTable() {
               </button>
             </Badge>
           ))}
-        </div>
-      )}
+
+        {selectedRuleGroups.length > 0 &&
+          selectedRuleGroups.map((groupId) => {
+            const group = ruleGroups.find((g) => g.id.toString() === groupId)
+            return group ? (
+              <Badge key={`group-${groupId}`} variant="secondary" className="gap-1">
+                Group: {group.name}
+                <button
+                  onClick={() => handleRuleGroupSelect(groupId)}
+                  className="ml-1 rounded-full hover:bg-muted p-0.5"
+                >
+                  ×
+                </button>
+              </Badge>
+            ) : null
+          })}
+
+        {selectedRules.length > 0 &&
+          selectedRules.map((ruleId) => {
+            const rule = ruleGroups.flatMap((g) => g.rules).find((r) => r.id.toString() === ruleId)
+            return rule ? (
+              <Badge key={`rule-${ruleId}`} variant="secondary" className="gap-1">
+                Rule: {rule.name}
+                <button onClick={() => handleRuleSelect(ruleId)} className="ml-1 rounded-full hover:bg-muted p-0.5">
+                  ×
+                </button>
+              </Badge>
+            ) : null
+          })}
+      </div>
 
       <div className="rounded-md border">
         <Table>
@@ -551,7 +746,7 @@ export default function AuthLogsTable() {
               <TableHead className="w-[150px]">Timestamp</TableHead>
               <TableHead className="w-[100px]">Username</TableHead>
               <TableHead>Log Entry</TableHead>
-              <TableHead className="w-[80px]">Actions</TableHead>
+              <TableHead className="w-[120px]">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -581,10 +776,16 @@ export default function AuthLogsTable() {
                     </div>
                   </TableCell>
                   <TableCell>
-                    <Button variant="ghost" size="icon" onClick={() => openLogEntryModal(log)}>
-                      <ExternalLink className="h-4 w-4" />
-                      <span className="sr-only">View Details</span>
-                    </Button>
+                    <div className="flex items-center gap-1">
+                      <Button variant="ghost" size="icon" onClick={() => openLogEntryModal(log)} title="View Details">
+                        <ExternalLink className="h-4 w-4" />
+                        <span className="sr-only">View Details</span>
+                      </Button>
+                      <Button variant="ghost" size="icon" onClick={() => openAddToRuleDialog(log)} title="Add to Rule">
+                        <Plus className="h-4 w-4" />
+                        <span className="sr-only">Add to Rule</span>
+                      </Button>
+                    </div>
                   </TableCell>
                 </TableRow>
               ))
@@ -702,6 +903,24 @@ export default function AuthLogsTable() {
                       </>
                     )}
                   </p>
+                  <div className="mt-2 flex justify-end">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        setModalOpen(false)
+                        setTimeout(() => {
+                          setCommandText(selectedLogEntry.parsedData?.command || "")
+                          setSelectedRuleId("")
+                          setAddToRuleDialogOpen(true)
+                        }, 100)
+                      }}
+                      className="gap-1"
+                    >
+                      <Plus className="h-3 w-3" />
+                      Add to Rule
+                    </Button>
+                  </div>
                 </div>
               )}
 
@@ -724,8 +943,114 @@ export default function AuthLogsTable() {
                   </p>
                 </div>
               )}
+
+              {/* Add matched rules section if any */}
+              {matchedCommands.length > 0 && (
+                <div className="bg-blue-50 border border-blue-200 p-4 rounded-md">
+                  <div className="flex items-center gap-2 mb-2">
+                    <BookOpen className="h-4 w-4 text-blue-600" />
+                    <h3 className="text-sm font-medium text-blue-700">Matching Rules</h3>
+                  </div>
+                  <p className="text-sm text-blue-600 mb-2">
+                    This log entry matches commands from the following rules:
+                  </p>
+                  <div className="space-y-1">
+                    {matchedCommands.map((cmd, index) => (
+                      <div key={index} className="text-xs bg-blue-100 p-2 rounded">
+                        <code>{cmd}</code>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           )}
+
+          <DialogFooter>
+            {selectedLogEntry && selectedLogEntry.parsedData?.command && (
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setModalOpen(false)
+                  setTimeout(() => {
+                    setCommandText(selectedLogEntry.parsedData?.command || "")
+                    setSelectedRuleId("")
+                    setAddToRuleDialogOpen(true)
+                  }, 100)
+                }}
+                className="gap-1"
+              >
+                <Plus className="h-4 w-4" />
+                Add to Rule
+              </Button>
+            )}
+            <Button onClick={() => setModalOpen(false)}>Close</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Add to Rule Dialog */}
+      <Dialog open={addToRuleDialogOpen} onOpenChange={setAddToRuleDialogOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <FileCode className="h-5 w-5 text-blue-500" />
+              Add Command to Rule
+            </DialogTitle>
+            <DialogDescription>Add this command to an existing rule for monitoring and automation.</DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4 py-2">
+            <div className="space-y-2">
+              <Label htmlFor="rule-select">Select Rule</Label>
+              <Select value={selectedRuleId} onValueChange={setSelectedRuleId}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select a rule" />
+                </SelectTrigger>
+                <SelectContent>
+                  {ruleGroups.map((group) => (
+                    <React.Fragment key={group.id}>
+                      {group.rules.length > 0 && (
+                        <>
+                          <div className="px-2 py-1.5 text-xs font-medium text-muted-foreground">{group.name}</div>
+                          {group.rules.map((rule: Rule) => (
+                            <SelectItem key={rule.id} value={rule.id.toString()}>
+                              {rule.name}
+                            </SelectItem>
+                          ))}
+                        </>
+                      )}
+                    </React.Fragment>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="command-text">Command</Label>
+              <Input
+                id="command-text"
+                value={commandText}
+                onChange={(e) => setCommandText(e.target.value)}
+                placeholder="Enter command text"
+              />
+              <p className="text-xs text-muted-foreground">
+                Edit the command if needed to match the pattern you want to monitor.
+              </p>
+            </div>
+          </div>
+
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setAddToRuleDialogOpen(false)}>
+              Cancel
+            </Button>
+            <Button
+              onClick={handleAddCommandToRule}
+              disabled={!selectedRuleId || !commandText.trim() || isAddingCommand}
+            >
+              {isAddingCommand ? "Adding..." : "Add Command"}
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
 
@@ -771,6 +1096,20 @@ export default function AuthLogsTable() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Display matched commands if any */}
+      {matchedCommands.length > 0 && (
+        <div className="mt-4 p-4 border rounded-md bg-muted/20">
+          <h3 className="text-sm font-medium mb-2">Matching Commands</h3>
+          <div className="space-y-2">
+            {matchedCommands.map((cmd, index) => (
+              <div key={index} className="text-xs bg-muted p-2 rounded">
+                <code>{cmd}</code>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   )
 }

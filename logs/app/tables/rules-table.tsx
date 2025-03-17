@@ -56,7 +56,8 @@ import {
   updateRule,
   deleteRule,
   importRuleGroups,
-} from "@/app/actions/rules-actions"
+} from "@/app/actions/rule-actions"
+import { EmailTemplateSelector } from "@/components/email-template-selector"
 
 // Debounce function to limit how often a function can run
 function debounce<T extends (...args: any[]) => any>(func: T, wait: number): (...args: Parameters<T>) => void {
@@ -689,7 +690,51 @@ export default function RulesTable() {
     // Generate Excel file
     XLSX.writeFile(workbook, "rules-import-template.xlsx")
   }
-
+  const handleTemplateChange = async (
+    id: number,
+    templateId: number | null,
+    type: "rule" | "group"
+  ) => {
+    try {
+      if (type === "rule") {
+        // Find existing rule
+        const existingRule = ruleGroups.flatMap((group) => group.rules).find((rule) => rule.id === id);
+        if (!existingRule) {
+          toast.error("Rule not found");
+          return;
+        }
+  
+        // Update rule with existing values
+        await updateRule({
+          id,
+          name: existingRule.name,
+          description: existingRule.description ?? "",
+          emailTemplateId: templateId, // Assign selected email template
+        });
+      } else {
+        // Find existing group
+        const existingGroup = ruleGroups.find((group) => group.id === id);
+        if (!existingGroup) {
+          toast.error("Group not found");
+          return;
+        }
+  
+        // Update group with existing values
+        await updateRuleGroup({
+          id,
+          name: existingGroup.name,
+          emailTemplateId: templateId, // Assign selected email template
+        });
+      }
+  
+      toast.success(`${type === "rule" ? "Rule" : "Group"} email template updated successfully`);
+      fetchRuleGroups(); // Refresh data
+    } catch (error) {
+      toast.error("Failed to update email template");
+    }
+  };
+  
+  
   return (
     <div className="space-y-4">
       <div className="flex flex-col sm:flex-row gap-4 justify-between">
@@ -748,15 +793,17 @@ export default function RulesTable() {
               <TableHead className="w-[60px]">ID</TableHead>
               <TableHead className="w-[250px]">Name</TableHead>
               <TableHead>Rules</TableHead>
+              <TableHead className="w-[150px]">Email Template</TableHead>
               <TableHead className="w-[180px]">Updated</TableHead>
               <TableHead className="w-[180px]">Created</TableHead>
               <TableHead className="w-[120px]">Actions</TableHead>
             </TableRow>
           </TableHeader>
+
           <TableBody>
             {ruleGroups.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={7} className="h-24 text-center">
+                <TableCell colSpan={8} className="h-24 text-center">
                   No rule groups found.
                 </TableCell>
               </TableRow>
@@ -788,6 +835,14 @@ export default function RulesTable() {
                     <TableCell>
                       <Badge variant="secondary">{group.rules.length} rules</Badge>
                     </TableCell>
+                    <TableCell>
+  <EmailTemplateSelector
+    selectedTemplateId={group.emailTemplateId}
+    onChange={(templateId) => handleTemplateChange(group.id, templateId, "group")}
+    placeholder="Assign email template..."
+  />
+</TableCell>
+
                     <TableCell>{formatDate(group.updatedAt)}</TableCell>
                     <TableCell>{formatDate(group.createdAt)}</TableCell>
                     <TableCell>
@@ -817,7 +872,7 @@ export default function RulesTable() {
                   </TableRow>
                   {expandedGroups[group.id] && group.rules.length > 0 && (
                     <TableRow>
-                      <TableCell colSpan={7} className="p-0 border-t-0">
+                      <TableCell colSpan={8} className="p-0 border-t-0">
                         <div className="pl-12 pr-4 py-2 bg-muted/20">
                           <div className="rounded-md border bg-background">
                             <Table>
@@ -826,10 +881,12 @@ export default function RulesTable() {
                                   <TableHead className="w-[60px]">ID</TableHead>
                                   <TableHead className="w-[200px]">Rule Name</TableHead>
                                   <TableHead>Description</TableHead>
+                                  <TableHead className="w-[150px]">Email Template</TableHead>
                                   <TableHead className="w-[100px]">Commands</TableHead>
                                   <TableHead className="w-[120px]">Actions</TableHead>
                                 </TableRow>
                               </TableHeader>
+
                               <TableBody>
                                 {group.rules.map((rule: any) => (
                                   <TableRow key={rule.id}>
@@ -844,6 +901,14 @@ export default function RulesTable() {
                                       {rule.description || <span className="text-muted-foreground">—</span>}
                                     </TableCell>
                                     <TableCell>
+                                    <EmailTemplateSelector
+                                      selectedTemplateId={rule.emailTemplateId}
+                                      onChange={(templateId) => handleTemplateChange(rule.id, templateId, "rule")}
+                                      placeholder="Assign email template..."
+                                    />
+                                  </TableCell>
+
+                                    <TableCell>
                                       <Accordion type="single" collapsible className="w-full">
                                         <AccordionItem value="commands" className="border-none">
                                           <AccordionTrigger className="py-1 px-2">
@@ -857,6 +922,11 @@ export default function RulesTable() {
                                                   <code className="bg-muted px-1.5 py-0.5 rounded text-xs">
                                                     {cmd.command}
                                                   </code>
+                                                  {cmd.emailTemplate && (
+                                                    <Badge variant="outline" className="text-xs bg-primary/10 ml-2">
+                                                      {cmd.emailTemplate.name}
+                                                    </Badge>
+                                                  )}
                                                 </div>
                                               ))}
                                             </div>

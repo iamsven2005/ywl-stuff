@@ -68,17 +68,8 @@ model devices {
   users       DeviceUser[]
 }
 
-model User {
-  id          Int      @id @default(autoincrement())
-  username    String  @unique
-  password    String
-  email       String? @unique
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  devices     DeviceUser[]
 
-  ActivityLog ActivityLog[]
-}
+
 
 model DeviceUser {
   id       Int    @id @default(autoincrement())
@@ -92,12 +83,15 @@ model DeviceUser {
   @@unique([userId, deviceId]) // Ensure a user-device pair is unique
 }
 
-model RuleGroup {
+model Command {
   id        Int      @id @default(autoincrement())
-  name      String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  rules     Rule[]
+  ruleId    Int
+  command   String  // Example: "ls -la", "rm -rf /"
+
+  emailTemplateId Int?  // Optional: Assign an email template
+  emailTemplate   EmailTemplate? @relation(fields: [emailTemplateId], references: [id])
+
+  rule      Rule @relation(fields: [ruleId], references: [id])
 }
 
 model Rule {
@@ -107,18 +101,26 @@ model Rule {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   groupId     Int?
-  
+
+  emailTemplateId Int?  // Optional: Assign an email template
+  emailTemplate   EmailTemplate? @relation(fields: [emailTemplateId], references: [id])
+
   group       RuleGroup? @relation(fields: [groupId], references: [id])
   commands    Command[]
 }
 
-model Command {
-  id        Int      @id @default(autoincrement())
-  ruleId    Int
-  command   String  // Example: "ls -la", "rm -rf /"
-  
-  rule      Rule @relation(fields: [ruleId], references: [id])
+model RuleGroup {
+  id          Int      @id @default(autoincrement())
+  name        String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  emailTemplateId Int?  // Optional: Assign an email template
+  emailTemplate   EmailTemplate? @relation(fields: [emailTemplateId], references: [id])
+
+  rules       Rule[]
 }
+
 model ActivityLog {
   id         Int      @id @default(autoincrement())
   userId     Int
@@ -131,4 +133,45 @@ model ActivityLog {
   user       User     @relation(fields: [userId], references: [id])
 
   @@index([userId])
+}
+
+model EmailTemplate {
+  id         Int      @id @default(autoincrement())
+  name       String   // Template name (e.g., "High CPU Alert")
+  subject    String   // Email subject
+  body       String   // Email body template (with placeholders like {{user}}, {{rule}})
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  RuleGroup RuleGroup[]
+  Rule Rule[]
+  Command Command[]
+  
+  assignedUsers UserEmailTemplate[] // Many-to-many relationship
+}
+
+model User {
+  id          Int      @id @default(autoincrement())
+  username    String   @unique
+  password    String
+  email       String?  @unique
+  role        String   @default("admin") // e.g., "admin", "viewer", "operator"
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  devices     DeviceUser[]
+  ActivityLog ActivityLog[]
+
+  emailTemplates UserEmailTemplate[] // Many-to-many relationship
+}
+
+// Junction table for many-to-many relation between User & EmailTemplate
+model UserEmailTemplate {
+  userId        Int
+  emailTemplateId Int
+  assignedAt   DateTime @default(now())
+
+  user          User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  emailTemplate EmailTemplate @relation(fields: [emailTemplateId], references: [id], onDelete: Cascade)
+
+  @@id([userId, emailTemplateId]) // Composite primary key
 }
