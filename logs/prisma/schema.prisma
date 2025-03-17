@@ -175,3 +175,9 @@ model UserEmailTemplate {
 
   @@id([userId, emailTemplateId]) // Composite primary key
 }
+
+model Roles{
+  id          Int      @id @default(autoincrement())
+  name        String
+  description String
+}

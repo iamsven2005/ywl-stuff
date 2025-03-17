@@ -19,6 +19,7 @@ import { toast } from "sonner"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import ActivityLogsTable from "../tables/activity-logs-table"
 import EmailTemplateTable from "@/app/tables/email-template-table"
+import UsersRolesTable from "../tables/user-roles"
 
 export default function LogsPage({userId}: any) {
   const [isBackingUp, setIsBackingUp] = useState(false)
@@ -163,6 +164,7 @@ export default function LogsPage({userId}: any) {
 
         <TabsContent value="users">
           <Suspense fallback={<LogsTableSkeleton />}>
+          <UsersRolesTable/>
             <UsersTable />
           </Suspense>
         </TabsContent>
