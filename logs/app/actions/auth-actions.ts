@@ -1,13 +1,11 @@
 "use server"
 
-import { PrismaClient } from "@prisma/client"
-
-const prisma = new PrismaClient({
-  log: ["query", "info", "warn", "error"],
-})
+import { db } from "@/lib/db"
+import { revalidatePath } from "next/cache"
+import { logActivity } from "@/lib/activity-logger"
 
 // Log middleware for performance monitoring
-prisma.$use(async (params, next) => {
+db.$use(async (params, next) => {
   const before = Date.now()
   const result = await next(params)
   const after = Date.now()
@@ -18,12 +16,21 @@ prisma.$use(async (params, next) => {
 interface GetAuthLogsParams {
   search?: string
   hosts?: string[]
+  ruleGroups?: string[] // Added rule groups filter
+  rules?: string[] // Added rules filter
   page?: number
   pageSize?: number
 }
 
-// Update the getAuthLogs function to handle device names more effectively
-export async function getAuthLogs({ search = "", hosts = [], page = 1, pageSize = 10 }: GetAuthLogsParams) {
+// Update the getAuthLogs function to handle rule groups and rules
+export async function getAuthLogs({
+  search = "",
+  hosts = [],
+  ruleGroups = [],
+  rules = [],
+  page = 1,
+  pageSize = 10,
+}: GetAuthLogsParams) {
   try {
     // Build where conditions
     const where: any = {}
@@ -36,8 +43,6 @@ export async function getAuthLogs({ search = "", hosts = [], page = 1, pageSize 
     // Add host filter if provided
     if (hosts && hosts.length > 0) {
       // For auth logs, we need to filter by the host in the log_entry
-      // This is a simplified approach - in a real app, you might want to
-      // extract and store the host in a separate column for better filtering
       where.OR = [
         ...(where.OR || []),
         ...hosts.map((host: string) => ({
@@ -46,11 +51,52 @@ export async function getAuthLogs({ search = "", hosts = [], page = 1, pageSize 
       ]
     }
 
+    // Add rule group and rule filtering
+    const commandsFromRules: string[] = []
+
+    if ((ruleGroups && ruleGroups.length > 0) || (rules && rules.length > 0)) {
+      // Fetch commands from selected rule groups and rules
+      const ruleGroupsData = await db.ruleGroup.findMany({
+        where: {
+          id: ruleGroups.length > 0 ? { in: ruleGroups.map(Number) } : undefined,
+        },
+        include: {
+          rules: {
+            where: {
+              id: rules.length > 0 ? { in: rules.map(Number) } : undefined,
+            },
+            include: {
+              commands: true,
+            },
+          },
+        },
+      })
+
+      // Extract all commands from the rule groups and rules
+      ruleGroupsData.forEach((group) => {
+        group.rules.forEach((rule) => {
+          rule.commands.forEach((cmd) => {
+            commandsFromRules.push(cmd.command)
+          })
+        })
+      })
+
+      // If we have commands from rules, add them to the where condition
+      if (commandsFromRules.length > 0) {
+        where.OR = [
+          ...(where.OR || []),
+          ...commandsFromRules.map((cmd) => ({
+            log_entry: { contains: cmd },
+          })),
+        ]
+      }
+    }
+
     // Get total count for pagination
-    const totalCount = await prisma.auth.count({ where })
+    const totalCount = await db.auth.count({ where })
 
     // Get logs with pagination
-    const logs = await prisma.auth.findMany({
+    const logs = await db.auth.findMany({
       where,
       orderBy: {
         timestamp: "desc",
@@ -63,6 +109,7 @@ export async function getAuthLogs({ search = "", hosts = [], page = 1, pageSize 
       logs,
       totalCount,
       pageCount: Math.ceil(totalCount / pageSize),
+      matchedCommands: commandsFromRules,
     }
   } catch (error) {
     console.error("Error fetching auth logs:", error)
@@ -72,7 +119,7 @@ export async function getAuthLogs({ search = "", hosts = [], page = 1, pageSize 
 
 export async function deleteAuthLog(id: number) {
   try {
-    await prisma.auth.delete({
+    await db.auth.delete({
       where: { id },
     })
     return { success: true }
@@ -84,7 +131,7 @@ export async function deleteAuthLog(id: number) {
 
 export async function deleteMultipleAuthLogs(ids: number[]) {
   try {
-    await prisma.auth.deleteMany({
+    await db.auth.deleteMany({
       where: {
         id: {
           in: ids,
@@ -127,7 +174,7 @@ export async function deleteAuthLogsByTimePeriod(period: string) {
     }
 
     // Delete auth logs older than the cutoff date
-    const result = await prisma.auth.deleteMany({
+    const result = await db.auth.deleteMany({
       where: {
         timestamp: {
           lt: cutoffDate,
@@ -143,6 +190,56 @@ export async function deleteAuthLogsByTimePeriod(period: string) {
   } catch (error) {
     console.error("Error deleting auth logs by time period:", error)
     throw new Error("Failed to delete auth logs by time period")
+  }
+}
+
+// New function to add a command to a rule from an auth log entry
+export async function addAuthLogCommandToRule(authLogId: number, ruleId: number, commandText: string) {
+  try {
+    // First, check if the auth log exists
+    const authLog = await db.auth.findUnique({
+      where: { id: authLogId },
+    })
+
+    if (!authLog) {
+      throw new Error("Auth log not found")
+    }
+
+    // Check if the rule exists
+    const rule = await db.rule.findUnique({
+      where: { id: ruleId },
+      include: { group: true },
+    })
+
+    if (!rule) {
+      throw new Error("Rule not found")
+    }
+
+    // Create the command
+    const command = await db.command.create({
+      data: {
+        ruleId,
+        command: commandText,
+      },
+    })
+
+    // Log the activity
+    await logActivity({
+      actionType: "Added Command From Auth Log",
+      targetType: "Rule",
+      targetId: ruleId,
+      details: `Added command "${commandText}" to rule "${rule.name}" from auth log ID ${authLogId}`,
+    })
+
+    revalidatePath("/logs")
+    return {
+      success: true,
+      command,
+      message: `Command added to rule "${rule.name}" in group "${rule.group?.name || "Unknown"}"`,
+    }
+  } catch (error) {
+    console.error("Error adding command to rule:", error)
+    throw new Error(`Failed to add command to rule: ${error instanceof Error ? error.message : "Unknown error"}`)
   }
 }
 

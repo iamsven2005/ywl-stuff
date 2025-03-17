@@ -1,14 +1,11 @@
 "use server"
 
-import { PrismaClient } from "@prisma/client"
+import { db } from "@/lib/db"
 import { revalidatePath } from "next/cache"
 
-const prisma = new PrismaClient({
-  log: ["query", "info", "warn", "error"],
-})
 
 // Log middleware for performance monitoring
-prisma.$use(async (params, next) => {
+db.$use(async (params, next) => {
   const before = Date.now()
   const result = await next(params)
   const after = Date.now()
@@ -52,10 +49,10 @@ export async function getRuleGroups({ search = "", page = 1, pageSize = 10 }: Ge
     }
 
     // Get total count for pagination
-    const totalCount = await prisma.ruleGroup.count({ where })
+    const totalCount = await db.ruleGroup.count({ where })
 
     // Get rule groups with pagination
-    const ruleGroups = await prisma.ruleGroup.findMany({
+    const ruleGroups = await db.ruleGroup.findMany({
       where,
       include: {
         rules: {
@@ -82,32 +79,13 @@ export async function getRuleGroups({ search = "", page = 1, pageSize = 10 }: Ge
   }
 }
 
-export async function getRuleGroup(id: number) {
-  try {
-    const ruleGroup = await prisma.ruleGroup.findUnique({
-      where: { id },
-      include: {
-        rules: {
-          include: {
-            commands: true,
-          },
-        },
-      },
-    })
-    return ruleGroup
-  } catch (error) {
-    console.error("Error fetching rule group:", error)
-    throw new Error("Failed to fetch rule group")
-  }
-}
-
 interface RuleGroupData {
   name: string
 }
 
 export async function createRuleGroup(data: RuleGroupData) {
   try {
-    const ruleGroup = await prisma.ruleGroup.create({
+    const ruleGroup = await db.ruleGroup.create({
       data: {
         name: data.name,
       },
@@ -126,7 +104,7 @@ interface UpdateRuleGroupData extends RuleGroupData {
 
 export async function updateRuleGroup(data: UpdateRuleGroupData) {
   try {
-    const ruleGroup = await prisma.ruleGroup.update({
+    const ruleGroup = await db.ruleGroup.update({
       where: { id: data.id },
       data: {
         name: data.name,
@@ -143,12 +121,12 @@ export async function updateRuleGroup(data: UpdateRuleGroupData) {
 export async function deleteRuleGroup(id: number) {
   try {
     // First delete all rules in the group
-    await prisma.rule.deleteMany({
+    await db.rule.deleteMany({
       where: { groupId: id },
     })
 
     // Then delete the group
-    await prisma.ruleGroup.delete({
+    await db.ruleGroup.delete({
       where: { id },
     })
     revalidatePath("/logs")
@@ -168,7 +146,7 @@ interface RuleData {
 
 export async function createRule(data: RuleData) {
   try {
-    const rule = await prisma.rule.create({
+    const rule = await db.rule.create({
       data: {
         name: data.name,
         description: data.description || null,
@@ -192,17 +170,20 @@ export async function createRule(data: RuleData) {
 }
 
 interface UpdateRuleData {
-  id: number
-  name: string
-  description?: string
-  groupId?: number
-  commands?: string[]
-}
+    id: number
+    name?: string // Make name optional
+    description?: string
+    groupId?: number
+    commands?: string[]
+    emailTemplateId?: number | null
+    commandEmailTemplateIds?: Record<number, number | null>
+  }
+  
 
 export async function updateRule(data: UpdateRuleData) {
   try {
     // First update the rule
-    const rule = await prisma.rule.update({
+    const rule = await db.rule.update({
       where: { id: data.id },
       data: {
         name: data.name,
@@ -214,14 +195,14 @@ export async function updateRule(data: UpdateRuleData) {
     // If commands are provided, update them
     if (data.commands) {
       // Delete existing commands
-      await prisma.command.deleteMany({
+      await db.command.deleteMany({
         where: { ruleId: data.id },
       })
 
       // Create new commands
       await Promise.all(
         data.commands.map((cmd) =>
-          prisma.command.create({
+          db.command.create({
             data: {
               ruleId: data.id,
               command: cmd,
@@ -242,12 +223,12 @@ export async function updateRule(data: UpdateRuleData) {
 export async function deleteRule(id: number) {
   try {
     // First delete all commands for this rule
-    await prisma.command.deleteMany({
+    await db.command.deleteMany({
       where: { ruleId: id },
     })
 
     // Then delete the rule
-    await prisma.rule.delete({
+    await db.rule.delete({
       where: { id },
     })
     revalidatePath("/logs")
@@ -258,114 +239,18 @@ export async function deleteRule(id: number) {
   }
 }
 
-// Function to prepare rule groups for export
-export async function prepareRuleGroupsForExport(ruleGroups: any[]) {
-  const exportData: any[] = []
-
-  ruleGroups.forEach((group) => {
-    // Add the group as a row
-    exportData.push({
-      Type: "Group",
-      ID: group.id,
-      Name: group.name,
-      Description: "",
-      Command: "",
-      GroupID: "",
-      GroupName: "",
-    })
-
-    // Add each rule as a row
-    group.rules.forEach((rule: any) => {
-      exportData.push({
-        Type: "Rule",
-        ID: rule.id,
-        Name: rule.name,
-        Description: rule.description || "",
-        Command: "",
-        GroupID: group.id,
-        GroupName: group.name,
-      })
-
-      // Add each command as a row
-      rule.commands.forEach((cmd: any) => {
-        exportData.push({
-          Type: "Command",
-          ID: cmd.id,
-          Name: "",
-          Description: "",
-          Command: cmd.command,
-          GroupID: group.id,
-          GroupName: group.name,
-          RuleID: rule.id,
-          RuleName: rule.name,
-        })
-      })
-    })
-  })
-
-  return exportData
-}
-
 // Function to import rule groups from Excel data
 export async function importRuleGroups(data: any[]) {
   try {
-    const groups = new Map()
-    const rules = new Map()
-
-    // First pass: Create groups and rules
     for (const row of data) {
       if (row.Type === "Group") {
-        // Create group if it doesn't exist
-        if (!groups.has(row.Name)) {
-          const group = await prisma.ruleGroup.create({
-            data: {
-              name: row.Name,
-            },
-          })
-          groups.set(row.Name, group.id)
-        }
-      } else if (row.Type === "Rule") {
-        // Get or create the group
-        let groupId = groups.get(row.GroupName)
-        if (!groupId && row.GroupName) {
-          const group = await prisma.ruleGroup.create({
-            data: {
-              name: row.GroupName,
-            },
-          })
-          groupId = group.id
-          groups.set(row.GroupName, groupId)
-        }
-
-        // Create the rule
-        if (groupId && !rules.has(row.Name)) {
-          const rule = await prisma.rule.create({
-            data: {
-              name: row.Name,
-              description: row.Description || null,
-              groupId: groupId,
-            },
-          })
-          rules.set(row.Name, rule.id)
-        }
+        await db.ruleGroup.create({
+          data: {
+            name: row.Name,
+          },
+        })
       }
     }
-
-    // Second pass: Create commands
-    for (const row of data) {
-      if (row.Type === "Command" && row.Command) {
-        const ruleId = rules.get(row.RuleName)
-        if (ruleId) {
-          await prisma.command.create({
-            data: {
-              ruleId: ruleId,
-              command: row.Command,
-            },
-          })
-        }
-      }
-    }
-
     revalidatePath("/logs")
     return { success: true }
   } catch (error) {
@@ -374,3 +259,52 @@ export async function importRuleGroups(data: any[]) {
   }
 }
 
+
+export async function assignEmailTemplateToUsers(emailTemplateId: number, userIds: number[]) {
+    try {
+      // Create or update user-template associations
+      await db.userEmailTemplate.createMany({
+        data: userIds.map((userId) => ({
+          userId,
+          emailTemplateId,
+        })),
+        skipDuplicates: true, // Prevent duplicate entries
+      });
+  
+      return { success: true };
+    } catch (error) {
+      console.error("Error assigning email template to users:", error);
+      throw new Error("Failed to assign email template");
+    }
+  }
+  
+  export async function removeEmailTemplateFromUsers(emailTemplateId: number, userIds: number[]) {
+    try {
+      await db.userEmailTemplate.deleteMany({
+        where: {
+          emailTemplateId,
+          userId: { in: userIds },
+        },
+      });
+  
+      return { success: true };
+    } catch (error) {
+      console.error("Error removing email template from users:", error);
+      throw new Error("Failed to remove email template");
+    }
+  }
+  
+  export async function getUsersAssignedToEmailTemplate(emailTemplateId: number) {
+    try {
+      const assignedUsers = await db.userEmailTemplate.findMany({
+        where: { emailTemplateId },
+        include: { user: true }, // Include full user details
+      });
+  
+      return assignedUsers.map((relation) => relation.user);
+    } catch (error) {
+      console.error("Error fetching assigned users:", error);
+      throw new Error("Failed to fetch users assigned to email template");
+    }
+  }
+  

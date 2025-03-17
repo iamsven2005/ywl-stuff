@@ -1,19 +1,7 @@
 "use server"
 
-import { PrismaClient } from "@prisma/client"
-
-const prisma = new PrismaClient({
-  log: ["query", "info", "warn", "error"],
-})
-
-// Log middleware for performance monitoring
-prisma.$use(async (params, next) => {
-  const before = Date.now()
-  const result = await next(params)
-  const after = Date.now()
-  console.log(`Query ${params.model}.${params.action} took ${after - before}ms`)
-  return result
-})
+import { logActivity } from "@/lib/activity-logger"
+import { db } from "@/lib/db"
 
 interface GetDevicesParams {
   search?: string
@@ -38,10 +26,10 @@ export async function getDevices({ search = "", page = 1, pageSize = 10 }: GetDe
     }
 
     // Get total count for pagination
-    const totalCount = await prisma.devices.count({ where })
+    const totalCount = await db.devices.count({ where })
 
     // Get devices with pagination and include users
-    const devices = await prisma.devices.findMany({
+    const devices = await db.devices.findMany({
       where,
       include: {
         users: {
@@ -82,7 +70,7 @@ interface DeviceData {
 
 export async function addDevice(data: DeviceData) {
   try {
-    const device = await prisma.devices.create({
+    const device = await db.devices.create({
       data: {
         name: data.name,
         ip_address: data.ip_address,
@@ -91,6 +79,15 @@ export async function addDevice(data: DeviceData) {
         notes: data.notes,
       },
     })
+
+    // Log the activity
+    await logActivity({
+      actionType: "Created Device",
+      targetType: "Device",
+      targetId: device.id,
+      details: `Created device: ${data.name}`,
+    })
+
     return { success: true, device }
   } catch (error) {
     console.error("Error adding device:", error)
@@ -104,7 +101,7 @@ interface UpdateDeviceData extends DeviceData {
 
 export async function updateDevice(data: UpdateDeviceData) {
   try {
-    const device = await prisma.devices.update({
+    const device = await db.devices.update({
       where: { id: data.id },
       data: {
         name: data.name,
@@ -114,6 +111,15 @@ export async function updateDevice(data: UpdateDeviceData) {
         notes: data.notes,
       },
     })
+
+    // Log the activity
+    await logActivity({
+      actionType: "Updated Device",
+      targetType: "Device",
+      targetId: device.id,
+      details: `Updated device: ${data.name}`,
+    })
+
     return { success: true, device }
   } catch (error) {
     console.error("Error updating device:", error)
@@ -123,9 +129,23 @@ export async function updateDevice(data: UpdateDeviceData) {
 
 export async function deleteDevice(id: number) {
   try {
-    await prisma.devices.delete({
+    const device = await db.devices.findUnique({
+      where: { id },
+      select: { name: true },
+    })
+
+    await db.devices.delete({
       where: { id },
     })
+
+    // Log the activity
+    await logActivity({
+      actionType: "Deleted Device",
+      targetType: "Device",
+      targetId: id,
+      details: `Deleted device: ${device?.name || "Unknown"}`,
+    })
+
     return { success: true }
   } catch (error) {
     console.error("Error deleting device:", error)
@@ -136,7 +156,7 @@ export async function deleteDevice(id: number) {
 // Add this function to get all device names for filtering
 export async function getAllDeviceNames() {
   try {
-    const devices = await prisma.devices.findMany({
+    const devices = await db.devices.findMany({
       select: {
         name: true,
       },

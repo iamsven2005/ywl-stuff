@@ -60,6 +60,10 @@ import { Clock, AlertTriangle, Download } from "lucide-react"
 import { deleteLogsByTimePeriod, deleteMultipleLogs, getLogs } from "../actions/actions"
 import { getAllDeviceNames } from "../actions/device-actions"
 import { exportToExcel, prepareLogsForExport } from "../export-utils"
+import { getAllRuleGroupsAndRules } from "../actions/rule-actions"
+import { Rule } from "@prisma/client"
+
+// Add imports for rule group filtering
 
 // Debounce function to limit how often a function can run
 function debounce<T extends (...args: any[]) => any>(func: T, wait: number): (...args: Parameters<T>) => void {
@@ -144,6 +148,14 @@ export default function LogsTable() {
   const [selectedTimePeriod, setSelectedTimePeriod] = useState<string>("")
   const [isTimeDeleteLoading, setIsTimeDeleteLoading] = useState(false)
 
+  // Add state for rule groups and rules inside the LogsTable component
+  const [ruleGroups, setRuleGroups] = useState<any[]>([])
+  const [selectedRuleGroups, setSelectedRuleGroups] = useState<string[]>([])
+  const [selectedRules, setSelectedRules] = useState<string[]>([])
+  const [ruleGroupDropdownOpen, setRuleGroupDropdownOpen] = useState(false)
+  const [ruleDropdownOpen, setRuleDropdownOpen] = useState(false)
+  const [matchedCommands, setMatchedCommands] = useState<string[]>([])
+
   // Apply debounced search
   const debouncedSearch = debounce((value: string) => {
     setDebouncedSearchQuery(value)
@@ -170,6 +182,8 @@ export default function LogsTable() {
         search: debouncedSearchQuery,
         hosts,
         actions,
+        ruleGroups: selectedRuleGroups,
+        rules: selectedRules,
         cpuThreshold: isResourceFiltersEnabled ? cpuFilter : null,
         memThreshold: isResourceFiltersEnabled ? memFilter : null,
         page: currentPage,
@@ -179,6 +193,7 @@ export default function LogsTable() {
       setLogs(result.logs)
       setTotalPages(result.pageCount)
       setTotalItems(result.totalCount)
+      setMatchedCommands(result.matchedCommands || [])
     } catch (error) {
       toast.error("Failed to fetch logs")
     } finally {
@@ -189,7 +204,16 @@ export default function LogsTable() {
   // Load logs when filters or pagination changes
   useEffect(() => {
     fetchLogs()
-  }, [debouncedSearchQuery, selectedHosts, selectedActions, currentPage, pageSize, isResourceFiltersEnabled])
+  }, [
+    debouncedSearchQuery,
+    selectedHosts,
+    selectedActions,
+    selectedRuleGroups,
+    selectedRules,
+    currentPage,
+    pageSize,
+    isResourceFiltersEnabled,
+  ])
 
   // Load logs when resource filters change
   // useEffect(() => {
@@ -445,6 +469,40 @@ export default function LogsTable() {
     }
   }
 
+  // Add useEffect to fetch rule groups and rules
+  useEffect(() => {
+    const fetchRuleGroupsAndRules = async () => {
+      try {
+        const ruleGroupsData = await getAllRuleGroupsAndRules()
+        setRuleGroups(ruleGroupsData)
+      } catch (error) {
+        console.error("Failed to fetch rule groups and rules:", error)
+        toast.error("Failed to load rule groups and rules")
+      }
+    }
+
+    fetchRuleGroupsAndRules()
+  }, [])
+
+  // Add handlers for rule group and rule selection
+  const handleRuleGroupSelect = (value: string) => {
+    if (selectedRuleGroups.includes(value)) {
+      setSelectedRuleGroups(selectedRuleGroups.filter((id) => id !== value))
+    } else {
+      setSelectedRuleGroups([...selectedRuleGroups, value])
+    }
+    setCurrentPage(1)
+  }
+
+  const handleRuleSelect = (value: string) => {
+    if (selectedRules.includes(value)) {
+      setSelectedRules(selectedRules.filter((id) => id !== value))
+    } else {
+      setSelectedRules([...selectedRules, value])
+    }
+    setCurrentPage(1)
+  }
+
   return (
     <div className="space-y-4">
       <div className="flex flex-col sm:flex-row gap-4 justify-between">
@@ -529,6 +587,65 @@ export default function LogsTable() {
                         {selectedActions.includes(action.value) && <Check className="ml-auto h-4 w-4" />}
                       </CommandItem>
                     ))}
+                  </CommandGroup>
+                </CommandList>
+              </Command>
+            </PopoverContent>
+          </Popover>
+
+          <Popover open={ruleGroupDropdownOpen} onOpenChange={setRuleGroupDropdownOpen}>
+            <PopoverTrigger asChild>
+              <Button variant="outline" className="justify-between">
+                {selectedRuleGroups.length > 0
+                  ? `${selectedRuleGroups.length} rule group${selectedRuleGroups.length > 1 ? "s" : ""} selected`
+                  : "Rule Groups"}
+                <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-[300px] p-0" align="start">
+              <Command>
+                <CommandInput placeholder="Search rule groups..." />
+                <CommandList className="max-h-[300px]">
+                  <CommandEmpty>No rule group found.</CommandEmpty>
+                  <CommandGroup>
+                    {ruleGroups.map((group) => (
+                      <CommandItem key={group.id} onSelect={() => handleRuleGroupSelect(group.id.toString())}>
+                        <Checkbox checked={selectedRuleGroups.includes(group.id.toString())} className="mr-2" />
+                        <span>{group.name}</span>
+                        {selectedRuleGroups.includes(group.id.toString()) && <Check className="ml-auto h-4 w-4" />}
+                      </CommandItem>
+                    ))}
+                  </CommandGroup>
+                </CommandList>
+              </Command>
+            </PopoverContent>
+          </Popover>
+
+          <Popover open={ruleDropdownOpen} onOpenChange={setRuleDropdownOpen}>
+            <PopoverTrigger asChild>
+              <Button variant="outline" className="justify-between">
+                {selectedRules.length > 0
+                  ? `${selectedRules.length} rule${selectedRules.length > 1 ? "s" : ""} selected`
+                  : "Rules"}
+                <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-[300px] p-0" align="start">
+              <Command>
+                <CommandInput placeholder="Search rules..." />
+                <CommandList className="max-h-[300px]">
+                  <CommandEmpty>No rule found.</CommandEmpty>
+                  <CommandGroup>
+                    {ruleGroups.flatMap((group) =>
+                      group.rules.map((rule: Rule) => (
+                        <CommandItem key={rule.id} onSelect={() => handleRuleSelect(rule.id.toString())}>
+                          <Checkbox checked={selectedRules.includes(rule.id.toString())} className="mr-2" />
+                          <span>{rule.name}</span>
+                          <span className="ml-2 text-xs text-muted-foreground">({group.name})</span>
+                          {selectedRules.includes(rule.id.toString()) && <Check className="ml-auto h-4 w-4" />}
+                        </CommandItem>
+                      )),
+                    )}
                   </CommandGroup>
                 </CommandList>
               </Command>
@@ -685,6 +802,35 @@ export default function LogsTable() {
               </button>
             </Badge>
           ))}
+
+        {selectedRuleGroups.length > 0 &&
+          selectedRuleGroups.map((groupId) => {
+            const group = ruleGroups.find((g) => g.id.toString() === groupId)
+            return group ? (
+              <Badge key={`group-${groupId}`} variant="secondary" className="gap-1">
+                Group: {group.name}
+                <button
+                  onClick={() => handleRuleGroupSelect(groupId)}
+                  className="ml-1 rounded-full hover:bg-muted p-0.5"
+                >
+                  ×
+                </button>
+              </Badge>
+            ) : null
+          })}
+
+        {selectedRules.length > 0 &&
+          selectedRules.map((ruleId) => {
+            const rule = ruleGroups.flatMap((g) => g.rules).find((r) => r.id.toString() === ruleId)
+            return rule ? (
+              <Badge key={`rule-${ruleId}`} variant="secondary" className="gap-1">
+                Rule: {rule.name}
+                <button onClick={() => handleRuleSelect(ruleId)} className="ml-1 rounded-full hover:bg-muted p-0.5">
+                  ×
+                </button>
+              </Badge>
+            ) : null
+          })}
 
         {cpuFilter && (
           <Badge variant="secondary" className="gap-1">
@@ -1090,6 +1236,19 @@ export default function LogsTable() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {matchedCommands.length > 0 && (
+        <div className="mt-4 p-4 border rounded-md bg-muted/20">
+          <h3 className="text-sm font-medium mb-2">Matching Commands</h3>
+          <div className="space-y-2">
+            {matchedCommands.map((cmd, index) => (
+              <div key={index} className="text-xs bg-muted p-2 rounded">
+                <code>{cmd}</code>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   )
 }
