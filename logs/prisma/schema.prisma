@@ -92,6 +92,7 @@ model Command {
   emailTemplate   EmailTemplate? @relation(fields: [emailTemplateId], references: [id])
 
   rule      Rule @relation(fields: [ruleId], references: [id])
+  matches   CommandMatch[]
 }
 
 model Rule {
@@ -107,6 +108,7 @@ model Rule {
 
   group       RuleGroup? @relation(fields: [groupId], references: [id])
   commands    Command[]
+  matches     CommandMatch[]
 }
 
 model RuleGroup {
@@ -119,6 +121,29 @@ model RuleGroup {
   emailTemplate   EmailTemplate? @relation(fields: [emailTemplateId], references: [id])
 
   rules       Rule[]
+}
+
+// New model to track command matches
+model CommandMatch {
+  id            Int      @id @default(autoincrement())
+  logId         Int
+  logType       String   // "system" or "auth"
+  commandId     Int
+  ruleId        Int
+  commandText   String
+  logEntry      String   @db.Text
+  timestamp     DateTime @default(now())
+  addressed     Boolean  @default(false)
+  addressedBy   Int?
+  addressedAt   DateTime @default(now())
+  notes         String?  @db.Text
+  emailSent     Boolean  @default(false)
+  
+  rule          Rule     @relation(fields: [ruleId], references: [id])
+  command       Command  @relation(fields: [commandId], references: [id])
+  addressedByUser User?  @relation(fields: [addressedBy], references: [id])
+
+  User User[] @relation("addressedBy")
 }
 
 model ActivityLog {
@@ -160,8 +185,11 @@ model User {
   updatedAt   DateTime @updatedAt
   devices     DeviceUser[]
   ActivityLog ActivityLog[]
+  addressedMatches CommandMatch[] @relation("addressedBy")
 
   emailTemplates UserEmailTemplate[] // Many-to-many relationship
+
+  CommandMatch CommandMatch[]
 }
 
 // Junction table for many-to-many relation between User & EmailTemplate
@@ -181,3 +209,4 @@ model Roles{
   name        String
   description String
 }
+
