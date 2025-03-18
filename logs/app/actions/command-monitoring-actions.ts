@@ -110,6 +110,7 @@ export async function checkCommandMatches(logEntry: string, logId: number, logTy
             logType,
             commandId: command.id,
             ruleId: command.ruleId,
+            // Fix the command field by using commandText instead
             commandText: command.command, // Store the command text as a string
             logEntry,
             addressed: false,
@@ -173,7 +174,7 @@ export async function checkCommandMatches(logEntry: string, logId: number, logTy
 
       // Show toast notification for each match
       matches.forEach((match) => {
-        toast.error(`Command Match Detected: "${match.command}" in rule "${match.ruleName}"`, {
+        toast.warning(`Command Match Detected: "${match.command}" in rule "${match.ruleName}"`, {
           description: "Check command matches for details",
           duration: 5000,
         })
@@ -272,7 +273,7 @@ export async function processBatchForCommandMatches(logs: any[], logType: "syste
     const matches = await checkCommandMatches(logEntry, log.id, logType)
     allMatches.push(...matches)
   }
-  console.log(allMatches)
+
   return allMatches
 }
 
@@ -284,11 +285,13 @@ export async function getCommandMatches({
   ruleId = null,
   page = 1,
   pageSize = 10,
+  search = "",
 }: {
   addressed?: boolean | null
   ruleId?: number | null
   page?: number
   pageSize?: number
+  search?: string
 }) {
   try {
     // Build the where clause based on filters
@@ -300,6 +303,32 @@ export async function getCommandMatches({
 
     if (ruleId !== null) {
       where.ruleId = ruleId
+    }
+
+    // Add search functionality
+    if (search) {
+      where.OR = [
+        {
+          commandText: {
+            contains: search,
+            mode: "insensitive",
+          },
+        },
+        {
+          logEntry: {
+            contains: search,
+            mode: "insensitive",
+          },
+        },
+        {
+          rule: {
+            name: {
+              contains: search,
+              mode: "insensitive",
+            },
+          },
+        },
+      ]
     }
 
     // Get total count for pagination
@@ -394,6 +423,58 @@ export async function markCommandMatchAsAddressed(matchId: number, notes?: strin
     return updatedMatch
   } catch (error) {
     console.error("Error marking command match as addressed:", error)
+    throw error
+  }
+}
+
+/**
+ * Unmark a command match as addressed (set it back to unaddressed)
+ */
+export async function unmarkCommandMatchAsAddressed(matchId: number) {
+  try {
+    const session = await getSession()
+
+    if (!session?.user?.id) {
+      throw new Error("User not authenticated")
+    }
+
+    const match = await db.commandMatch.findUnique({
+      where: { id: matchId },
+      include: {
+        rule: {
+          select: {
+            name: true,
+          },
+        },
+      },
+    })
+
+    if (!match) {
+      throw new Error("Command match not found")
+    }
+
+    const updatedMatch = await db.commandMatch.update({
+      where: { id: matchId },
+      data: {
+        addressed: false,
+        addressedBy: null,
+        addressedAt: null,
+        // Keep the notes for reference
+      },
+    })
+
+    // Log the activity
+    await logActivity({
+      actionType: "Command Match Unmarked",
+      targetType: "CommandMatch",
+      targetId: matchId,
+      details: `Unmarked command match for rule "${match.rule.name}" as addressed`,
+      userId: session.user.id,
+    })
+
+    return updatedMatch
+  } catch (error) {
+    console.error("Error unmarking command match:", error)
     throw error
   }
 }

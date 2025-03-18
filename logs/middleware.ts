@@ -1,25 +1,26 @@
 import { NextResponse } from "next/server"
 import type { NextRequest } from "next/server"
 
-export function middleware(request: NextRequest) {
-  // Get the user ID from the cookies
+export async function middleware(request: NextRequest) {
   const userId = request.cookies.get("userId")?.value
+  const path = request.nextUrl.pathname
 
-  // If the user is not logged in and trying to access protected routes
-  if (!userId && !request.nextUrl.pathname.startsWith("/login")) {
+  // If no user is logged in and trying to access protected routes
+  if (!userId && path !== "/" && path !== "/login" && path !== "/latest_script.sh" ) {
     return NextResponse.redirect(new URL("/login", request.url))
   }
 
-  // If the user is logged in and trying to access login page
-  if (userId && request.nextUrl.pathname.startsWith("/login")) {
-    return NextResponse.redirect(new URL("/logs", request.url))
+  // For admin-only routes
+  if (userId && (path.startsWith("/logs") || path.startsWith("/command-matches"))) {
+    // We'll check the role in the page component since middleware can't access the database directly
+    // This is just a first layer of protection
+    return NextResponse.next()
   }
 
   return NextResponse.next()
 }
 
-// Match all routes except for static files, api routes, etc.
 export const config = {
-  matcher: ["/((?!_next/static|_next/image|favicon.ico|api).*)"],
+  matcher: ["/((?!api|_next/static|_next/image|favicon.ico|login).*)"],
 }
 
