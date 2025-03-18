@@ -89,7 +89,6 @@ interface UserForm {
   devices: number[]
 }
 
-
 export default function UsersTable() {
   const router = useRouter()
   const [searchQuery, setSearchQuery] = useState("")
@@ -118,12 +117,26 @@ export default function UsersTable() {
     role: "USER", // ✅ Provide a default valid role
     devices: [],
   })
-  
+
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1)
   const [pageSize, setPageSize] = useState(10)
   const [totalPages, setTotalPages] = useState(1)
   const [totalItems, setTotalItems] = useState(0)
+
+  // Add a new state for roles
+  const [roles, setRoles] = useState<any[]>([])
+
+  // Add a function to fetch roles
+  const fetchRoles = async () => {
+    try {
+      const response = await fetch("/api/roles")
+      const data = await response.json()
+      setRoles(data.roles)
+    } catch (error) {
+      toast.error("Failed to fetch roles")
+    }
+  }
 
   // Apply debounced search
   const debouncedSearch = debounce((value: string) => {
@@ -174,9 +187,11 @@ export default function UsersTable() {
     fetchUsers()
   }, [debouncedSearchQuery, currentPage, pageSize])
 
-  // Load devices on component mount
+  // Update the useEffect to fetch roles on component mount
   useEffect(() => {
+    fetchUsers()
     fetchDevices()
+    fetchRoles() // Add this line
   }, [])
 
   // Handle user selection
@@ -219,7 +234,6 @@ export default function UsersTable() {
     })
     setAddModalOpen(true)
   }
-  
 
   // Open edit user modal
   const openEditModal = async (user: any) => {
@@ -236,7 +250,7 @@ export default function UsersTable() {
         role: user.role ?? "USER", // ✅ Default to "USER" if role is missing
         devices: userDevices.map((d: any) => d.deviceId),
       })
-      
+
       setEditModalOpen(true)
     } catch (error) {
       toast.error("Failed to load user details")
@@ -257,7 +271,6 @@ export default function UsersTable() {
       [name]: value,
     }))
   }
-  
 
   // Handle device selection change
   const handleDeviceChange = (selectedDevices: string[]) => {
@@ -320,8 +333,7 @@ export default function UsersTable() {
         password: userForm.password || undefined, // Only update if provided
         role: userForm.role, // ✅ Ensure role is updated
       })
-      
-      
+
       // Get current user devices
       const currentDevices = await getUserDevices(currentUser.id)
       const currentDeviceIds = currentDevices.map((d: any) => d.deviceId)
@@ -782,23 +794,33 @@ export default function UsersTable() {
               </div>
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="role" className="text-right">
-              Role
-            </Label>
-            <div className="col-span-3">
-              <select
-                id="role"
-                name="role"
-                value={userForm.role}
-                onChange={handleFormChange}
-                className="h-8 w-full border border-input bg-background px-2 text-sm rounded-md"
-              >
-                <option value="USER">User</option>
-                <option value="ADMIN">Admin</option>
-                <option value="DRAFTER">Drafter</option>
-              </select>
+              <Label htmlFor="role" className="text-right">
+                Role
+              </Label>
+              <div className="col-span-3">
+                <select
+                  id="role"
+                  name="role"
+                  value={userForm.role}
+                  onChange={handleFormChange}
+                  className="h-8 w-full border border-input bg-background px-2 text-sm rounded-md"
+                >
+                  {roles.length > 0 ? (
+                    roles.map((role) => (
+                      <option key={role.id} value={role.name}>
+                        {role.name}
+                      </option>
+                    ))
+                  ) : (
+                    <>
+                      <option value="USER">User</option>
+                      <option value="ADMIN">Admin</option>
+                      <option value="DRAFTER">Drafter</option>
+                    </>
+                  )}
+                </select>
+              </div>
             </div>
-          </div>
 
             <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="password" className="text-right">
@@ -893,23 +915,33 @@ export default function UsersTable() {
               </div>
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="edit-role" className="text-right">
-              Role
-            </Label>
-            <div className="col-span-3">
-              <select
-                id="edit-role"
-                name="role"
-                value={userForm.role}
-                onChange={handleFormChange}
-                className="h-8 w-full border border-input bg-background px-2 text-sm rounded-md"
-              >
-                <option value="USER">User</option>
-                <option value="ADMIN">Admin</option>
-                <option value="DRAFTER">Drafter</option>
-              </select>
+              <Label htmlFor="edit-role" className="text-right">
+                Role
+              </Label>
+              <div className="col-span-3">
+                <select
+                  id="edit-role"
+                  name="role"
+                  value={userForm.role}
+                  onChange={handleFormChange}
+                  className="h-8 w-full border border-input bg-background px-2 text-sm rounded-md"
+                >
+                  {roles.length > 0 ? (
+                    roles.map((role) => (
+                      <option key={role.id} value={role.name}>
+                        {role.name}
+                      </option>
+                    ))
+                  ) : (
+                    <>
+                      <option value="USER">User</option>
+                      <option value="ADMIN">Admin</option>
+                      <option value="DRAFTER">Drafter</option>
+                    </>
+                  )}
+                </select>
+              </div>
             </div>
-          </div>
 
             <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="edit-password" className="text-right">

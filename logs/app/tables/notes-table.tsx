@@ -20,7 +20,7 @@ import {
 } from "@/components/ui/pagination"
 import { toast } from "sonner"
 import { Search, RefreshCw, Trash2, Edit, Plus, FileText, Download } from "lucide-react"
-import { getNotes, deleteMultipleNotes } from "./note-actions"
+import { getNotes, deleteMultipleNotes } from "../actions/note-actions"
 import { exportToExcel } from "../export-utils"
 import { NoteEditor } from "../note-editor"
 

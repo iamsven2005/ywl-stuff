@@ -73,7 +73,11 @@ import { exportToExcel, prepareAuthLogsForExport } from "../export-utils"
 import { getAllRuleGroupsAndRules } from "../actions/rule-actions"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Rule } from "@prisma/client"
+import type { Rule } from "@prisma/client"
+// Add this import at the top with the other imports
+import { processBatchForCommandMatches } from "../actions/command-monitoring-actions"
+// Add this import at the top with the other imports
+import { CommandMatchAlert } from "@/components/command-match-alert"
 
 // Debounce function to limit how often a function can run
 function debounce<T extends (...args: any[]) => any>(func: T, wait: number): (...args: Parameters<T>) => void {
@@ -129,6 +133,8 @@ export default function AuthLogsTable() {
   const [ruleGroupDropdownOpen, setRuleGroupDropdownOpen] = useState(false)
   const [ruleDropdownOpen, setRuleDropdownOpen] = useState(false)
   const [matchedCommands, setMatchedCommands] = useState<string[]>([])
+  // Add this state inside the AuthLogsTable component
+  const [commandMatches, setCommandMatches] = useState<any[]>([])
 
   // Add state for the "Add to Rule" dialog
   const [addToRuleDialogOpen, setAddToRuleDialogOpen] = useState(false)
@@ -184,6 +190,7 @@ export default function AuthLogsTable() {
   }
 
   // Fetch logs with filters
+  // Modify the fetchLogs function to check for command matches
   const fetchLogs = async () => {
     setIsLoading(true)
     try {
@@ -202,6 +209,33 @@ export default function AuthLogsTable() {
       setTotalPages(result.pageCount)
       setTotalItems(result.totalCount)
       setMatchedCommands(result.matchedCommands || [])
+
+      // Check for command matches
+      const matches = await processBatchForCommandMatches(result.logs, "auth")
+      setCommandMatches(matches)
+
+      // Show toast notifications for matches
+      if (matches.length > 0) {
+        matches.forEach((match: any) => {
+          toast.info(
+            <div>
+              <p className="font-medium">Command Match Detected</p>
+              <p className="text-sm">Rule: {match.ruleName}</p>
+              <p className="text-sm">
+                Command: <code className="bg-muted px-1 rounded">{match.command}</code>
+              </p>
+              {match.emailTemplateId && (
+                <p className="text-xs mt-1 text-muted-foreground">
+                  Email notification sent via template: {match.emailTemplateName}
+                </p>
+              )}
+            </div>,
+            {
+              duration: 5000,
+            },
+          )
+        })
+      }
     } catch (error) {
       toast.error("Failed to fetch auth logs")
     } finally {
@@ -731,6 +765,11 @@ export default function AuthLogsTable() {
             ) : null
           })}
       </div>
+      {commandMatches.length > 0 && (
+        <div className="mb-4">
+          <CommandMatchAlert matches={commandMatches} />
+        </div>
+      )}
 
       <div className="rounded-md border">
         <Table>

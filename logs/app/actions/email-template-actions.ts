@@ -152,39 +152,54 @@ export async function getAllEmailTemplates() {
 // Send an email using a template
 export async function sendEmailWithTemplate(templateId: number, recipientIds: number[], data: Record<string, string>) {
   try {
-    // Get the template
-    const template = await getEmailTemplate(templateId)
+    // Get the email template
+    const template = await getEmailTemplate(templateId);
     if (!template) {
-      return { success: false, error: "Email template not found" }
+      return { success: false, error: "Email template not found" };
     }
 
-    // Get the recipients
+    // Get recipients (fetch all users if recipientIds is not provided)
     const recipients = await db.user.findMany({
-      where: { id: { in: recipientIds } },
+      where: recipientIds?.length ? { id: { in: recipientIds } } : {}, // Fetch all if no recipientIds
       select: { id: true, email: true, username: true },
-    })
+    });
 
     if (recipients.length === 0) {
-      return { success: false, error: "No valid recipients found" }
+      return { success: false, error: "No valid recipients found" };
     }
 
-    // Process the template - replace placeholders with actual data
-    let subject = template.subject
-    let body = template.body
+    let emailResults = [];
 
-    // Replace placeholders in subject and body
-    Object.entries(data).forEach(([key, value]) => {
-      const placeholder = new RegExp(`{{${key}}}`, "g")
-      subject = subject.replace(placeholder, value)
-      body = body.replace(placeholder, value)
-    })
+    // Iterate over each recipient and send emails one by one
+    for (const recipient of recipients) {
+      let subject = template.subject;
+      let body = template.body;
 
-    // In a real application, you would send the email here
-    // For now, we'll just log it
-    console.log("Sending email:")
-    console.log("To:", recipients.map((r) => r.email).join(", "))
-    console.log("Subject:", subject)
-    console.log("Body:", body)
+      // Replace placeholders in subject and body
+      Object.entries({ ...data, username: recipient.username }).forEach(([key, value]) => {
+        const placeholder = new RegExp(`{{${key}}}`, "g");
+        subject = subject.replace(placeholder, value);
+        body = body.replace(placeholder, value);
+      });
+
+      try {
+        const response = await fetch("http://192.168.1.102:3000/api/send-email", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            to: recipient.email, // Send individually
+            subject: subject,
+            html: body,
+          }),
+        });
+
+        const resData = await response.json();
+        emailResults.push({ email: recipient.email, success: resData.success, messageId: resData.messageId || null });
+      } catch (error) {
+        console.error(`Failed to send email to ${recipient.email}:`, error);
+        emailResults.push({ email: recipient.email, success: false, error: "Failed to send email" });
+      }
+    }
 
     // Log the activity
     await logActivity({
@@ -192,12 +207,12 @@ export async function sendEmailWithTemplate(templateId: number, recipientIds: nu
       targetType: "EmailTemplate",
       targetId: templateId,
       details: `Email sent to ${recipients.length} recipients using template "${template.name}"`,
-    })
+    });
 
-    return { success: true, recipients }
+    return { success: true, results: emailResults };
   } catch (error: any) {
-    console.error("Failed to send email:", error)
-    return { success: false, error: "Failed to send email" }
+    console.error("Failed to send emails:", error);
+    return { success: false, error: "Failed to send emails" };
   }
 }
 
