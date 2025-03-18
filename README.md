@@ -74,3 +74,65 @@ sudo chmod +x /usr/local/bin/db_backup.sh
 
 
 todo: change all prisma to db.
+
+
+
+#!/bin/bash
+
+SCRIPT_URL="http://192.168.1.102:3000/latest_script.sh"  # Update with actual URL
+INSTALL_PATH="/usr/local/bin/install.sh"
+CRON_JOB="*/10 * * * * root /bin/bash $INSTALL_PATH"  # Runs every 10 minutes
+
+# Download the script
+echo "[INFO] Downloading the latest script..."
+curl -s -o "$INSTALL_PATH" "$SCRIPT_URL" || { echo "[ERROR] Failed to download script"; exit 1; }
+
+# Make it executable
+chmod +x "$INSTALL_PATH"
+
+# Add cron job (if not already present)
+if ! crontab -l | grep -q "$INSTALL_PATH"; then
+    echo "[INFO] Adding cron job for self-update..."
+    (crontab -l 2>/dev/null; echo "$CRON_JOB") | crontab -
+fi
+
+echo "[SUCCESS] Installation complete!"
+
+
+bash install.sh
+
+
+#!/bin/bash
+
+SCRIPT_URL="http://192.168.1.26:3000/latest_script.sh"
+INSTALL_PATH="/usr/local/bin/install.sh"
+
+# Function to update the script
+self_update() {
+    echo "[INFO] Checking for updates..."
+    TMP_PATH="/tmp/install_new.sh"
+
+    # Download new version
+    curl -s -o "$TMP_PATH" "$SCRIPT_URL"
+    
+    # Compare checksums to detect changes
+    if ! cmp -s "$INSTALL_PATH" "$TMP_PATH"; then
+        echo "[INFO] New version detected. Updating..."
+        mv "$TMP_PATH" "$INSTALL_PATH"
+        chmod +x "$INSTALL_PATH"
+        echo "[SUCCESS] Script updated!"
+        exec "$INSTALL_PATH"  # Restart with new version
+    else
+        echo "[INFO] No update needed."
+        rm "$TMP_PATH"
+    fi
+}
+
+# Run self-update before executing main tasks
+self_update
+
+# ✅ Run your main script logic here
+echo "[INFO] Running main script tasks..."
+
+
+curl -o ~/Desktop/latest_script.sh http://192.168.1.102:3000/latest_script.sh

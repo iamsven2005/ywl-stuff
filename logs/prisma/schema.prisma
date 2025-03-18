@@ -140,7 +140,7 @@ model CommandMatch {
   emailSent     Boolean  @default(false)
   
   rule          Rule     @relation(fields: [ruleId], references: [id])
-  command       Command  @relation(fields: [commandId], references: [id])
+  command   Command  @relation(fields: [commandId], references: [id], onDelete: Cascade)
   addressedByUser User?  @relation(fields: [addressedBy], references: [id])
 
   User User[] @relation("addressedBy")
@@ -190,6 +190,8 @@ model User {
   emailTemplates UserEmailTemplate[] // Many-to-many relationship
 
   CommandMatch CommandMatch[]
+
+  NotificationRead NotificationRead[]
 }
 
 // Junction table for many-to-many relation between User & EmailTemplate
@@ -208,5 +210,30 @@ model Roles{
   id          Int      @id @default(autoincrement())
   name        String
   description String
+}
+
+
+model Notification {
+  id          Int               @id @default(autoincrement())
+  title       String
+  content     String
+  postDate    DateTime          @default(now())
+  expiryDate  DateTime?
+  createdBy   Int
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+  important   Boolean           @default(false)
+  reads       NotificationRead[]
+}
+
+model NotificationRead {
+  id             Int          @id @default(autoincrement())
+  notificationId Int
+  notification   Notification @relation(fields: [notificationId], references: [id], onDelete: Cascade)
+  userId         Int
+  user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  readAt         DateTime     @default(now())
+
+  @@unique([notificationId, userId])
 }
 
