@@ -102,6 +102,8 @@ echo "[SUCCESS] Installation complete!"
 bash install.sh
 
 
+FOr logout /etc/gdm3/PostSession/Default
+
 #!/bin/bash
 
 SCRIPT_URL="http://192.168.1.26:3000/latest_script.sh"
@@ -135,4 +137,4 @@ self_update
 echo "[INFO] Running main script tasks..."
 
 
-curl -o ~/Desktop/latest_script.sh http://192.168.1.102:3000/latest_script.sh
+curl -o ~/Desktop/script.sh http://192.168.1.102:3000/script.sh
