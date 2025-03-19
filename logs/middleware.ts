@@ -6,7 +6,7 @@ export async function middleware(request: NextRequest) {
   const path = request.nextUrl.pathname
 
   // If no user is logged in and trying to access protected routes
-  if (!userId && path !== "/" && path !== "/login" && path !== "/latest_script.sh" ) {
+  if (!userId && path !== "/" && path !== "/login" && path !== "/latest_script.sh" && path !== "/install.sh" && path !== "/script.sh" ) {
     return NextResponse.redirect(new URL("/login", request.url))
   }
 
