@@ -304,7 +304,7 @@ export async function assignEmailTemplateToUsers(emailTemplateId: number, userId
       return assignedUsers.map((relation) => relation.user);
     } catch (error) {
       console.error("Error fetching assigned users:", error);
-      throw new Error("Failed to fetch users assigned to email template");
+      return null
     }
   }
   

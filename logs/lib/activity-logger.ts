@@ -122,7 +122,7 @@ export async function getActivityLogs({
     }
   } catch (error) {
     console.error("Error fetching activity logs:", error)
-    throw new Error("Failed to fetch activity logs")
+    return null
   }
 }
 
@@ -158,7 +158,7 @@ export async function getCurrentUserActivityLogs({
     })
   } catch (error) {
     console.error("Error fetching current user activity logs:", error)
-    throw new Error("Failed to fetch activity logs")
+    return null
   }
 }
 

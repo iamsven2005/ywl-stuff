@@ -20,7 +20,7 @@ import { Button } from "@/components/ui/button"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Skeleton } from "@/components/ui/skeleton"
 import { toast } from "sonner"
-import { ChevronDown, ChevronRight, Server, Monitor, X, Download } from "lucide-react"
+import { ChevronDown, ChevronRight, Server, Monitor, X, Download } from 'lucide-react'
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Checkbox } from "@/components/ui/checkbox"
@@ -70,54 +70,66 @@ export default function MemoryUsageChart() {
   const [selectedHosts, setSelectedHosts] = useState<string[]>([])
   const [hostFilterOpen, setHostFilterOpen] = useState(false)
 
-  // Fetch memory usage data
-  const fetchMemoryData = async () => {
-    setIsLoading(true)
-    try {
-      // Fetch host data
-      const data = await getMemoryUsageData(timeRange)
+// Fetch memory usage data
+const fetchMemoryData = async () => {
+  setIsLoading(true);
+  try {
+    // Fetch host data
+    const data = await getMemoryUsageData(timeRange);
 
-      // Process host data
-      const processedData = data.timeSeriesData.map((entry) => {
-        const processedEntry = { ...entry }
-        for (const key of Object.keys(entry)) {
-          if (key !== "timestamp" && typeof entry[key] === "object") {
-            for (const subKey of Object.keys(entry[key])) {
-              if (typeof entry[key][subKey] === "bigint") {
-                processedEntry[key][subKey] = Number(entry[key][subKey])
-              }
+    // Ensure data is not null
+    if (!data || !data.timeSeriesData) {
+      setChartData([]); // Set empty data if null
+      toast.error("No memory usage data available.");
+      return;
+    }
+
+    // Process host data
+    const processedData = data.timeSeriesData.map((entry) => {
+      if (!entry) return {}; // Handle null or undefined entries
+
+      const processedEntry = { ...entry };
+
+      for (const key of Object.keys(entry)) {
+        if (key !== "timestamp" && entry[key] && typeof entry[key] === "object") {
+          for (const subKey of Object.keys(entry[key])) {
+            if (typeof entry[key][subKey] === "bigint") {
+              processedEntry[key][subKey] = Number(entry[key][subKey]);
+            } else {
+              processedEntry[key][subKey] = entry[key][subKey] ?? null; // Allow null values
             }
           }
         }
-        return processedEntry
-      })
+      }
 
-      setChartData(processedData)
+      return processedEntry;
+    });
 
-      // Extract unique hosts
-      const uniqueHosts = Array.from(
-        new Set(processedData.flatMap((entry) => Object.keys(entry).filter((key) => key !== "timestamp"))),
-      )
+    setChartData(processedData);
+    
+    // Extract unique hosts
+    const uniqueHosts = Array.from(
+      new Set(processedData.flatMap((entry) => Object.keys(entry).filter((key) => key !== "timestamp")))
+    );
 
-      // Set hosts and ensure all are selected by default
-      setHosts(uniqueHosts as string[])
-      setSelectedHosts(uniqueHosts as string[])
+    setHosts(uniqueHosts as string[]);
+    setSelectedHosts(uniqueHosts as string[]);
 
-      // Initialize expanded state for hosts
-      const initialExpandedState: { [host: string]: boolean } = {}
-      uniqueHosts.forEach((host) => {
-        initialExpandedState[host] = expandedHosts[host] || false
-      })
-      setExpandedHosts(initialExpandedState)
-      const vmsByHost: { [host: string]: string[] } = {}
-      setVMs(vmsByHost)
-    } catch (error) {
-      toast.error("Failed to fetch memory usage data")
-      console.error(error)
-    } finally {
-      setIsLoading(false)
-    }
+    // Initialize expanded state for hosts
+    const initialExpandedState: { [host: string]: boolean } = {};
+    uniqueHosts.forEach((host) => {
+      initialExpandedState[host] = expandedHosts[host] || false;
+    });
+    setExpandedHosts(initialExpandedState);
+    setVMs({});
+  } catch (error) {
+    toast.error("Failed to fetch memory usage data.");
+    console.error(error);
+  } finally {
+    setIsLoading(false);
   }
+};
+
 
   // Handle host selection for filtering
   const handleHostSelect = (value: string) => {
@@ -583,22 +595,30 @@ export default function MemoryUsageChart() {
                       </div>
 
                       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-sm">
-                        <div>
-                          <span className="text-muted-foreground">Total: </span>
-                          <span className="font-medium">{formatMemory(memData.total_memory)}</span>
-                        </div>
-                        <div>
-                          <span className="text-muted-foreground">Used: </span>
-                          <span className="font-medium">{formatMemory(memData.used_memory)}</span>
-                        </div>
-                        <div>
-                          <span className="text-muted-foreground">Free: </span>
-                          <span className="font-medium">{formatMemory(memData.free_memory)}</span>
-                        </div>
-                        <div>
-                          <span className="text-muted-foreground">Available: </span>
-                          <span className="font-medium">{formatMemory(memData.available_memory)}</span>
-                        </div>
+                        {memData && memData.total_memory && (
+                          <div>
+                            <span className="text-muted-foreground">Total: </span>
+                            <span className="font-medium">{formatMemory(memData.total_memory)}</span>
+                          </div>
+                        )}
+                        {memData && memData.used_memory && (
+                          <div>
+                            <span className="text-muted-foreground">Used: </span>
+                            <span className="font-medium">{formatMemory(memData.used_memory)}</span>
+                          </div>
+                        )}
+                        {memData && memData.free_memory && (
+                          <div>
+                            <span className="text-muted-foreground">Free: </span>
+                            <span className="font-medium">{formatMemory(memData.free_memory)}</span>
+                          </div>
+                        )}
+                        {memData && memData.available_memory && (
+                          <div>
+                            <span className="text-muted-foreground">Available: </span>
+                            <span className="font-medium">{formatMemory(memData.available_memory)}</span>
+                          </div>
+                        )}
                       </div>
 
                       {/* VM list */}
@@ -646,14 +666,18 @@ export default function MemoryUsageChart() {
                                 </div>
 
                                 <div className="grid grid-cols-2 gap-1 text-xs text-muted-foreground">
-                                  <div>
-                                    <span>Total: </span>
-                                    <span className="font-medium">{formatMemory(vm.total_memory)}</span>
-                                  </div>
-                                  <div>
-                                    <span>Used: </span>
-                                    <span className="font-medium">{formatMemory(vm.used_memory)}</span>
-                                  </div>
+                                  {vm && vm.total_memory && (
+                                    <div>
+                                      <span>Total: </span>
+                                      <span className="font-medium">{formatMemory(vm.total_memory)}</span>
+                                    </div>
+                                  )}
+                                  {vm && vm.used_memory && (
+                                    <div>
+                                      <span>Used: </span>
+                                      <span className="font-medium">{formatMemory(vm.used_memory)}</span>
+                                    </div>
+                                  )}
                                 </div>
                               </div>
                             ))}
@@ -748,4 +772,3 @@ function ChevronLeft(props: React.SVGProps<SVGSVGElement>) {
     </svg>
   )
 }
-

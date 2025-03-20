@@ -20,6 +20,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import ActivityLogsTable from "../tables/activity-logs-table"
 import EmailTemplateTable from "@/app/tables/email-template-table"
 import UsersRolesTable from "../tables/user-roles"
+import { DatabaseStatusBar } from "@/components/database-status-bar"
 
 export default function LogsPage({userId}: any) {
   const [isBackingUp, setIsBackingUp] = useState(false)
@@ -91,10 +92,16 @@ export default function LogsPage({userId}: any) {
       setIsRestoring(false);
     }
   };
-
+  const handleRefreshData = () => {
+    // Refresh data logic here
+    toast.success("Refreshing data...")
+    window.location.reload()
+  }
   return (
     <div className="container py-10 px-4 md:px-6">
+      <DatabaseStatusBar onRetry={handleRefreshData} className="mb-6" />
       <div className="flex justify-between items-center mb-6">
+
         <h1 className="text-3xl font-bold">Logs {userId}</h1>
         <div className="flex items-center gap-4">
         <Button onClick={handleBackupDatabase} disabled={isBackingUp}>

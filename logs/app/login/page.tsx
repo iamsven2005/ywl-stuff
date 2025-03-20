@@ -8,8 +8,9 @@ import { loginUser } from "./actions"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { toast } from "sonner"
+import { DatabaseStatusBar } from "@/components/database-status-bar"
 
 export default function LoginPage() {
   const [username, setUsername] = useState("")
@@ -24,7 +25,7 @@ export default function LoginPage() {
     try {
       const result = await loginUser({ username, password })
 
-      if (result.success) {
+      if (result?.success) {
         toast.success(`Welcome back, ${result.username}!`)
 
         // Redirect based on role
@@ -34,7 +35,7 @@ export default function LoginPage() {
           router.push("/notifications")
         }
       } else {
-        toast.error(result.message || "Login failed")
+        toast.error(result?.message || "Login failed")
       }
     } catch (error) {
       console.error("Login error:", error)
@@ -51,8 +52,11 @@ export default function LoginPage() {
           <CardTitle className="text-2xl">Login</CardTitle>
           <CardDescription>Enter your credentials to access the system</CardDescription>
         </CardHeader>
-        <form onSubmit={handleSubmit}>
-          <CardContent className="space-y-4">
+
+        <CardContent className="space-y-4">
+          <DatabaseStatusBar />
+
+          <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="username">Username</Label>
               <Input
@@ -75,13 +79,12 @@ export default function LoginPage() {
                 autoComplete="current-password"
               />
             </div>
-          </CardContent>
-          <CardFooter>
+
             <Button type="submit" className="w-full" disabled={isLoading}>
               {isLoading ? "Logging in..." : "Login"}
             </Button>
-          </CardFooter>
-        </form>
+          </form>
+        </CardContent>
       </Card>
     </div>
   )

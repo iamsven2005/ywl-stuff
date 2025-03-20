@@ -141,17 +141,28 @@ export default function DevicesTable() {
         search: debouncedSearchQuery,
         page: currentPage,
         pageSize: pageSize,
-      })
-
-      setDevices(result.devices)
-      setTotalPages(result.pageCount)
-      setTotalItems(result.totalCount)
+      });
+  
+      if (result) {
+        setDevices(result.devices || []);
+        setTotalPages(result.pageCount || 1);
+        setTotalItems(result.totalCount || 0);
+      } else {
+        // Handle null response gracefully
+        setDevices([]);
+        setTotalPages(1);
+        setTotalItems(0);
+      }
     } catch (error) {
-      toast.error("Failed to fetch devices")
+      toast.error("Failed to fetch devices");
+      setDevices([]);
+      setTotalPages(1);
+      setTotalItems(0);
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
+  
 
   // Load devices when filters or pagination changes
   useEffect(() => {

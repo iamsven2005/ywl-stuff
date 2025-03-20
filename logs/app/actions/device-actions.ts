@@ -56,7 +56,7 @@ export async function getDevices({ search = "", page = 1, pageSize = 10 }: GetDe
     }
   } catch (error) {
     console.error("Error fetching devices:", error)
-    throw new Error("Failed to fetch devices")
+    return null
   }
 }
 
@@ -91,7 +91,7 @@ export async function addDevice(data: DeviceData) {
     return { success: true, device }
   } catch (error) {
     console.error("Error adding device:", error)
-    throw new Error("Failed to add device")
+    return null
   }
 }
 
@@ -168,7 +168,7 @@ export async function getAllDeviceNames() {
     return devices.map((device) => device.name)
   } catch (error) {
     console.error("Error fetching device names:", error)
-    throw new Error("Failed to fetch device names")
+    return null
   }
 }
 

@@ -42,7 +42,7 @@ export async function getNotes({ search = "", page = 1, pageSize = 10 }: GetNote
     }
   } catch (error) {
     console.error("Error fetching notes:", error)
-    throw new Error("Failed to fetch notes")
+    return null
   }
 }
 
@@ -54,7 +54,7 @@ export async function getNote(id: number) {
     return note
   } catch (error) {
     console.error("Error fetching note:", error)
-    throw new Error("Failed to fetch note")
+    return null
   }
 }
 

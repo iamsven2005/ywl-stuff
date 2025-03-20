@@ -145,7 +145,7 @@ export async function getLogs({
     }
   } catch (error) {
     console.error("Error fetching logs:", error)
-    throw new Error("Failed to fetch logs")
+    return null
   }
 }
 
@@ -306,7 +306,7 @@ export async function getDeviceUsageData(timeRange: string) {
     }
   } catch (error) {
     console.error("Error fetching device usage data:", error)
-    throw new Error("Failed to fetch device usage data")
+    return null
   }
 }
 
@@ -405,7 +405,7 @@ export async function getMemoryUsageData(timeRange: string) {
     }
   } catch (error) {
     console.error("Error fetching memory usage data:", error)
-    throw new Error("Failed to fetch memory usage data")
+    return null
   }
 }
 
@@ -440,7 +440,7 @@ export async function deleteLog(id: number) {
     return { success: true }
   } catch (error) {
     console.error("Error deleting log:", error)
-    throw new Error("Failed to delete log")
+    return null
   }
 }
 
@@ -456,7 +456,7 @@ export async function deleteMultipleLogs(ids: number[]) {
     return { success: true }
   } catch (error) {
     console.error("Error deleting logs:", error)
-    throw new Error("Failed to delete logs")
+    return null
   }
 }
 
@@ -547,7 +547,7 @@ export async function getSensorData(timeRange: string) {
     }
   } catch (error) {
     console.error("Error fetching sensor data:", error)
-    throw new Error("Failed to fetch sensor data")
+    return null
   }
 }
 

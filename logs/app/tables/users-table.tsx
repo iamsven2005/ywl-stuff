@@ -172,15 +172,21 @@ export default function UsersTable() {
     }
   }
 
-  // Fetch all devices for device selection
   const fetchDevices = async () => {
     try {
-      const result = await getDevices({ pageSize: 1000 }) // Get all devices
-      setDevices(result.devices)
+      const result = await getDevices({ pageSize: 1000 }); // Fetch devices with a page size limit
+  
+      if (result && result.devices) {
+        setDevices(result.devices);
+      } else {
+        setDevices([]); // Fallback to empty array if result is null or missing devices
+      }
     } catch (error) {
-      toast.error("Failed to fetch devices")
+      toast.error("Failed to fetch devices");
+      setDevices([]); // Ensure devices is always set to an array
     }
-  }
+  };
+  
 
   // Load users when filters or pagination changes
   useEffect(() => {

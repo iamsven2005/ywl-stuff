@@ -44,28 +44,42 @@ export default function UsageChart() {
   const [selectedDevices, setSelectedDevices] = useState<string[]>([])
   const [deviceFilterOpen, setDeviceFilterOpen] = useState(false)
 
-  // Fetch usage data
   const fetchUsageData = async () => {
-    setIsLoading(true)
+    setIsLoading(true);
     try {
-      const data = await getDeviceUsageData(timeRange)
-      setChartData(data.timeSeriesData)
-
-      // Extract unique devices
-      const uniqueDevices = Array.from(
-        new Set(data.timeSeriesData.flatMap((entry) => Object.keys(entry).filter((key) => key !== "timestamp"))),
-      )
-
-      // Set devices and ensure all are selected by default
-      setDevices(uniqueDevices as string[])
-      setSelectedDevices(uniqueDevices as string[])
+      const data = await getDeviceUsageData(timeRange);
+  
+      if (data && data.timeSeriesData) {
+        setChartData(data.timeSeriesData);
+  
+        // Extract unique devices safely
+        const uniqueDevices = Array.from(
+          new Set(
+            data.timeSeriesData.flatMap((entry) =>
+              entry ? Object.keys(entry).filter((key) => key !== "timestamp") : []
+            )
+          )
+        );
+  
+        // Set devices and ensure all are selected by default
+        setDevices(uniqueDevices as string[]);
+        setSelectedDevices(uniqueDevices as string[]);
+      } else {
+        setChartData([]); // Fallback to empty array if `data` is null or `timeSeriesData` is missing
+        setDevices([]);
+        setSelectedDevices([]);
+      }
     } catch (error) {
-      toast.error("Failed to fetch usage data")
-      console.error(error)
+      toast.error("Failed to fetch usage data");
+      console.error(error);
+      setChartData([]); // Ensure `chartData` is always an array
+      setDevices([]);
+      setSelectedDevices([]);
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
+  
 
   // Handle device selection for filtering
   const handleDeviceSelect = (value: string) => {
