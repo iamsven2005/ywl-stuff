@@ -8,7 +8,7 @@ export async function getRoles() {
     return { roles };
   } catch (error) {
     console.error("Error fetching roles:", error);
-    throw new Error("Failed to fetch roles");
+    return null
   }
 }
 

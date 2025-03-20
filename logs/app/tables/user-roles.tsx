@@ -27,15 +27,22 @@ export default function UsersRolesTable() {
   const [roleModalOpen, setRoleModalOpen] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
 
-  // Fetch roles
   const fetchRoles = async () => {
     try {
       const result = await getRoles();
-      setRoles(result.roles);
+  
+      if (result) {
+        setRoles(result.roles || []); // If roles are null, set to an empty array
+      } else {
+        // Handle null response gracefully
+        setRoles([]);
+      }
     } catch (error) {
       toast.error("Failed to fetch roles");
+      setRoles([]);
     }
   };
+  
 
   useEffect(() => {
     fetchRoles();

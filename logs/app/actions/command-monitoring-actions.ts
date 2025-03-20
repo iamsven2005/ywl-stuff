@@ -124,7 +124,7 @@ export async function checkCommandMatches(logEntry: string, logId: number, logTy
 
         // Get email template name from the appropriate source
         const emailTemplateName =
-          command.emailTemplate?.name || command.rule.emailTemplate?.name || group?.emailTemplate?.name || null
+          command.emailTemplate?.name || command.rule.emailTemplate?.name || group?.name || null
 
         matches.push({
           logId,
@@ -458,8 +458,6 @@ export async function unmarkCommandMatchAsAddressed(matchId: number) {
       data: {
         addressed: false,
         addressedBy: null,
-        addressedAt: null,
-        // Keep the notes for reference
       },
     })
 
@@ -469,7 +467,6 @@ export async function unmarkCommandMatchAsAddressed(matchId: number) {
       targetType: "CommandMatch",
       targetId: matchId,
       details: `Unmarked command match for rule "${match.rule.name}" as addressed`,
-      userId: session.user.id,
     })
 
     return updatedMatch

@@ -70,7 +70,6 @@ export default function NotesTable() {
     debouncedSearch(value)
   }
 
-  // Fetch notes with filters
   const fetchNotes = async () => {
     setIsLoading(true)
     try {
@@ -78,17 +77,28 @@ export default function NotesTable() {
         search: debouncedSearchQuery,
         page: currentPage,
         pageSize: pageSize,
-      })
-
-      setNotes(result.notes)
-      setTotalPages(result.pageCount)
-      setTotalItems(result.totalCount)
+      });
+  
+      if (result) {
+        setNotes(result.notes || []); // If notes are null, set to an empty array
+        setTotalPages(result.pageCount || 1); // Default to 1 if null
+        setTotalItems(result.totalCount || 0); // Default to 0 if null
+      } else {
+        // Handle null response gracefully
+        setNotes([]);
+        setTotalPages(1);
+        setTotalItems(0);
+      }
     } catch (error) {
-      toast.error("Failed to fetch notes")
+      toast.error("Failed to fetch notes");
+      setNotes([]);
+      setTotalPages(1);
+      setTotalItems(0);
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
+  
 
   // Load notes when filters or pagination changes
   useEffect(() => {

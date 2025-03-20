@@ -146,34 +146,53 @@ export default function AuthLogsTable() {
     const fetchDeviceNames = async () => {
       try {
         const deviceNames = await getAllDeviceNames()
+    
+        // Ensure deviceNames is not null
+        if (!deviceNames || !Array.isArray(deviceNames)) {
+          setHostOptions([{ label: "All Devices", value: "all" }]) // Fallback to default
+          toast.error("No device names available.")
+          return
+        }
+    
         const options = [
           { label: "All Devices", value: "all" },
           ...deviceNames.map((name) => ({ label: name, value: name })),
         ]
+    
         setHostOptions(options)
       } catch (error) {
         console.error("Failed to fetch device names:", error)
         toast.error("Failed to load device list")
       }
     }
+    
 
     fetchDeviceNames()
   }, [])
 
-  // Add useEffect to fetch rule groups and rules
-  useEffect(() => {
-    const fetchRuleGroupsAndRules = async () => {
-      try {
-        const ruleGroupsData = await getAllRuleGroupsAndRules()
-        setRuleGroups(ruleGroupsData)
-      } catch (error) {
-        console.error("Failed to fetch rule groups and rules:", error)
-        toast.error("Failed to load rule groups and rules")
-      }
-    }
+useEffect(() => {
+  const fetchRuleGroupsAndRules = async () => {
+    try {
+      const ruleGroupsData = await getAllRuleGroupsAndRules();
 
-    fetchRuleGroupsAndRules()
-  }, [])
+      // Ensure ruleGroupsData is an array before setting it
+      if (!ruleGroupsData || !Array.isArray(ruleGroupsData)) {
+        setRuleGroups([]); // Set an empty array as a fallback
+        toast.error("No rule groups available.");
+        return;
+      }
+
+      setRuleGroups(ruleGroupsData);
+    } catch (error) {
+      console.error("Failed to fetch rule groups and rules:", error);
+      toast.error("Failed to load rule groups and rules");
+      setRuleGroups([]); // Ensure ruleGroups is always an array
+    }
+  };
+
+  fetchRuleGroupsAndRules();
+}, []);
+
 
   // Apply debounced search
   const debouncedSearch = debounce((value: string) => {
@@ -189,13 +208,11 @@ export default function AuthLogsTable() {
     debouncedSearch(value)
   }
 
-  // Fetch logs with filters
-  // Modify the fetchLogs function to check for command matches
   const fetchLogs = async () => {
-    setIsLoading(true)
+    setIsLoading(true);
     try {
-      const hosts = selectedHosts.includes("all") ? [] : selectedHosts
-
+      const hosts = selectedHosts.includes("all") ? [] : selectedHosts;
+  
       const result = await getAuthLogs({
         search: debouncedSearchQuery,
         hosts,
@@ -203,17 +220,27 @@ export default function AuthLogsTable() {
         rules: selectedRules,
         page: currentPage,
         pageSize: pageSize,
-      })
-
-      setLogs(result.logs)
-      setTotalPages(result.pageCount)
-      setTotalItems(result.totalCount)
-      setMatchedCommands(result.matchedCommands || [])
-
+      });
+  
+      // Ensure result is not null before accessing its properties
+      if (!result) {
+        setLogs([]); // Set empty array to prevent errors
+        setTotalPages(1);
+        setTotalItems(0);
+        setMatchedCommands([]);
+        toast.error("No authentication logs available.");
+        return;
+      }
+  
+      setLogs(result.logs);
+      setTotalPages(result.pageCount);
+      setTotalItems(result.totalCount);
+      setMatchedCommands(result.matchedCommands || []);
+  
       // Check for command matches
-      const matches = await processBatchForCommandMatches(result.logs, "auth")
-      setCommandMatches(matches)
-
+      const matches = await processBatchForCommandMatches(result.logs, "auth");
+      setCommandMatches(matches);
+  
       // Show toast notifications for matches
       if (matches.length > 0) {
         matches.forEach((match: any) => {
@@ -232,17 +259,17 @@ export default function AuthLogsTable() {
             </div>,
             {
               duration: 5000,
-            },
-          )
-        })
+            }
+          );
+        });
       }
     } catch (error) {
-      toast.error("Failed to fetch auth logs")
+      toast.error("Failed to fetch authentication logs.");
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
-
+  };
+  
   // Load logs when filters or pagination changes
   useEffect(() => {
     fetchLogs()
@@ -375,7 +402,7 @@ export default function AuthLogsTable() {
 
       // Refresh rule groups to show the new command
       const ruleGroupsData = await getAllRuleGroupsAndRules()
-      setRuleGroups(ruleGroupsData)
+      setRuleGroups(ruleGroupsData || [])
     } catch (error) {
       toast.error(`Failed to add command: ${error instanceof Error ? error.message : "Unknown error"}`)
     } finally {

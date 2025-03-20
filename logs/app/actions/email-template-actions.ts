@@ -111,7 +111,7 @@ export async function getEmailTemplate(id: number) {
     return emailTemplate
   } catch (error: any) {
     console.error("Error fetching email template:", error)
-    throw new Error(`Failed to fetch email template: ${error.message || "Unknown error"}`)
+    return null
   }
 }
 
@@ -143,7 +143,7 @@ export async function getAllEmailTemplates() {
       }));
     } catch (error: any) {
       console.error("Error fetching all email templates:", error);
-      throw new Error(`Failed to fetch email templates: ${error.message || "Unknown error"}`);
+      return null
     }
   }
   
@@ -290,6 +290,6 @@ export async function assignUsersToEmailTemplate(emailTemplateId: number, userId
       return assignedUsers.map((relation) => relation.user);
     } catch (error) {
       console.error("Error fetching users for email template:", error);
-      throw new Error("Failed to fetch assigned users");
+      return null
     }
   }

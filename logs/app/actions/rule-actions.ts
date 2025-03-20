@@ -81,7 +81,7 @@ export async function getRuleGroups({ search = "", page = 1, pageSize = 10 }: Ge
     }
   } catch (error) {
     console.error("Error fetching rule groups:", error)
-    throw new Error("Failed to fetch rule groups")
+    return null
   }
 }
 
@@ -508,7 +508,7 @@ export async function getAllRuleGroupsAndRules() {
     return ruleGroups
   } catch (error) {
     console.error("Error fetching all rule groups and rules:", error)
-    throw new Error("Failed to fetch rule groups and rules")
+    return null
   }
 }
 

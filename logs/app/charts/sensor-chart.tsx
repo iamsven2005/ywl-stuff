@@ -90,54 +90,64 @@ export default function SensorChart() {
 
   // Fetch sensor data
   const fetchSensorData = async () => {
-    setIsLoading(true)
+    setIsLoading(true);
     try {
-      const data = await getSensorData(timeRange)
-      setChartData(data.timeSeriesData)
-
+      const data = await getSensorData(timeRange);
+  
+      // Check if data is null or undefined before processing
+      if (!data || !data.timeSeriesData) {
+        setChartData([]); // Set empty data if null
+        toast.error("No sensor data available.");
+        return;
+      }
+  
+      setChartData(data.timeSeriesData);
+  
       // Extract unique sensors by type and hosts
-      const tempSensors = new Set<string>()
-      const voltSensors = new Set<string>()
-      const uniqueHosts = new Set<string>()
-
+      const tempSensors = new Set<string>();
+      const voltSensors = new Set<string>();
+      const uniqueHosts = new Set<string>();
+  
       data.timeSeriesData.forEach((entry: any) => {
+        if (!entry) return; // Ensure entry is not null
+  
         Object.keys(entry).forEach((key) => {
-          if (key !== "timestamp") {
-            if (entry[key].type === "temperature") {
-              tempSensors.add(key)
-            } else if (entry[key].type === "voltage") {
-              voltSensors.add(key)
+          if (key !== "timestamp" && entry[key]) {
+            if (entry[key]?.type === "temperature") {
+              tempSensors.add(key);
+            } else if (entry[key]?.type === "voltage") {
+              voltSensors.add(key);
             }
-
+  
             // Extract host from the data if available
-            if (entry[key].host) {
-              uniqueHosts.add(entry[key].host)
+            if (entry[key]?.host) {
+              uniqueHosts.add(entry[key].host);
             }
           }
-        })
-      })
-
+        });
+      });
+  
       setSensors({
         temperature: Array.from(tempSensors),
         voltage: Array.from(voltSensors),
-      })
-
+      });
+  
       // Set hosts and default to all hosts selected
-      const hostsList = Array.from(uniqueHosts)
-      setHosts(hostsList)
-
+      const hostsList = Array.from(uniqueHosts);
+      setHosts(hostsList);
+  
       // If no hosts are selected yet, select all by default
       if (selectedHosts.length === 0 && hostsList.length > 0) {
-        setSelectedHosts([...hostsList])
+        setSelectedHosts([...hostsList]);
       }
     } catch (error) {
-      toast.error("Failed to fetch sensor data")
-      console.error(error)
+      toast.error("Failed to fetch sensor data.");
+      console.error(error);
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
-
+  };
+  
   // Handle sensor selection for filtering
   const handleSensorSelect = (value: string) => {
     if (selectedSensors.includes(value)) {

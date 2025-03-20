@@ -49,25 +49,35 @@ export default function ActivityLogsTable() {
   }, [actionType, targetType, page, dateRange])
 
   const fetchLogs = async () => {
-    setIsLoading(true)
+    setIsLoading(true);
     try {
       const result = await getCurrentUserActivityLogs({
         actionType: actionType !== "all" ? actionType : undefined,
         targetType: targetType !== "all" ? targetType : undefined,
         page,
         pageSize,
-      })
-
-      setLogs(result.logs)
-      setTotalCount(result.totalCount)
-      setPageCount(result.pageCount)
+      });
+  
+      if (result) {
+        setLogs(result.logs);
+        setTotalCount(result.totalCount);
+        setPageCount(result.pageCount);
+      } else {
+        // Handle null case
+        setLogs([]);
+        setTotalCount(0);
+        setPageCount(1);
+      }
     } catch (error) {
-      console.error("Error fetching activity logs:", error)
+      console.error("Error fetching activity logs:", error);
+      setLogs([]);
+      setTotalCount(0);
+      setPageCount(1);
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
-
+  };
+  
   const handlePageChange = (newPage: number) => {
     setPage(newPage)
   }

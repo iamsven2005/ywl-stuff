@@ -113,7 +113,7 @@ export async function getAuthLogs({
     }
   } catch (error) {
     console.error("Error fetching auth logs:", error)
-    throw new Error("Failed to fetch auth logs")
+    return null
   }
 }
 

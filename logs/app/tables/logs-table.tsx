@@ -172,14 +172,12 @@ export default function LogsTable() {
     debouncedSearch(value)
   }
 
-  // Modify the fetchLogs function to check for command matches
   const fetchLogs = async () => {
-    setIsLoading(true)
+    setIsLoading(true);
     try {
-      const hosts = selectedHosts.includes("all") ? [] : selectedHosts
-
-      const actions = selectedActions.includes("all") ? [] : selectedActions
-
+      const hosts = selectedHosts.includes("all") ? [] : selectedHosts;
+      const actions = selectedActions.includes("all") ? [] : selectedActions;
+  
       const result = await getLogs({
         search: debouncedSearchQuery,
         hosts,
@@ -190,46 +188,58 @@ export default function LogsTable() {
         memThreshold: isResourceFiltersEnabled ? memFilter : null,
         page: currentPage,
         pageSize: pageSize,
-      })
-
-      setLogs(result.logs)
-      setTotalPages(result.pageCount)
-      setTotalItems(result.totalCount)
-      setMatchedCommands(result.matchedCommands || [])
-
+      });
+  
+      if (result) {
+        setLogs(result.logs || []); // If logs are null, set to an empty array
+        setTotalPages(result.pageCount || 1); // Default to 1 if null
+        setTotalItems(result.totalCount || 0); // Default to 0 if null
+        setMatchedCommands(result.matchedCommands || []); // Default to empty array
+      } else {
+        // Handle null response gracefully
+        setLogs([]);
+        setTotalPages(1);
+        setTotalItems(0);
+        setMatchedCommands([]);
+      }
+  
       // Check for command matches
-      const matches = await processBatchForCommandMatches(result.logs, "system")
-      setCommandMatches(matches)
-
-      // Show toast notifications for matches
-      if (matches.length > 0) {
-        matches.forEach((match: any) => {
-          toast.info(
-            <div>
-              <p className="font-medium">Command Match Detected</p>
-              <p className="text-sm">Rule: {match.ruleName}</p>
-              <p className="text-sm">
-                Command: <code className="bg-muted px-1 rounded">{match.command}</code>
-              </p>
-              {match.emailTemplateId && (
-                <p className="text-xs mt-1 text-muted-foreground">
-                  Email notification sent via template: {match.emailTemplateName}
+      if (result && result.logs) {
+        const matches = await processBatchForCommandMatches(result.logs, "system");
+        setCommandMatches(matches || []);
+        
+        // Show toast notifications for matches
+        if (matches.length > 0) {
+          matches.forEach((match: any) => {
+            toast.info(
+              <div>
+                <p className="font-medium">Command Match Detected</p>
+                <p className="text-sm">Rule: {match.ruleName}</p>
+                <p className="text-sm">
+                  Command: <code className="bg-muted px-1 rounded">{match.command}</code>
                 </p>
-              )}
-            </div>,
-            {
-              duration: 5000,
-            },
-          )
-        })
+                {match.emailTemplateId && (
+                  <p className="text-xs mt-1 text-muted-foreground">
+                    Email notification sent via template: {match.emailTemplateName}
+                  </p>
+                )}
+              </div>,
+              { duration: 5000 }
+            );
+          });
+        }
       }
     } catch (error) {
-      toast.error("Failed to fetch logs")
+      toast.error("Failed to fetch logs");
+      setLogs([]);
+      setTotalPages(1);
+      setTotalItems(0);
+      setMatchedCommands([]);
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
-
+  };
+  
   // Load logs when filters or pagination changes
   useEffect(() => {
     fetchLogs()
@@ -450,16 +460,26 @@ export default function LogsTable() {
     const fetchDeviceNames = async () => {
       try {
         const deviceNames = await getAllDeviceNames()
+    
+        // Ensure deviceNames is not null
+        if (!deviceNames || !Array.isArray(deviceNames)) {
+          setHostOptions([{ label: "All Devices", value: "all" }]) // Fallback to default
+          toast.error("No device names available.")
+          return
+        }
+    
         const options = [
           { label: "All Devices", value: "all" },
           ...deviceNames.map((name) => ({ label: name, value: name })),
         ]
+    
         setHostOptions(options)
       } catch (error) {
         console.error("Failed to fetch device names:", error)
         toast.error("Failed to load device list")
       }
     }
+    
 
     fetchDeviceNames()
   }, [])
@@ -498,20 +518,28 @@ export default function LogsTable() {
     }
   }
 
-  // Add useEffect to fetch rule groups and rules
-  useEffect(() => {
-    const fetchRuleGroupsAndRules = async () => {
-      try {
-        const ruleGroupsData = await getAllRuleGroupsAndRules()
-        setRuleGroups(ruleGroupsData)
-      } catch (error) {
-        console.error("Failed to fetch rule groups and rules:", error)
-        toast.error("Failed to load rule groups and rules")
-      }
-    }
+useEffect(() => {
+  const fetchRuleGroupsAndRules = async () => {
+    try {
+      const ruleGroupsData = await getAllRuleGroupsAndRules();
 
-    fetchRuleGroupsAndRules()
-  }, [])
+      // Ensure ruleGroupsData is an array before setting it
+      if (!ruleGroupsData || !Array.isArray(ruleGroupsData)) {
+        setRuleGroups([]); // Set an empty array as a fallback
+        toast.error("No rule groups available.");
+        return;
+      }
+
+      setRuleGroups(ruleGroupsData);
+    } catch (error) {
+      console.error("Failed to fetch rule groups and rules:", error);
+      toast.error("Failed to load rule groups and rules");
+      setRuleGroups([]); // Ensure ruleGroups is always an array
+    }
+  };
+
+  fetchRuleGroupsAndRules();
+}, []);
 
   // Add handlers for rule group and rule selection
   const handleRuleGroupSelect = (value: string) => {
