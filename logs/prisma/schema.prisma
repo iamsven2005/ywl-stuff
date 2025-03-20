@@ -174,6 +174,8 @@ model EmailTemplate {
   Command Command[]
   
   assignedUsers UserEmailTemplate[] // Many-to-many relationship
+
+  SavedQuery SavedQuery[]
 }
 
 model User {
@@ -238,3 +240,15 @@ model NotificationRead {
   @@unique([notificationId, userId])
 }
 
+model SavedQuery {
+  id          Int      @id @default(autoincrement())
+  name        String   @unique
+  description String?
+  tableName   String   // The selected table (e.g., "logs", "users")
+  columns     String[] // Selected columns (Array of strings)
+  conditions  Json?    // Store conditions as JSON for flexibility
+  emailTemplateId Int? // Optional email template assignment
+  emailTemplate   EmailTemplate? @relation(fields: [emailTemplateId], references: [id], onDelete: SetNull)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}

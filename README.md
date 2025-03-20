@@ -41,6 +41,8 @@ network:
         via: 192.168.1.253
   version: 2
 
+sudo netplan apply
+
 - Checking for SSH
 - nmap localhost -p 22
 
@@ -138,3 +140,18 @@ echo "[INFO] Running main script tasks..."
 
 
 curl -o ~/Desktop/script.sh http://192.168.1.102:3000/script.sh
+
+
+sudo apt update
+sudo apt install postgresql postgresql-contrib -y
+sudo -i -u postgres
+psql
+
+CREATE DATABASE logs_database
+postgres=# CREATE USER admin WITH PASSWORD 'host-machine';
+postgres=# GRANT ALL PRIVILEGES ON DATABASE logs_database TO admin;
+postgres=# CREATE SCHEMA logs;
+cd /etc/postgres/16/main/postgresql.conf
+listen_addresses = '*'
+
+cd /etc/postgres/16/main/pg_hba.conf

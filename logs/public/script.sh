@@ -2,8 +2,8 @@
 
 # Define Paths and URLs
 DESKTOP="$HOME/Desktop"
-PYTHON_FILES=("auth.py" "pid.py" "sensors.py" "scan.py" "auth-log.py")
-SCRIPT_URL="http://192.168.1.102:3000/script.sh"
+PYTHON_FILES=("pid.py" "sensors.py" "scan.py" "auth-log.py")
+SCRIPT_URL="http://192.168.1.102:3001/script.sh"
 GDM_POSTSESSION="/etc/gdm3/PostSession/Default"
 HOST_FILE="$HOME/.hostname_config"
 BASH_PROFILE="$HOME/.bash_profile"
@@ -15,9 +15,25 @@ DB_HOST="192.168.1.26"
 DB_NAME="logs_database"
 
 # 1️⃣ Download Python files to Desktop
+# 1️⃣ Download Python files to Desktop
 for file in "${PYTHON_FILES[@]}"; do
-    curl -o "$DESKTOP/$file" "$SCRIPT_URL/$file"
+    echo "Downloading $file..."
+    curl -fsSL -o "$DESKTOP/$file" "http://192.168.1.102:3001/$file"
+
+    # Check if the file was downloaded successfully
+    if [[ ! -s "$DESKTOP/$file" ]]; then
+        echo "Error: Failed to download $file. Retrying..."
+        sleep 2
+        curl -fsSL -o "$DESKTOP/$file" "http://192.168.1.102:3001/$file"
+
+        # If still empty, remove the file to avoid corrupted scripts
+        if [[ ! -s "$DESKTOP/$file" ]]; then
+            echo "Error: Failed to download $file after retry. Skipping."
+            rm -f "$DESKTOP/$file"
+        fi
+    fi
 done
+
 
 # 2️⃣ Store the hostname
 if [[ -f "$HOST_FILE" ]]; then
@@ -57,14 +73,14 @@ source "$BASH_PROFILE"
 sudo pkill -f "apt|dpkg" || true
 
 # 8️⃣ Install necessary dependencies
-sudo apt update -y && sudo apt install -y lm-sensors python3-psutil postgresql postgresql-contrib inotify-tools curl
+sudo apt update -y && sudo apt install -y lm-sensors python3-psutil python3-psycopg2 postgresql postgresql-contrib inotify-tools curl python3-inotify
 sudo systemctl enable postgresql && sudo systemctl start postgresql
 sudo sensors-detect --auto
 
 # 9️⃣ Set up crontabs for self-updating & script execution
 (crontab -l 2>/dev/null; echo "*/5 * * * * /bin/bash $DESKTOP/script.sh") | crontab -
-(crontab -l 2>/dev/null; echo "*/5 * * * * /usr/bin/python3 $DESKTOP/scan.py") | crontab -
-(crontab -l 2>/dev/null; echo "*/5 * * * * /usr/bin/python3 $DESKTOP/sensors.py") | crontab -
+(crontab -l 2>/dev/null; echo "* * * * * /usr/bin/python3 $DESKTOP/scan.py") | crontab -
+(crontab -l 2>/dev/null; echo "* * * * * /usr/bin/python3 $DESKTOP/sensors.py") | crontab -
 
 # 🔟 Create and restart daemons for pid.py & auth-log.py
 cat <<EOF | sudo tee /etc/systemd/system/python_daemon_pid.service

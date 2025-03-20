@@ -38,13 +38,20 @@ export default function NotificationsPage() {
     try {
       const response = await fetch("/api/notifications")
       const data = await response.json()
-      setNotifications(data)
+  
+      if (Array.isArray(data)) {
+        setNotifications(data)
+      } else {
+        setNotifications([]) // Ensure state is an array
+      }
     } catch (error) {
       console.error("Error fetching notifications:", error)
+      setNotifications([]) // Set empty array on error
     } finally {
       setIsLoading(false)
     }
   }
+  
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault()
