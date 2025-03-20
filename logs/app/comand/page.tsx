@@ -17,11 +17,16 @@ export default async function CommandMatchesPage({
   const page = Number.parseInt(searchParams.page || "1", 10)
   const pageSize = 10
 
-  const { matches, totalCount, pageCount } = await getCommandMatches({
+  const response = await getCommandMatches({
     addressed: tab === "addressed" ? true : tab === "bulk-address" ? false : false,
     page,
     pageSize,
   })
+  
+  const matches = response?.matches ?? [] // Ensure `matches` is always an array
+  const totalCount = response?.totalCount ?? 0
+  const pageCount = response?.pageCount ?? 1
+  
 
   // Transform the matches to include the required properties
   const transformedMatches = matches.map((match) => ({

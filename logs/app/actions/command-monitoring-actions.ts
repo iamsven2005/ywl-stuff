@@ -331,12 +331,21 @@ export async function getCommandMatches({
       ]
     }
 
-    // Get total count for pagination
-    const totalCount = await db.commandMatch.count({ where })
+    // ✅ Fetch total count before using it
+    const totalCount = await db.commandMatch.count()
 
-    // Calculate pagination
+    // ✅ If totalCount is 0, return an early empty response
+    if (totalCount === 0) {
+      return {
+        matches: [],
+        totalCount,
+        pageCount: 0,
+        currentPage: page,
+      }
+    }
+
+    // ✅ Calculate pagination
     const skip = (page - 1) * pageSize
-    const take = pageSize
     const pageCount = Math.ceil(totalCount / pageSize)
 
     // Get matches with related data
@@ -366,7 +375,7 @@ export async function getCommandMatches({
         timestamp: "desc",
       },
       skip,
-      take,
+      take: pageSize, // ✅ Use `take` instead of `limit`
     })
 
     return {
@@ -377,7 +386,12 @@ export async function getCommandMatches({
     }
   } catch (error) {
     console.error("Error getting command matches:", error)
-    throw error
+    return {
+      matches: [],
+      totalCount: 0,
+      pageCount: 0,
+      currentPage: page,
+    }
   }
 }
 
@@ -423,7 +437,7 @@ export async function markCommandMatchAsAddressed(matchId: number, notes?: strin
     return updatedMatch
   } catch (error) {
     console.error("Error marking command match as addressed:", error)
-    throw error
+    return null
   }
 }
 
@@ -472,7 +486,7 @@ export async function unmarkCommandMatchAsAddressed(matchId: number) {
     return updatedMatch
   } catch (error) {
     console.error("Error unmarking command match:", error)
-    throw error
+    return null
   }
 }
 
@@ -511,7 +525,7 @@ export async function deleteCommandMatch(matchId: number) {
     return { success: true }
   } catch (error) {
     console.error("Error deleting command match:", error)
-    throw error
+    return null
   }
 }
 
@@ -569,7 +583,7 @@ export async function markAllCommandMatchesAsAddressed() {
     return { success: true, count: result.count }
   } catch (error) {
     console.error("Error marking all command matches as addressed:", error)
-    throw error
+    return null
   }
 }
 
