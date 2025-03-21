@@ -12,7 +12,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
-import { LogOut, User } from "lucide-react"
+import { LogOut, User, TicketIcon } from "lucide-react"
 import { toast } from "sonner"
 import { getCurrentUser, logoutUser } from "@/app/login/actions"
 
@@ -85,6 +85,11 @@ export function UserNav() {
         <DropdownMenuItem onClick={handleLogout}>
           <LogOut className="mr-2 h-4 w-4" />
           <span>Log out</span>
+        </DropdownMenuItem>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem onClick={() => router.push("/tickets")}>
+          <TicketIcon className="mr-2 h-4 w-4" />
+          <span>Support Tickets</span>
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
