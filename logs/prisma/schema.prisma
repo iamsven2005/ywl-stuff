@@ -67,6 +67,8 @@ model devices {
   notes       String
   users       DeviceUser[]
   status     String   @default("online")
+
+  SupportTicket SupportTicket[]
 }
 
 
@@ -195,6 +197,9 @@ model User {
   CommandMatch CommandMatch[]
 
   NotificationRead NotificationRead[]
+  assignedTickets SupportTicket[] @relation("AssignedTickets")
+  createdTickets  SupportTicket[] @relation("CreatedTickets")
+  ticketComments  TicketComment[]
 }
 
 // Junction table for many-to-many relation between User & EmailTemplate
@@ -251,4 +256,33 @@ model SavedQuery {
   emailTemplate   EmailTemplate? @relation(fields: [emailTemplateId], references: [id], onDelete: SetNull)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+}
+
+model TicketComment {
+  id          Int      @id @default(autoincrement())
+  ticketId    Int
+  userId      Int
+  content     String   @db.Text
+  createdAt   DateTime @default(now())
+
+  ticket      SupportTicket @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  user        User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+model SupportTicket {
+  id             Int      @id @default(autoincrement())
+  title          String
+  description    String   @db.Text
+  status         String   @default("open") // open, in_progress, resolved, closed
+  priority       String   @default("medium") // low, medium, high, critical
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  assignedToId   Int?     // Technician
+  createdById    Int      // Requestor
+  relatedDeviceId Int?    // Optional: if related to a device
+
+  assignedTo     User?    @relation("AssignedTickets", fields: [assignedToId], references: [id])
+  createdBy      User     @relation("CreatedTickets", fields: [createdById], references: [id])
+  relatedDevice  devices? @relation(fields: [relatedDeviceId], references: [id])
+
+  comments       TicketComment[]
 }
