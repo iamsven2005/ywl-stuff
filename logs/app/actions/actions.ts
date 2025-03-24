@@ -344,16 +344,7 @@ export async function getMemoryUsageData(timeRange: string) {
       orderBy: {
         time: "asc",
       },
-      select: {
-        id: true,
-        time: true,
-        host: true,
-        total_memory: true,
-        used_memory: true,
-        free_memory: true,
-        available_memory: true,
-        percent_usage: true,
-      },
+      
     })
 
     // Process the data to create time series data
