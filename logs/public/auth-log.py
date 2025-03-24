@@ -11,7 +11,7 @@ def insert_log_entry(log_entry):
     try:
         conn = psycopg2.connect(**DB_CONFIG)
         cursor = conn.cursor()
-        cursor.execute("INSERT INTO logs.auth (log_entry, username) VALUES (%s, %s)", (log_entry, "host"))
+        cursor.execute("INSERT INTO logs.auth (log_entry, username) VALUES (%s, %s)", (log_entry, "__DEVICE_HOST__"))
         conn.commit()
         cursor.close()
         conn.close()

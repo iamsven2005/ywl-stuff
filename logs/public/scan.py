@@ -35,7 +35,7 @@ def store_memory_usage():
             VALUES (%s, %s, %s, %s, %s, %s)
             """,
             (memory_data["total_memory"], memory_data["used_memory"], memory_data["free_memory"], 
-             memory_data["available_memory"], memory_data["percent_usage"], "host")
+             memory_data["available_memory"], memory_data["percent_usage"], "__DEVICE_HOST__")
         )
         conn.commit()
         cursor.close()

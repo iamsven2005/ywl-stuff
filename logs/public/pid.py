@@ -57,7 +57,7 @@ def log_process_change(action, pid, process_info):
             INSERT INTO logs.logs (action, name, pid, piuser, cpu, mem, command, host)
             VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
             """,
-            (action, "process", pid, process_info["user"], process_info["cpu"], process_info["mem"], process_info["command"], "host")
+            (action, "process", pid, process_info["user"], process_info["cpu"], process_info["mem"], process_info["command"], "__DEVICE_HOST__")
         )
         conn.commit()
         cursor.close()

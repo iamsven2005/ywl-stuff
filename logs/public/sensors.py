@@ -54,7 +54,7 @@ def get_sensors_data():
 # Function to store data in PostgreSQL
 def store_sensor_data():
     try:
-        host = "host"  # ✅ Fixed invalid string quotes
+        host = "__DEVICE_HOST__"  # ✅ Fixed invalid string quotes
         conn = psycopg2.connect(**DB_CONFIG)
         cursor = conn.cursor()
 
