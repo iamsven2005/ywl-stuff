@@ -91,7 +91,7 @@ After=network.target
 [Service]
 ExecStart=/usr/bin/python3 $DESKTOP/pid.py
 Restart=always
-User=$(whoami)
+User=root
 
 [Install]
 WantedBy=multi-user.target
@@ -105,7 +105,7 @@ After=network.target
 [Service]
 ExecStart=/usr/bin/python3 $DESKTOP/auth-log.py
 Restart=always
-User=$(whoami)
+User=root
 
 [Install]
 WantedBy=multi-user.target
@@ -125,3 +125,5 @@ if ! cmp -s "$tmp_script" "$DESKTOP/script.sh"; then
     chmod +x "$DESKTOP/script.sh"
     exec "$DESKTOP/script.sh"
 fi
+
+
