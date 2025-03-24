@@ -77,10 +77,16 @@ sudo apt update -y && sudo apt install -y lm-sensors python3-psutil python3-psyc
 sudo systemctl enable postgresql && sudo systemctl start postgresql
 sudo sensors-detect --auto
 
-# 9️⃣ Set up crontabs for self-updating & script execution
-(crontab -l 2>/dev/null; echo "*/5 * * * * /bin/bash $DESKTOP/script.sh") | crontab -
-(crontab -l 2>/dev/null; echo "* * * * * /usr/bin/python3 $DESKTOP/scan.py") | crontab -
-(crontab -l 2>/dev/null; echo "* * * * * /usr/bin/python3 $DESKTOP/sensors.py") | crontab -
+# 9️⃣ Clean up old related cron jobs and append fresh ones
+NEW_CRONS=$(cat <<EOF
+*/5 * * * * /bin/bash $DESKTOP/script.sh
+* * * * * /usr/bin/python3 $DESKTOP/scan.py
+* * * * * /usr/bin/python3 $DESKTOP/sensors.py
+EOF
+)
+
+# Filter out old related lines and append the new ones
+( crontab -l 2>/dev/null | grep -vE 'script\.sh|scan\.py|sensors\.py'; echo "$NEW_CRONS" ) | crontab -
 
 # 🔟 Create and restart daemons for pid.py & auth-log.py
 cat <<EOF | sudo tee /etc/systemd/system/python_daemon_pid.service
