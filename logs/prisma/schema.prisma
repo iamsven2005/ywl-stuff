@@ -178,6 +178,8 @@ model EmailTemplate {
   assignedUsers UserEmailTemplate[] // Many-to-many relationship
 
   SavedQuery SavedQuery[]
+
+  AlertCondition AlertCondition[]
 }
 
 model User {
@@ -285,4 +287,33 @@ model SupportTicket {
   relatedDevice  devices? @relation(fields: [relatedDeviceId], references: [id])
 
   comments       TicketComment[]
+}
+
+model AlertCondition {
+  id              Int       @id @default(autoincrement())
+  name            String    // e.g., "High CPU Temp", "Multiple Failed Logins"
+  sourceTable     String    // e.g., "system_metrics", "auth"
+  fieldName       String    // e.g., "value", "log_entry"
+  comparator      String    // e.g., ">", "==", "contains"
+  thresholdValue  String    // e.g., "90", "failed"
+  timeWindowMin   Int?      // e.g., 5 minutes
+  repeatIntervalMin Int?    // After how long to re-alert
+  countThreshold  Int?      // e.g., 5 failures
+  lastTriggeredAt DateTime? // Track last alert time
+  active          Boolean   @default(true)
+
+  emailTemplateId Int?
+  emailTemplate   EmailTemplate? @relation(fields: [emailTemplateId], references: [id], onDelete: SetNull)
+
+  triggeredAlerts AlertEvent[]
+}
+model AlertEvent {
+  id              Int       @id @default(autoincrement())
+  conditionId     Int
+  triggeredAt     DateTime  @default(now())
+  resolved        Boolean   @default(false)
+  resolvedAt      DateTime?
+  notes           String?
+
+  alertCondition  AlertCondition @relation(fields: [conditionId], references: [id])
 }
