@@ -11,6 +11,7 @@ import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
+import { Textarea } from "@/components/ui/textarea"
 import { Badge } from "@/components/ui/badge"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import {
@@ -26,7 +27,7 @@ import {
 } from "@/components/ui/alert-dialog"
 import { toast } from "sonner"
 import { updateTicket, addComment, deleteTicket, deleteComment } from "@/app/actions/ticket-actions"
-import { Textarea } from "@/components/ui/textarea"
+import { formatDate } from "@/lib/utils"
 
 // Status and priority options
 const statusOptions = [
@@ -63,66 +64,48 @@ interface TicketDetailProps {
   ticket: any
   currentUser: any
   assignableUsers: any[]
-}type Status = "open" | "in_progress" | "resolved" | "closed";
-type Priority = "low" | "medium" | "high" | "critical";
+}
 
 export function TicketDetail({ ticket, currentUser, assignableUsers }: TicketDetailProps) {
   const router = useRouter()
-  
-  const [status, setStatus] = useState<Status>(ticket.status);
-const [priority, setPriority] = useState<Priority>(ticket.priority);
-
+  const [status, setStatus] = useState(ticket.status)
+  const [priority, setPriority] = useState(ticket.priority)
   const [assignedTo, setAssignedTo] = useState(ticket.assignedTo?.id || "unassigned")
   const [comment, setComment] = useState("")
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isDeleting, setIsDeleting] = useState(false)
 
   const isAdmin = currentUser?.role === "admin"
-  const isCreator = currentUser?.id === ticket.createdBy.id
-  const canEdit = isAdmin || isCreator
-
-  // Format date
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString)
-    return new Intl.DateTimeFormat("en-US", {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-      hour: "numeric",
-      minute: "numeric",
-    }).format(date)
-  }
-
-  // Handle status change
-  const handleStatusChange = async (value: Status) => {
+  const handleStatusChange = async (value: string) => {
     try {
       setStatus(value)
       await updateTicket({
         id: ticket.id,
         status: value,
+        assignedToId: null
       })
       toast.success("Ticket status updated")
     } catch (error) {
       toast.error("Failed to update ticket status")
-      setStatus(ticket.status)
+      setStatus(ticket.status) // Revert on error
     }
   }
-  
-  const handlePriorityChange = async (value: Priority) => {
+
+  // Handle priority change
+  const handlePriorityChange = async (value: string) => {
     try {
       setPriority(value)
       await updateTicket({
         id: ticket.id,
         priority: value,
+        assignedToId: null
       })
       toast.success("Ticket priority updated")
     } catch (error) {
       toast.error("Failed to update ticket priority")
-      setPriority(ticket.priority)
+      setPriority(ticket.priority) // Revert on error
     }
   }
-  
-  
 
   // Handle assignee change
   const handleAssigneeChange = async (value: string) => {
@@ -260,7 +243,9 @@ const [priority, setPriority] = useState<Priority>(ticket.priority);
                       <div className="flex items-center justify-between">
                         <div>
                           <span className="font-semibold">{comment.user.username}</span>
-                          <span className="text-muted-foreground text-sm ml-2">{formatDate(comment.createdAt)}</span>
+                          <span className="text-muted-foreground text-sm ml-2">
+                            {formatDate(comment.createdAt, { hour: "numeric", minute: "numeric" })}
+                          </span>
                         </div>
                         {(isAdmin || currentUser?.id === comment.user.id) && (
                           <AlertDialog>
@@ -320,16 +305,16 @@ const [priority, setPriority] = useState<Priority>(ticket.priority);
               </div>
               <div>
                 <p className="text-sm font-medium">Created At</p>
-                <p>{formatDate(ticket.createdAt)}</p>
+                <p>{formatDate(ticket.createdAt, { hour: "numeric", minute: "numeric" })}</p>
               </div>
               <div>
                 <p className="text-sm font-medium">Last Updated</p>
-                <p>{formatDate(ticket.updatedAt)}</p>
+                <p>{formatDate(ticket.updatedAt, { hour: "numeric", minute: "numeric" })}</p>
               </div>
 
               <div>
                 <p className="text-sm font-medium mb-1">Status</p>
-                <Select value={status} onValueChange={handleStatusChange} disabled={!canEdit}>
+                <Select value={status} onValueChange={handleStatusChange} disabled={!isAdmin}>
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
@@ -345,7 +330,7 @@ const [priority, setPriority] = useState<Priority>(ticket.priority);
 
               <div>
                 <p className="text-sm font-medium mb-1">Priority</p>
-                <Select value={priority} onValueChange={handlePriorityChange} disabled={!canEdit}>
+                <Select value={priority} onValueChange={handlePriorityChange} disabled={!isAdmin}>
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>

@@ -1,4 +1,5 @@
 import { cookies } from "next/headers"
+import type { NextAuthOptions } from "next-auth"
 
 export async function getSession() {
   const cookieStore = await cookies()
@@ -13,5 +14,15 @@ export async function getSession() {
       id: Number.parseInt(userId),
     },
   }
+}
+
+// Add the authOptions export
+export const authOptions: NextAuthOptions = {
+  providers: [],
+  callbacks: {
+    async session({ session }) {
+      return session
+    },
+  },
 }
 

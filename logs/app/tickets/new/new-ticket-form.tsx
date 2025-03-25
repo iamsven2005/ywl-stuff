@@ -13,13 +13,20 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { toast } from "sonner"
 import { createTicket } from "@/app/actions/ticket-actions"
 
-export function NewTicketForm({ deviceNames }: { deviceNames: string[] }) {
+export function NewTicketForm({
+  deviceNames,
+  assignableUsers,
+}: {
+  deviceNames: string[]
+  assignableUsers: { id: number; username: string }[]
+}) {
   const router = useRouter()
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [title, setTitle] = useState("")
   const [description, setDescription] = useState("")
   const [priority, setPriority] = useState<"low" | "medium" | "high" | "critical">("medium")
   const [relatedDevice, setRelatedDevice] = useState<string>("")
+  const [assignedToId, setAssignedToId] = useState<string>("")
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -49,6 +56,7 @@ export function NewTicketForm({ deviceNames }: { deviceNames: string[] }) {
         description,
         priority,
         relatedDeviceId,
+        assignedToId: assignedToId ? Number(assignedToId) : undefined,
       })
 
       toast.success("Ticket created successfully")
@@ -106,6 +114,23 @@ export function NewTicketForm({ deviceNames }: { deviceNames: string[] }) {
               </SelectContent>
             </Select>
             <p className="text-xs text-muted-foreground">Select the appropriate priority level for your issue</p>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="assignee">Assign To (Optional)</Label>
+            <Select value={assignedToId} onValueChange={setAssignedToId}>
+              <SelectTrigger>
+                <SelectValue placeholder="Select an assignee (optional)" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="unassigned">Unassigned</SelectItem>
+                {assignableUsers.map((user) => (
+                  <SelectItem key={user.id} value={user.id.toString()}>
+                    {user.username}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
 
           <div className="space-y-2">

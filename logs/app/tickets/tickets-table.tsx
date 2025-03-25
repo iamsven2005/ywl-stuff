@@ -19,6 +19,7 @@ import {
 } from "@/components/ui/pagination"
 import { Badge } from "@/components/ui/badge"
 import { getTickets } from "@/app/actions/ticket-actions"
+import { formatDate } from "@/lib/utils"
 
 // Status and priority options
 const statusOptions = [
@@ -140,16 +141,6 @@ export function TicketsTable() {
         page: 1,
       })}`,
     )
-  }
-
-  // Format date
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString)
-    return new Intl.DateTimeFormat("en-US", {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-    }).format(date)
   }
 
   return (

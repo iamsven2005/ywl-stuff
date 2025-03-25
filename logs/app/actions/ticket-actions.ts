@@ -1,85 +1,80 @@
 "use server"
 
-import { db } from "@/lib/db"
 import { revalidatePath } from "next/cache"
+import { db } from "@/lib/db"
 import { logActivity } from "@/lib/activity-logger"
-import { getCurrentUser } from "../login/actions"
+import { getSession } from "@/lib/auth"
 
-// Types for ticket operations
-export interface CreateTicketParams {
+// Types
+interface CreateTicketParams {
   title: string
   description: string
-  priority: "low" | "medium" | "high" | "critical"
+  priority: string
   relatedDeviceId?: number | null
-}
-
-export interface UpdateTicketParams {
-  id: number
-  title?: string
-  description?: string
-  status?: "open" | "in_progress" | "resolved" | "closed"
-  priority?: "low" | "medium" | "high" | "critical"
   assignedToId?: number | null
 }
 
-export interface AddCommentParams {
+interface UpdateTicketParams {
+  id: number
+  title?: string
+  description?: string
+  status?: string
+  priority?: string
+  assignedToId: string | number | null
+  relatedDeviceId?: number | null
+}
+
+interface AddCommentParams {
   ticketId: number
   content: string
 }
 
-// Get all tickets with filtering and pagination
-export async function getTickets({
-  search = "",
-  status = "",
-  priority = "",
-  assignedToId = "",
-  createdById = "",
-  page = 1,
-  pageSize = 10,
-}: {
-  search?: string
+interface GetTicketsParams {
   status?: string
   priority?: string
-  assignedToId?: string | number
-  createdById?: string | number
+  assignedToId?: number
+  createdById?: number
+  search?: string
   page?: number
   pageSize?: number
-}) {
+}
+
+// Get all tickets with filtering and pagination
+export async function getTickets({
+  status,
+  priority,
+  assignedToId,
+  createdById,
+  search = "",
+  page = 1,
+  pageSize = 10,
+}: GetTicketsParams) {
   try {
-    const skip = (page - 1) * pageSize
+    // Build where conditions
     const where: any = {}
 
-    // Add search condition if provided
-    if (search) {
-      where.OR = [
-        { title: { contains: search, mode: "insensitive" } },
-        { description: { contains: search, mode: "insensitive" } },
-      ]
-    }
-
-    // Add status filter if provided
     if (status) {
       where.status = status
     }
 
-    // Add priority filter if provided
     if (priority) {
       where.priority = priority
     }
 
-    // Add assignedToId filter if provided
     if (assignedToId) {
-      where.assignedToId = Number(assignedToId)
+      where.assignedToId = assignedToId
     }
 
-    // Add createdById filter if provided
     if (createdById) {
-      where.createdById = Number(createdById)
+      where.createdById = createdById
+    }
+
+    if (search) {
+      where.OR = [{ title: { contains: search } }, { description: { contains: search } }]
     }
 
     // Get total count for pagination
     const totalCount = await db.supportTicket.count({ where })
-    const pageCount = Math.ceil(totalCount / pageSize)
 
     // Get tickets with pagination
     const tickets = await db.supportTicket.findMany({
@@ -89,14 +84,12 @@ export async function getTickets({
           select: {
             id: true,
             username: true,
-            email: true,
           },
         },
         createdBy: {
           select: {
             id: true,
             username: true,
-            email: true,
           },
         },
         relatedDevice: {
@@ -113,20 +106,20 @@ export async function getTickets({
       },
       orderBy: [
         {
-          priority: "desc", // High priority first
+          priority: "desc",
         },
         {
-          createdAt: "desc", // Newest first
+          createdAt: "desc",
         },
       ],
-      skip,
+      skip: (page - 1) * pageSize,
       take: pageSize,
     })
 
     return {
       tickets,
       totalCount,
-      pageCount,
+      pageCount: Math.ceil(totalCount / pageSize),
     }
   } catch (error) {
     console.error("Error fetching tickets:", error)
@@ -135,7 +128,7 @@ export async function getTickets({
 }
 
 // Get a single ticket by ID
-export async function getTicketById(id: number) {
+export async function getTicket(id: number) {
   try {
     const ticket = await db.supportTicket.findUnique({
       where: { id },
@@ -154,13 +147,7 @@ export async function getTicketById(id: number) {
             email: true,
           },
         },
-        relatedDevice: {
-          select: {
-            id: true,
-            name: true,
-            ip_address: true,
-          },
-        },
+        relatedDevice: true,
         comments: {
           include: {
             user: {
@@ -168,7 +155,6 @@ export async function getTicketById(id: number) {
                 id: true,
                 username: true,
                 email: true,
-                role: true,
               },
             },
           },
@@ -179,10 +165,6 @@ export async function getTicketById(id: number) {
       },
     })
 
-    if (!ticket) {
-      throw new Error("Ticket not found")
-    }
-
     return ticket
   } catch (error) {
     console.error("Error fetching ticket:", error)
@@ -191,41 +173,32 @@ export async function getTicketById(id: number) {
 }
 
 // Create a new ticket
-export async function createTicket({ title, description, priority, relatedDeviceId }: CreateTicketParams) {
+export async function createTicket(data: CreateTicketParams) {
   try {
-    const currentUser = await getCurrentUser()
-    if (!currentUser) {
+    const session = await getSession()
+    if (!session?.user) {
       throw new Error("You must be logged in to create a ticket")
     }
 
+    // Get user ID from session
+    const userId = session.user.id
+
     const ticket = await db.supportTicket.create({
       data: {
-        title,
-        description,
-        priority,
-        createdById: currentUser.id,
-        relatedDeviceId: relatedDeviceId || null,
-      },
-      include: {
-        createdBy: {
-          select: {
-            username: true,
-          },
-        },
-        relatedDevice: {
-          select: {
-            name: true,
-          },
-        },
+        title: data.title,
+        description: data.description,
+        priority: data.priority,
+        createdById: userId,
+        relatedDeviceId: data.relatedDeviceId || null,
+        assignedToId: data.assignedToId || null,
       },
     })
 
-    // Log the activity
     await logActivity({
       actionType: "Created Ticket",
       targetType: "Ticket",
       targetId: ticket.id,
-      details: `Created ticket: ${title} with priority: ${priority}`,
+      details: `Created ticket: ${data.title}`,
     })
 
     revalidatePath("/tickets")
@@ -237,67 +210,76 @@ export async function createTicket({ title, description, priority, relatedDevice
 }
 
 // Update a ticket
-export async function updateTicket({ id, title, description, status, priority, assignedToId }: UpdateTicketParams) {
+export async function updateTicket(data: UpdateTicketParams) {
   try {
-    const currentUser = await getCurrentUser()
-    if (!currentUser) {
+    const session = await getSession()
+    if (!session?.user) {
       throw new Error("You must be logged in to update a ticket")
     }
 
-    // Check if the user is an admin or the ticket creator
-    const ticket = await db.supportTicket.findUnique({
-      where: { id },
+    // Get the original ticket for logging
+    const originalTicket = await db.supportTicket.findUnique({
+      where: { id: data.id },
       select: {
-        createdById: true,
+        title: true,
+        status: true,
+        assignedToId: true,
       },
     })
 
-    if (!ticket) {
+    if (!originalTicket) {
       throw new Error("Ticket not found")
     }
 
-    // Only admins or the ticket creator can update tickets
-    if (currentUser.role !== "admin" && ticket.createdById !== currentUser.id) {
-      throw new Error("You don't have permission to update this ticket")
+    // Process assignedToId - convert string "unassigned" to null or string number to actual number
+    let assignedToId: number | null = null
+
+    if (data.assignedToId !== undefined) {
+      if (data.assignedToId === "unassigned") {
+        assignedToId = null
+      } else if (typeof data.assignedToId === "string") {
+        assignedToId = Number.parseInt(data.assignedToId, 10)
+        if (isNaN(assignedToId)) {
+          assignedToId = null
+        }
+      } else {
+        assignedToId = data.assignedToId
+      }
     }
 
-    // Prepare update data
-    const updateData: any = {}
-    if (title !== undefined) updateData.title = title
-    if (description !== undefined) updateData.description = description
-    if (status !== undefined) updateData.status = status
-    if (priority !== undefined) updateData.priority = priority
-    if (assignedToId !== undefined) updateData.assignedToId = assignedToId
-
     // Update the ticket
-    const updatedTicket = await db.supportTicket.update({
-      where: { id },
-      data: updateData,
-      include: {
-        assignedTo: {
-          select: {
-            username: true,
-          },
-        },
+    const ticket = await db.supportTicket.update({
+      where: { id: data.id },
+      data: {
+        title: data.title,
+        description: data.description,
+        status: data.status,
+        priority: data.priority,
+        assignedToId: assignedToId,
+        relatedDeviceId: data.relatedDeviceId,
+        updatedAt: new Date(),
       },
     })
 
-    // Log the activity
-    let activityDetails = `Updated ticket: ${updatedTicket.title}`
-    if (status) activityDetails += `, status: ${status}`
-    if (priority) activityDetails += `, priority: ${priority}`
-    if (assignedToId) activityDetails += `, assigned to: ${updatedTicket.assignedTo?.username || "Unassigned"}`
+    // Log changes
+    let details = `Updated ticket: ${ticket.title}`
+    if (data.status && data.status !== originalTicket.status) {
+      details += `, Status changed from ${originalTicket.status} to ${data.status}`
+    }
+    if (data.assignedToId !== undefined && assignedToId !== originalTicket.assignedToId) {
+      details += `, Assignment changed`
+    }
 
     await logActivity({
       actionType: "Updated Ticket",
       targetType: "Ticket",
-      targetId: id,
-      details: activityDetails,
+      targetId: ticket.id,
+      details,
     })
 
+    revalidatePath(`/tickets/${data.id}`)
     revalidatePath("/tickets")
-    revalidatePath(`/tickets/${id}`)
-    return updatedTicket
+    return ticket
   } catch (error) {
     console.error("Error updating ticket:", error)
     throw new Error("Failed to update ticket")
@@ -307,27 +289,30 @@ export async function updateTicket({ id, title, description, status, priority, a
 // Delete a ticket
 export async function deleteTicket(id: number) {
   try {
-    const currentUser = await getCurrentUser()
-    if (!currentUser) {
+    const session = await getSession()
+    if (!session?.user) {
       throw new Error("You must be logged in to delete a ticket")
     }
 
-    // Check if the user is an admin or the ticket creator
+    // Get user role
+    const user = await db.user.findUnique({
+      where: { id: session.user.id },
+      select: { role: true },
+    })
+
+    // Only admins can delete tickets
+    if (user?.role !== "admin") {
+      throw new Error("Only admins can delete tickets")
+    }
+
+    // Get the ticket for logging
     const ticket = await db.supportTicket.findUnique({
       where: { id },
-      select: {
-        title: true,
-        createdById: true,
-      },
+      select: { title: true },
     })
 
     if (!ticket) {
       throw new Error("Ticket not found")
-    }
-
-    // Only admins or the ticket creator can delete tickets
-    if (currentUser.role !== "admin" && ticket.createdById !== currentUser.id) {
-      throw new Error("You don't have permission to delete this ticket")
     }
 
     // Delete the ticket
@@ -335,7 +320,6 @@ export async function deleteTicket(id: number) {
       where: { id },
     })
 
-    // Log the activity
     await logActivity({
       actionType: "Deleted Ticket",
       targetType: "Ticket",
@@ -352,51 +336,38 @@ export async function deleteTicket(id: number) {
 }
 
 // Add a comment to a ticket
-export async function addComment({ ticketId, content }: AddCommentParams) {
+export async function addComment(data: AddCommentParams) {
   try {
-    const currentUser = await getCurrentUser()
-    if (!currentUser) {
+    const session = await getSession()
+    if (!session?.user) {
       throw new Error("You must be logged in to add a comment")
     }
 
-    // Check if the ticket exists
-    const ticket = await db.supportTicket.findUnique({
-      where: { id: ticketId },
-      select: {
-        id: true,
-        title: true,
-      },
-    })
-
-    if (!ticket) {
-      throw new Error("Ticket not found")
-    }
-
-    // Create the comment
     const comment = await db.ticketComment.create({
       data: {
-        ticketId,
-        userId: currentUser.id,
-        content,
+        ticketId: data.ticketId,
+        userId: session.user.id,
+        content: data.content,
       },
       include: {
         user: {
           select: {
+            id: true,
             username: true,
+            email: true,
           },
         },
       },
     })
 
-    // Log the activity
     await logActivity({
       actionType: "Added Comment",
       targetType: "Ticket",
-      targetId: ticketId,
-      details: `Added comment to ticket: ${ticket.title}`,
+      targetId: data.ticketId,
+      details: `Added comment to ticket #${data.ticketId}`,
     })
 
-    revalidatePath(`/tickets/${ticketId}`)
+    revalidatePath(`/tickets/${data.ticketId}`)
     return comment
   } catch (error) {
     console.error("Error adding comment:", error)
@@ -407,19 +378,18 @@ export async function addComment({ ticketId, content }: AddCommentParams) {
 // Delete a comment
 export async function deleteComment(id: number) {
   try {
-    const currentUser = await getCurrentUser()
-    if (!currentUser) {
+    const session = await getSession()
+    if (!session?.user) {
       throw new Error("You must be logged in to delete a comment")
     }
 
-    // Check if the comment exists and belongs to the user
+    // Get the comment for authorization check
     const comment = await db.ticketComment.findUnique({
       where: { id },
       include: {
-        ticket: {
+        user: {
           select: {
             id: true,
-            title: true,
           },
         },
       },
@@ -429,8 +399,14 @@ export async function deleteComment(id: number) {
       throw new Error("Comment not found")
     }
 
-    // Only admins or the comment author can delete comments
-    if (currentUser.role !== "admin" && comment.userId !== currentUser.id) {
+    // Get user role
+    const user = await db.user.findUnique({
+      where: { id: session.user.id },
+      select: { role: true },
+    })
+
+    // Only the comment author or admins can delete comments
+    if (user?.role !== "admin" && comment.user.id !== session.user.id) {
       throw new Error("You don't have permission to delete this comment")
     }
 
@@ -439,15 +415,14 @@ export async function deleteComment(id: number) {
       where: { id },
     })
 
-    // Log the activity
     await logActivity({
       actionType: "Deleted Comment",
       targetType: "Ticket",
-      targetId: comment.ticket.id,
-      details: `Deleted comment from ticket: ${comment.ticket.title}`,
+      targetId: comment.ticketId,
+      details: `Deleted comment from ticket #${comment.ticketId}`,
     })
 
-    revalidatePath(`/tickets/${comment.ticket.id}`)
+    revalidatePath(`/tickets/${comment.ticketId}`)
     return { success: true }
   } catch (error) {
     console.error("Error deleting comment:", error)
@@ -458,7 +433,7 @@ export async function deleteComment(id: number) {
 // Get ticket statistics
 export async function getTicketStats() {
   try {
-    // Get counts by status
+    // Get status counts
     const statusCounts = await db.supportTicket.groupBy({
       by: ["status"],
       _count: {
@@ -466,7 +441,7 @@ export async function getTicketStats() {
       },
     })
 
-    // Get counts by priority
+    // Get priority counts
     const priorityCounts = await db.supportTicket.groupBy({
       by: ["priority"],
       _count: {
@@ -474,47 +449,62 @@ export async function getTicketStats() {
       },
     })
 
-    // Get recent tickets
-    const recentTickets = await db.supportTicket.findMany({
-      take: 5,
-      orderBy: {
-        createdAt: "desc",
+    // Get total count
+    const totalCount = await db.supportTicket.count()
+
+    // Format the results
+    const statusStats = {
+      open: 0,
+      in_progress: 0,
+      resolved: 0,
+      closed: 0,
+    }
+
+    const priorityStats = {
+      low: 0,
+      medium: 0,
+      high: 0,
+      critical: 0,
+    }
+
+    statusCounts.forEach((item) => {
+      statusStats[item.status as keyof typeof statusStats] = item._count.id
+    })
+
+    priorityCounts.forEach((item) => {
+      priorityStats[item.priority as keyof typeof priorityStats] = item._count.id
+    })
+
+    return {
+      total: totalCount,
+      byStatus: statusStats,
+      byPriority: priorityStats,
+    }
+  } catch (error) {
+    console.error("Error fetching ticket stats:", error)
+    throw new Error("Failed to fetch ticket statistics")
+  }
+}
+
+// Get all users for assignment
+export async function getAssignableUsers() {
+  try {
+    const users = await db.user.findMany({
+      select: {
+        id: true,
+        username: true,
+        email: true,
+        role: true,
       },
-      include: {
-        createdBy: {
-          select: {
-            username: true,
-          },
-        },
+      orderBy: {
+        username: "asc",
       },
     })
 
-    // Format the results
-    const formattedStatusCounts = statusCounts.reduce(
-      (acc, curr) => {
-        acc[curr.status] = curr._count.id
-        return acc
-      },
-      {} as Record<string, number>,
-    )
-
-    const formattedPriorityCounts = priorityCounts.reduce(
-      (acc, curr) => {
-        acc[curr.priority] = curr._count.id
-        return acc
-      },
-      {} as Record<string, number>,
-    )
-
-    return {
-      statusCounts: formattedStatusCounts,
-      priorityCounts: formattedPriorityCounts,
-      recentTickets,
-      total: await db.supportTicket.count(),
-    }
+    return users
   } catch (error) {
-    console.error("Error getting ticket stats:", error)
-    throw new Error("Failed to get ticket statistics")
+    console.error("Error fetching assignable users:", error)
+    throw new Error("Failed to fetch users")
   }
 }
 

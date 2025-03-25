@@ -18,6 +18,7 @@ export function TicketStats() {
         const data = await getTicketStats()
         setStats(data)
       } catch (error) {
+        console.error("Error fetching ticket stats:", error)
         toast.error("Failed to load ticket statistics")
       } finally {
         setIsLoading(false)
@@ -43,8 +44,19 @@ export function TicketStats() {
     )
   }
 
-  if (!stats) {
-    return null
+  // If stats is null or doesn't have the expected structure, show a fallback
+  if (!stats || !stats.statusCounts || !stats.priorityCounts) {
+    return (
+      <Card className="mb-6">
+        <CardHeader className="pb-2">
+          <CardTitle>Ticket Overview</CardTitle>
+          <CardDescription>No ticket statistics available</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="h-20 flex items-center justify-center text-muted-foreground">No data available</div>
+        </CardContent>
+      </Card>
+    )
   }
 
   return (
@@ -124,61 +136,65 @@ export function TicketStats() {
         <div className="mt-4 pt-4 border-t">
           <h3 className="text-sm font-medium mb-2">Recent Tickets</h3>
           <div className="space-y-2">
-            {stats.recentTickets.map((ticket: any) => (
-              <div key={ticket.id} className="flex items-center justify-between p-2 bg-muted/20 rounded-md">
-                <div>
-                  <a href={`/tickets/${ticket.id}`} className="font-medium hover:underline">
-                    {ticket.title}
-                  </a>
-                  <div className="text-xs text-muted-foreground">
-                    By {ticket.createdBy.username} • {new Date(ticket.createdAt).toLocaleDateString()}
+            {stats.recentTickets && stats.recentTickets.length > 0 ? (
+              stats.recentTickets.map((ticket: any) => (
+                <div key={ticket.id} className="flex items-center justify-between p-2 bg-muted/20 rounded-md">
+                  <div>
+                    <a href={`/tickets/${ticket.id}`} className="font-medium hover:underline">
+                      {ticket.title}
+                    </a>
+                    <div className="text-xs text-muted-foreground">
+                      By {ticket.createdBy?.username || "Unknown"} • {new Date(ticket.createdAt).toLocaleDateString()}
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    {ticket.status === "open" && (
+                      <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">
+                        Open
+                      </Badge>
+                    )}
+                    {ticket.status === "in_progress" && (
+                      <Badge variant="outline" className="bg-yellow-50 text-yellow-700 border-yellow-200">
+                        In Progress
+                      </Badge>
+                    )}
+                    {ticket.status === "resolved" && (
+                      <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
+                        Resolved
+                      </Badge>
+                    )}
+                    {ticket.status === "closed" && (
+                      <Badge variant="outline" className="bg-gray-50 text-gray-700 border-gray-200">
+                        Closed
+                      </Badge>
+                    )}
+
+                    {ticket.priority === "low" && (
+                      <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
+                        Low
+                      </Badge>
+                    )}
+                    {ticket.priority === "medium" && (
+                      <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">
+                        Medium
+                      </Badge>
+                    )}
+                    {ticket.priority === "high" && (
+                      <Badge variant="outline" className="bg-orange-50 text-orange-700 border-orange-200">
+                        High
+                      </Badge>
+                    )}
+                    {ticket.priority === "critical" && (
+                      <Badge variant="outline" className="bg-red-50 text-red-700 border-red-200">
+                        Critical
+                      </Badge>
+                    )}
                   </div>
                 </div>
-                <div className="flex items-center gap-2">
-                  {ticket.status === "open" && (
-                    <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">
-                      Open
-                    </Badge>
-                  )}
-                  {ticket.status === "in_progress" && (
-                    <Badge variant="outline" className="bg-yellow-50 text-yellow-700 border-yellow-200">
-                      In Progress
-                    </Badge>
-                  )}
-                  {ticket.status === "resolved" && (
-                    <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
-                      Resolved
-                    </Badge>
-                  )}
-                  {ticket.status === "closed" && (
-                    <Badge variant="outline" className="bg-gray-50 text-gray-700 border-gray-200">
-                      Closed
-                    </Badge>
-                  )}
-
-                  {ticket.priority === "low" && (
-                    <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
-                      Low
-                    </Badge>
-                  )}
-                  {ticket.priority === "medium" && (
-                    <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">
-                      Medium
-                    </Badge>
-                  )}
-                  {ticket.priority === "high" && (
-                    <Badge variant="outline" className="bg-orange-50 text-orange-700 border-orange-200">
-                      High
-                    </Badge>
-                  )}
-                  {ticket.priority === "critical" && (
-                    <Badge variant="outline" className="bg-red-50 text-red-700 border-red-200">
-                      Critical
-                    </Badge>
-                  )}
-                </div>
-              </div>
-            ))}
+              ))
+            ) : (
+              <div className="text-center text-muted-foreground py-4">No recent tickets found</div>
+            )}
           </div>
         </div>
       </CardContent>

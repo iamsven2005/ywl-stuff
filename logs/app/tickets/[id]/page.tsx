@@ -1,46 +1,33 @@
-import { Suspense } from "react"
-import type { Metadata } from "next"
 import { notFound } from "next/navigation"
-import { getTicketById } from "@/app/actions/ticket-actions"
-
-import { DatabaseStatusBar } from "@/components/database-status-bar"
+import { getTicket, getAssignableUsers } from "@/app/actions/ticket-actions"
 import { TicketDetailSkeleton } from "./ticket-detail-skeleton"
 import { TicketDetail } from "./ticket-detail"
-
-export async function generateMetadata({ params }: { params: { id: string } }): Promise<Metadata> {
-  const id = Number.parseInt(params.id)
-
-  try {
-    const ticket = await getTicketById(id)
-    return {
-      title: `Ticket #${id}: ${ticket.title}`,
-      description: `Support ticket details for ${ticket.title}`,
-    }
-  } catch (error) {
-    return {
-      title: "Ticket Not Found",
-      description: "The requested ticket could not be found",
-    }
-  }
-}
+import { Suspense } from "react"
+import { getCurrentUser } from "@/app/login/actions"
 
 export default async function TicketPage({ params }: { params: { id: string } }) {
-  const id = Number.parseInt(params.id)
+  const ticketId = Number.parseInt(params.id)
 
-  try {
-    const ticket = await getTicketById(id)
-
-    return (
-      <div className="container mx-auto py-6">
-        <DatabaseStatusBar />
-
-        <Suspense fallback={<TicketDetailSkeleton />}>
-          <TicketDetail ticket={ticket} currentUser={undefined} assignableUsers={[]} />
-        </Suspense>
-      </div>
-    )
-  } catch (error) {
-    notFound()
+  if (isNaN(ticketId)) {
+    return notFound()
   }
+  const user =  await getCurrentUser()
+  console.log(user)
+  const ticketPromise = getTicket(ticketId)
+  const usersPromise = getAssignableUsers()
+
+  const [ticket, assignableUsers] = await Promise.all([ticketPromise, usersPromise])
+
+  if (!ticket) {
+    return notFound()
+  }
+
+  return (
+    <div className="container py-6">
+      <Suspense fallback={<TicketDetailSkeleton />}>
+        <TicketDetail ticket={ticket} assignableUsers={assignableUsers} currentUser={user} />
+      </Suspense>
+    </div>
+  )
 }
 

@@ -12,36 +12,35 @@ interface EmailTemplateData {
 }
 
 export async function createEmailTemplate(data: EmailTemplateData & { assignedUsers?: number[] }) {
-    try {
-      const emailTemplate = await db.emailTemplate.create({
-        data: {
-          name: data.name,
-          subject: data.subject,
-          body: data.body,
-          assignedUsers: data.assignedUsers
-            ? {
-                create: data.assignedUsers.map(userId => ({
-                  user: {
-                    connect: { id: userId }, // Connect users via UserEmailTemplate
-                  },
-                })),
-              }
-            : undefined, // Only include if users are assigned
+  try {
+    const emailTemplate = await db.emailTemplate.create({
+      data: {
+        name: data.name,
+        subject: data.subject,
+        body: data.body,
+        assignedUsers: data.assignedUsers
+          ? {
+              create: data.assignedUsers.map((userId) => ({
+                user: {
+                  connect: { id: userId }, // Connect users via UserEmailTemplate
+                },
+              })),
+            }
+          : undefined, // Only include if users are assigned
+      },
+      include: {
+        assignedUsers: {
+          include: { user: true },
         },
-        include: {
-          assignedUsers: {
-            include: { user: true },
-          },
-        },
-      });
-  
-      return { success: true, emailTemplate };
-    } catch (error: any) {
-      console.error("Error creating email template:", error);
-      throw new Error(`Failed to create email template: ${error.message || "Unknown error"}`);
-    }
+      },
+    })
+
+    return { success: true, emailTemplate }
+  } catch (error: any) {
+    console.error("Error creating email template:", error)
+    throw new Error(`Failed to create email template: ${error.message || "Unknown error"}`)
   }
-  
+}
 
 export async function updateEmailTemplate(data: {
   id: number
@@ -103,84 +102,74 @@ export async function deleteEmailTemplate(id: number) {
   }
 }
 
+// Get a single email template by ID
 export async function getEmailTemplate(id: number) {
   try {
     const emailTemplate = await db.emailTemplate.findUnique({
       where: { id },
+      include: {
+        assignedUsers: true,
+      },
     })
+
     return emailTemplate
-  } catch (error: any) {
+  } catch (error) {
     console.error("Error fetching email template:", error)
+    throw new Error("Failed to fetch email template")
+  }
+}
+
+// Get all email templates
+export async function getAllEmailTemplates() {
+  try {
+    const emailTemplates = await db.emailTemplate.findMany({
+      include: {
+        assignedUsers: true,
+      },
+      orderBy: {
+        name: "asc",
+      },
+    })
+
+    return emailTemplates
+  } catch (error) {
+    console.error("Error fetching email templates:", error)
     return null
   }
 }
 
-export async function getAllEmailTemplates() {
-    try {
-      const emailTemplates = await db.emailTemplate.findMany({
-        include: {
-          assignedUsers: {
-            include: {
-              user: {
-                select: {
-                  id: true,
-                  username: true, // Only return id and username
-                },
-              },
-            },
-          },
-        },
-        orderBy: {
-          name: "asc",
-        },
-      });
-  
-      return emailTemplates.map(template => ({
-        ...template,
-        createdAt: template.createdAt.toISOString(), // Convert Date to string
-        updatedAt: template.updatedAt.toISOString(),
-        assignedUsers: template.assignedUsers.map(relation => relation.user), // Extract assigned user details
-      }));
-    } catch (error: any) {
-      console.error("Error fetching all email templates:", error);
-      return null
-    }
-  }
-  
-  
-  
 // Send an email using a template
 export async function sendEmailWithTemplate(templateId: number, recipientIds: number[], data: Record<string, string>) {
   try {
     // Get the email template
-    const template = await getEmailTemplate(templateId);
+    const template = await getEmailTemplate(templateId)
     if (!template) {
-      return { success: false, error: "Email template not found" };
+      return { success: false, error: "Email template not found" }
     }
 
     // Get recipients (fetch all users if recipientIds is not provided)
     const recipients = await db.user.findMany({
       where: recipientIds?.length ? { id: { in: recipientIds } } : {}, // Fetch all if no recipientIds
       select: { id: true, email: true, username: true },
-    });
+    })
 
     if (recipients.length === 0) {
-      return { success: false, error: "No valid recipients found" };
+      return { success: false, error: "No valid recipients found" }
     }
 
-    let emailResults = [];
+    const emailResults = []
 
     // Iterate over each recipient and send emails one by one
     for (const recipient of recipients) {
-      let subject = template.subject;
-      let body = template.body;
+      let subject = template.subject
+      let body = template.body
 
       // Replace placeholders in subject and body
       Object.entries({ ...data, username: recipient.username }).forEach(([key, value]) => {
-        const placeholder = new RegExp(`{{${key}}}`, "g");
-        subject = subject.replace(placeholder, value);
-        body = body.replace(placeholder, value);
-      });
+        const placeholder = new RegExp(`{{${key}}}`, "g")
+        subject = subject.replace(placeholder, value)
+        body = body.replace(placeholder, value)
+      })
 
       try {
         const response = await fetch("http://192.168.1.102:3000/api/send-email", {
@@ -191,13 +180,13 @@ export async function sendEmailWithTemplate(templateId: number, recipientIds: nu
             subject: subject,
             html: body,
           }),
-        });
+        })
 
-        const resData = await response.json();
-        emailResults.push({ email: recipient.email, success: resData.success, messageId: resData.messageId || null });
+        const resData = await response.json()
+        emailResults.push({ email: recipient.email, success: resData.success, messageId: resData.messageId || null })
       } catch (error) {
-        console.error(`Failed to send email to ${recipient.email}:`, error);
-        emailResults.push({ email: recipient.email, success: false, error: "Failed to send email" });
+        console.error(`Failed to send email to ${recipient.email}:`, error)
+        emailResults.push({ email: recipient.email, success: false, error: "Failed to send email" })
       }
     }
 
@@ -207,12 +196,12 @@ export async function sendEmailWithTemplate(templateId: number, recipientIds: nu
       targetType: "EmailTemplate",
       targetId: templateId,
       details: `Email sent to ${recipients.length} recipients using template "${template.name}"`,
-    });
+    })
 
-    return { success: true, results: emailResults };
+    return { success: true, results: emailResults }
   } catch (error: any) {
-    console.error("Failed to send emails:", error);
-    return { success: false, error: "Failed to send emails" };
+    console.error("Failed to send emails:", error)
+    return { success: false, error: "Failed to send emails" }
   }
 }
 
@@ -248,48 +237,49 @@ export async function sendEmailToAllAdmins(templateId: number, data: Record<stri
 }
 
 export async function assignUsersToEmailTemplate(emailTemplateId: number, userIds: number[]) {
-    try {
-      await db.userEmailTemplate.createMany({
-        data: userIds.map((userId) => ({
-          userId,
-          emailTemplateId,
-        })),
-        skipDuplicates: true, // Avoid duplicate assignments
-      });
-  
-      return { success: true };
-    } catch (error) {
-      console.error("Error assigning users to email template:", error);
-      throw new Error("Failed to assign users to email template");
-    }
-  }
+  try {
+    await db.userEmailTemplate.createMany({
+      data: userIds.map((userId) => ({
+        userId,
+        emailTemplateId,
+      })),
+      skipDuplicates: true, // Avoid duplicate assignments
+    })
 
-  export async function removeUsersFromEmailTemplate(emailTemplateId: number, userIds: number[]) {
-    try {
-      await db.userEmailTemplate.deleteMany({
-        where: {
-          emailTemplateId,
-          userId: { in: userIds },
-        },
-      });
-  
-      return { success: true };
-    } catch (error) {
-      console.error("Error removing users from email template:", error);
-      throw new Error("Failed to remove users from email template");
-    }
+    return { success: true }
+  } catch (error) {
+    console.error("Error assigning users to email template:", error)
+    throw new Error("Failed to assign users to email template")
   }
-  
-  export async function getUsersAssignedToEmailTemplate(emailTemplateId: number) {
-    try {
-      const assignedUsers = await db.userEmailTemplate.findMany({
-        where: { emailTemplateId },
-        include: { user: true }, // Include user details
-      });
-  
-      return assignedUsers.map((relation) => relation.user);
-    } catch (error) {
-      console.error("Error fetching users for email template:", error);
-      return null
-    }
+}
+
+export async function removeUsersFromEmailTemplate(emailTemplateId: number, userIds: number[]) {
+  try {
+    await db.userEmailTemplate.deleteMany({
+      where: {
+        emailTemplateId,
+        userId: { in: userIds },
+      },
+    })
+
+    return { success: true }
+  } catch (error) {
+    console.error("Error removing users from email template:", error)
+    throw new Error("Failed to remove users from email template")
   }
+}
+
+export async function getUsersAssignedToEmailTemplate(emailTemplateId: number) {
+  try {
+    const assignedUsers = await db.userEmailTemplate.findMany({
+      where: { emailTemplateId },
+      include: { user: true }, // Include user details
+    })
+
+    return assignedUsers.map((relation) => relation.user)
+  } catch (error) {
+    console.error("Error fetching users for email template:", error)
+    throw new Error("Failed to fetch assigned users")
+  }
+}
+
