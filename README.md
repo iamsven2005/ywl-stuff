@@ -155,3 +155,28 @@ cd /etc/postgres/16/main/postgresql.conf
 listen_addresses = '*'
 
 cd /etc/postgres/16/main/pg_hba.conf
+
+
+Mounting nas
+sudo apt update
+sudo apt install cifs-utils
+sudo mkdir -p /mnt/userdocuments
+sudo nano /etc/samba/credentials-userdocs
+username=sven.tan
+password=k$P&+4SJ
+sudo nano /etc/fstab
+sudo mount -a
+df -h | grep userdocuments
+
+# Mount NAS share
+//192.168.1.211/userdocuments /mnt/userdocuments cifs credentials=/etc/samba/credentials-userdocs,iocharset=utf8,uid=1000,gid=1000,file_mode=0777,dir_mode=0777,nofail 0 0
+
+
+ALTER DATABASE logs_database OWNER TO admin;
+PGPASSFILE=~/.pgpass dropdb -h 192.168.1.26 -U admin logs_database
+
+createdb -h 192.168.1.26 -U postgres logs_database
+pg_restore -h 192.168.1.26 -U postgres -d logs_database /path/to/backup-file.sql
+
+
+file /mnt/userdocuments/sven.tan/MyDocs/backup-*.sql

@@ -1,7 +1,7 @@
 import type { Metadata } from "next"
 import { NewTicketForm } from "@/app/tickets/new/new-ticket-form"
-import { getAllDeviceNames } from "@/app/actions/device-actions"
-import { DatabaseStatusBar } from "@/components/database-status-bar"
+import { getAssignableUsers } from "@/app/actions/ticket-actions"
+import { db } from "@/lib/db"
 
 export const metadata: Metadata = {
   title: "Create New Ticket",
@@ -10,18 +10,22 @@ export const metadata: Metadata = {
 
 export default async function NewTicketPage() {
   // Get all devices for the dropdown
-  const deviceNames = (await getAllDeviceNames()) || []
+  const devices = await db.devices.findMany({
+    select: {
+      id: true,
+      name: true,
+    },
+    orderBy: {
+      name: "asc",
+    },
+  })
+
+  // Get all admin users for assignment
+  const assignableUsers = await getAssignableUsers()
 
   return (
-    <div className="container mx-auto py-6">
-      <DatabaseStatusBar />
-
-      <div className="mb-6">
-        <h1 className="text-3xl font-bold">Create New Ticket</h1>
-        <p className="text-muted-foreground">Submit a new support request</p>
-      </div>
-
-      <NewTicketForm deviceNames={deviceNames} />
+    <div className="container py-6">
+      <NewTicketForm deviceNames={devices.map((device) => device.name)} assignableUsers={assignableUsers} />
     </div>
   )
 }
