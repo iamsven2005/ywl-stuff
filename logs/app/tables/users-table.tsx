@@ -85,7 +85,7 @@ interface UserForm {
   username: string
   email: string
   password: string
-  role: "ADMIN" | "USER" | "DRAFTER"
+  role: string[] // Changed from "ADMIN" | "USER" | "DRAFTER" to string[]
   devices: number[]
 }
 
@@ -114,7 +114,7 @@ export default function UsersTable() {
     username: "",
     email: "",
     password: "",
-    role: "USER", // ✅ Provide a default valid role
+    role: ["USER"], // Changed from "USER" to ["USER"]
     devices: [],
   })
 
@@ -172,21 +172,17 @@ export default function UsersTable() {
     }
   }
 
+  // Fetch all devices for device selection
   const fetchDevices = async () => {
     try {
-      const result = await getDevices({ pageSize: 1000 }); // Fetch devices with a page size limit
-  
-      if (result && result.devices) {
-        setDevices(result.devices);
-      } else {
-        setDevices([]); // Fallback to empty array if result is null or missing devices
+      const result = await getDevices({ pageSize: 1000 }) // Get all devices
+      if(result){
+        setDevices(result.devices)
       }
     } catch (error) {
-      toast.error("Failed to fetch devices");
-      setDevices([]); // Ensure devices is always set to an array
+      toast.error("Failed to fetch devices")
     }
-  };
-  
+  }
 
   // Load users when filters or pagination changes
   useEffect(() => {
@@ -235,7 +231,7 @@ export default function UsersTable() {
       username: "",
       email: "",
       password: "",
-      role: "USER", // ✅ Ensure it's a valid value
+      role: ["USER"], // Changed from "USER" to ["USER"]
       devices: [],
     })
     setAddModalOpen(true)
@@ -252,8 +248,8 @@ export default function UsersTable() {
       setUserForm({
         username: user.username,
         email: user.email || "",
-        password: user.password,
-        role: user.role ?? "USER", // ✅ Default to "USER" if role is missing
+        password: "",
+        role: Array.isArray(user.role) ? user.role : [user.role || "USER"], // Handle both array and string
         devices: userDevices.map((d: any) => d.deviceId),
       })
 
@@ -272,10 +268,19 @@ export default function UsersTable() {
   // Handle form input change
   const handleFormChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target
-    setUserForm((prev) => ({
-      ...prev,
-      [name]: value,
-    }))
+
+    if (name === "role") {
+      // For backward compatibility with single select
+      setUserForm((prev) => ({
+        ...prev,
+        [name]: [value],
+      }))
+    } else {
+      setUserForm((prev) => ({
+        ...prev,
+        [name]: value,
+      }))
+    }
   }
 
   // Handle device selection change
@@ -336,9 +341,10 @@ export default function UsersTable() {
         id: currentUser.id,
         username: userForm.username,
         email: userForm.email || null,
-        password: userForm.password || undefined, // Only update if provided
-        role: userForm.role, // ✅ Ensure role is updated
+        password: userForm.password || undefined,
+        role: userForm.role as ("ADMIN" | "USER" | "DRAFTER")[], // 👈 Cast here
       })
+      
 
       // Get current user devices
       const currentDevices = await getUserDevices(currentUser.id)
@@ -581,6 +587,14 @@ export default function UsersTable() {
     value: device.id.toString(),
   }))
 
+  // Handle role selection change
+  const handleRoleChange = (selectedRoles: string[]) => {
+    setUserForm((prev) => ({
+      ...prev,
+      role: selectedRoles,
+    }))
+  }
+
   return (
     <div className="space-y-4">
       <div className="flex flex-col sm:flex-row gap-4 justify-between">
@@ -639,6 +653,7 @@ export default function UsersTable() {
               <TableHead className="w-[60px]">ID</TableHead>
               <TableHead className="w-[200px]">Username</TableHead>
               <TableHead className="w-[250px]">Email</TableHead>
+              <TableHead className="w-[150px]">Roles</TableHead>
               <TableHead className="w-[150px]">Created</TableHead>
               <TableHead className="w-[150px]">Updated</TableHead>
               <TableHead>Devices</TableHead>
@@ -677,6 +692,21 @@ export default function UsersTable() {
                     ) : (
                       <span className="text-muted-foreground">—</span>
                     )}
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex flex-wrap gap-1">
+                      {Array.isArray(user.role) && user.role.length > 0 ? (
+                        user.role.map((role: string) => (
+                          <Badge key={role} variant="secondary" className="capitalize">
+                            {role.toLowerCase()}
+                          </Badge>
+                        ))
+                      ) : (
+                        <Badge variant="secondary" className="capitalize">
+                          {typeof user.role === "string" ? user.role.toLowerCase() : "User"}
+                        </Badge>
+                      )}
+                    </div>
                   </TableCell>
                   <TableCell>{formatDate(user.createdAt)}</TableCell>
                   <TableCell>{formatDate(user.updatedAt)}</TableCell>
@@ -799,32 +829,30 @@ export default function UsersTable() {
                 />
               </div>
             </div>
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="role" className="text-right">
-                Role
+            <div className="grid grid-cols-4 items-start gap-4">
+              <Label htmlFor="role" className="text-right pt-2">
+                Roles
               </Label>
               <div className="col-span-3">
-                <select
-                  id="role"
-                  name="role"
-                  value={userForm.role}
-                  onChange={handleFormChange}
-                  className="h-8 w-full border border-input bg-background px-2 text-sm rounded-md"
-                >
-                  {roles.length > 0 ? (
-                    roles.map((role) => (
-                      <option key={role.id} value={role.name}>
-                        {role.name}
-                      </option>
-                    ))
-                  ) : (
-                    <>
-                      <option value="USER">User</option>
-                      <option value="ADMIN">Admin</option>
-                      <option value="DRAFTER">Drafter</option>
-                    </>
-                  )}
-                </select>
+                <MultiCombobox
+                  options={
+                    roles.length > 0
+                      ? roles.map((role) => ({ label: role.name, value: role.name }))
+                      : [
+                          { label: "User", value: "USER" },
+                          { label: "Admin", value: "ADMIN" },
+                          { label: "Drafter", value: "DRAFTER" },
+                        ]
+                  }
+                  selected={userForm.role}
+                  onChange={(selectedRoles) => {
+                    setUserForm((prev) => ({
+                      ...prev,
+                      role: selectedRoles,
+                    }))
+                  }}
+                  placeholder="Select roles..."
+                />
               </div>
             </div>
 
@@ -920,32 +948,30 @@ export default function UsersTable() {
                 />
               </div>
             </div>
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="edit-role" className="text-right">
-                Role
+            <div className="grid grid-cols-4 items-start gap-4">
+              <Label htmlFor="edit-role" className="text-right pt-2">
+                Roles
               </Label>
               <div className="col-span-3">
-                <select
-                  id="edit-role"
-                  name="role"
-                  value={userForm.role}
-                  onChange={handleFormChange}
-                  className="h-8 w-full border border-input bg-background px-2 text-sm rounded-md"
-                >
-                  {roles.length > 0 ? (
-                    roles.map((role) => (
-                      <option key={role.id} value={role.name}>
-                        {role.name}
-                      </option>
-                    ))
-                  ) : (
-                    <>
-                      <option value="USER">User</option>
-                      <option value="ADMIN">Admin</option>
-                      <option value="DRAFTER">Drafter</option>
-                    </>
-                  )}
-                </select>
+                <MultiCombobox
+                  options={
+                    roles.length > 0
+                      ? roles.map((role) => ({ label: role.name, value: role.name }))
+                      : [
+                          { label: "User", value: "USER" },
+                          { label: "Admin", value: "ADMIN" },
+                          { label: "Drafter", value: "DRAFTER" },
+                        ]
+                  }
+                  selected={userForm.role}
+                  onChange={(selectedRoles) => {
+                    setUserForm((prev) => ({
+                      ...prev,
+                      role: selectedRoles,
+                    }))
+                  }}
+                  placeholder="Select roles..."
+                />
               </div>
             </div>
 

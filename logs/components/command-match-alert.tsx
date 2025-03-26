@@ -67,29 +67,9 @@ export function CommandMatchAlert({ matches = [] }: { matches: CommandMatchProps
   }, [matches])
 
   const handleViewAll = () => {
-    router.push("/command-matches")
+    router.push("/command")
   }
 
-  const handleMarkAllAsAddressed = async () => {
-    setLoading(true)
-    try {
-      const response = await fetch("/api/command-matches/mark-all-addressed", {
-        method: "POST",
-      })
-
-      if (response.ok) {
-        setUnaddressedCount(0)
-        toast.success("All command matches marked as addressed")
-      } else {
-        toast.error("Failed to mark all command matches as addressed")
-      }
-    } catch (error) {
-      console.error("Error marking all command matches as addressed:", error)
-      toast.error("Failed to mark all command matches as addressed")
-    } finally {
-      setLoading(false)
-    }
-  }
 
   if (unaddressedCount === 0) {
     return null
@@ -117,9 +97,6 @@ export function CommandMatchAlert({ matches = [] }: { matches: CommandMatchProps
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
           <DropdownMenuItem onClick={handleViewAll}>View all command matches</DropdownMenuItem>
-          <DropdownMenuItem onClick={handleMarkAllAsAddressed} disabled={loading}>
-            {loading ? "Processing..." : "Mark all as addressed"}
-          </DropdownMenuItem>
         </DropdownMenuGroup>
       </DropdownMenuContent>
     </DropdownMenu>

@@ -1,13 +1,13 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { toast } from "sonner"
-import { AlertCircle, Bell, Check, CheckCircle, ExternalLink, MoreHorizontal } from "lucide-react"
+import { AlertCircle, Bell, Check, CheckCircle, ExternalLink, MoreHorizontal } from 'lucide-react'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -25,21 +25,46 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog"
 import { Textarea } from "@/components/ui/textarea"
-import { resolveAlertEvent } from "../actions/alert-actions"
+import { getAlertEvents, resolveAlertEvent } from "../actions/alert-actions"
 
 export function AlertEventsTable({
   initialAlertEvents,
-  showResolved = true,
+  showResolved = false,
 }: {
-  initialAlertEvents: any[]
+  initialAlertEvents?: any[]
   showResolved?: boolean
 }) {
   const router = useRouter()
-  const [alertEvents, setAlertEvents] = useState(initialAlertEvents)
+  const [alertEvents, setAlertEvents] = useState<any[]>(initialAlertEvents || [])
+  const [isLoading, setIsLoading] = useState(!initialAlertEvents)
   const [resolveDialogOpen, setResolveDialogOpen] = useState(false)
   const [eventToResolve, setEventToResolve] = useState<any>(null)
   const [resolutionNotes, setResolutionNotes] = useState("")
   const [isResolving, setIsResolving] = useState(false)
+
+  // Fetch alert events if not provided as props
+  useEffect(() => {
+    if (!initialAlertEvents) {
+      const fetchAlertEvents = async () => {
+        try {
+          setIsLoading(true)
+          const { alertEvents: events } = await getAlertEvents({ 
+            resolved: showResolved, 
+            page: 1, 
+            pageSize: 50 
+          })
+          setAlertEvents(events)
+        } catch (error) {
+          console.error("Error fetching alert events:", error)
+          toast.error("Failed to load alert events")
+        } finally {
+          setIsLoading(false)
+        }
+      }
+
+      fetchAlertEvents()
+    }
+  }, [initialAlertEvents, showResolved])
 
   // Handle resolving an alert event
   const handleResolve = async () => {
@@ -73,6 +98,14 @@ export function AlertEventsTable({
 
   // Filter events based on showResolved prop
   const filteredEvents = showResolved ? alertEvents : alertEvents.filter((event) => !event.resolved)
+
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center h-48">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
+      </div>
+    )
+  }
 
   return (
     <div className="rounded-md border">
@@ -197,4 +230,3 @@ export function AlertEventsTable({
     </div>
   )
 }
-

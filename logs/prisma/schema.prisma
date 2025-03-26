@@ -187,7 +187,7 @@ model User {
   username    String   @unique
   password    String
   email       String?  @unique
-  role        String   @default("admin") // e.g., "admin", "viewer", "operator"
+  role        String[]   @default(["admin"]) // e.g., "admin", "viewer", "operator"
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   devices     DeviceUser[]
@@ -202,6 +202,10 @@ model User {
   assignedTickets SupportTicket[] @relation("AssignedTickets")
   createdTickets  SupportTicket[] @relation("CreatedTickets")
   ticketComments  TicketComment[]
+
+  Feedback Feedback[] @relation("FeedbackSender")
+
+  FeedbackRecipient FeedbackRecipient[] @relation("FeedbackRecipient")
 }
 
 // Junction table for many-to-many relation between User & EmailTemplate
@@ -316,4 +320,47 @@ model AlertEvent {
   notes           String?
 
   alertCondition  AlertCondition @relation(fields: [conditionId], references: [id])
+}
+
+model LibraryEntry {
+  id           Int      @id @default(autoincrement())
+  refNo        String   // e.g., "0001"
+  category     String   // e.g., "PM9", "BC4", "LTA"
+  title        String   @db.Text
+  author       String?  // Nullable since author may be missing
+  pubYear      Int?     // Nullable
+  creationDate DateTime
+  borrower     String?  // Name of borrower
+  loanDate     DateTime? // Nullable loan date
+  remarks      String?  @db.Text
+attachmentUrl   String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model Feedback {
+  id         Int                   @id @default(autoincrement())
+  subject    String
+  message    String                @db.Text
+  createdAt  DateTime              @default(now())
+  updatedAt  DateTime              @updatedAt
+  isRead     Boolean               @default(false)
+
+  // Relations
+  senderId   Int
+  sender     User                  @relation("FeedbackSender", fields: [senderId], references: [id])
+
+  recipients FeedbackRecipient[]
+}
+
+model FeedbackRecipient {
+  id         Int       @id @default(autoincrement())
+  feedbackId Int       // 🔧 Changed from String to Int
+  userId     Int
+
+  // Relations
+  feedback   Feedback  @relation(fields: [feedbackId], references: [id], onDelete: Cascade)
+  user       User      @relation("FeedbackRecipient", fields: [userId], references: [id])
+
+  @@unique([feedbackId, userId])
 }

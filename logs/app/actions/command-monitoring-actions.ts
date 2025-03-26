@@ -174,7 +174,7 @@ export async function checkCommandMatches(logEntry: string, logId: number, logTy
 
       // Show toast notification for each match
       matches.forEach((match) => {
-        toast.warning(`Command Match Detected: "${match.command}" in rule "${match.ruleName}"`, {
+        toast.success(`Command Match Detected: "${match.command}" in rule "${match.ruleName}"`, {
           description: "Check command matches for details",
           duration: 5000,
         })

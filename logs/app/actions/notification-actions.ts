@@ -85,7 +85,7 @@ export async function createNotification(data: {
       throw new Error("Not authenticated")
     }
 
-    if (user.role !== "admin") {
+    if (!user?.role?.some(role => role.toLowerCase().includes("admin"))) {
       throw new Error("Not authorized")
     }
 
@@ -122,7 +122,7 @@ export async function updateNotification(
       throw new Error("Not authenticated")
     }
 
-    if (user.role !== "admin") {
+    if (!user?.role?.some(role => role.toLowerCase().includes("admin"))) {
       throw new Error("Not authorized")
     }
 
@@ -152,7 +152,7 @@ export async function deleteNotification(id: number) {
       throw new Error("Not authenticated")
     }
 
-    if (user.role !== "admin") {
+    if (!user?.role?.some(role => role.toLowerCase().includes("admin"))) {
       throw new Error("Not authorized")
     }
 
@@ -175,7 +175,8 @@ export async function getAllNotificationsAdmin() {
       throw new Error("Not authenticated")
     }
 
-    if (user.role !== "admin") {
+    if (!user?.role?.some(role => role.toLowerCase().includes("admin"))) {
+
       throw new Error("Not authorized")
     }
 

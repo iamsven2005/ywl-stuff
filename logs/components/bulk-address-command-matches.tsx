@@ -64,22 +64,31 @@ export function BulkAddressCommandMatches({ matches }: BulkAddressCommandMatches
   const submitBulkAddress = async () => {
     try {
       setIsSubmitting(true)
-      const response = await fetch("/api/command-matches/bulk-address", {
+
+      // Ensure we're sending valid JSON data
+      const payload = JSON.stringify({
+        matchIds: selectedMatches,
+        notes,
+      })
+
+      console.log("Sending payload:", payload) // Debug log
+
+      const response = await fetch("/api/bulk-address", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({
-          matchIds: selectedMatches,
-          notes,
-        }),
+        body: payload,
       })
 
       if (!response.ok) {
-        throw new Error("Failed to address command matches")
+        const errorData = await response.text()
+        console.error("Server response:", errorData)
+        throw new Error(`Failed to address command matches: ${errorData}`)
       }
 
-      toast.success(`${selectedMatches.length} command matches have been addressed`)
+      const result = await response.json()
+      toast.success(`${result.count || selectedMatches.length} command matches have been addressed`)
       setIsAddressDialogOpen(false)
       setSelectedMatches([])
       router.refresh()

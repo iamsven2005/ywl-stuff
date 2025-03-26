@@ -18,7 +18,7 @@ export default function Home() {
           return
         }
 
-        if (user.role === "admin") {
+        if (user?.role?.some(role => role.toLowerCase().includes("admin"))) {
           router.push("/logs")
         } else {
           router.push("/notifications")

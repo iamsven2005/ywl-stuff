@@ -75,7 +75,8 @@ export function TicketDetail({ ticket, currentUser, assignableUsers }: TicketDet
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isDeleting, setIsDeleting] = useState(false)
 
-  const isAdmin = currentUser?.role === "admin"
+  const isAdmin = currentUser?.role?.some((role: string) => role.toLowerCase().includes("admin"))
+
   const handleStatusChange = async (value: string) => {
     try {
       setStatus(value)
