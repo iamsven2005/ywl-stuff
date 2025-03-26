@@ -11,7 +11,7 @@ export async function middleware(request: NextRequest) {
   }
 
   // For admin-only routes
-  if (userId && (path.startsWith("/logs") || path.startsWith("/command-matches"))) {
+  if (userId && (path.startsWith("/logs") || path.startsWith("/command"))) {
     // We'll check the role in the page component since middleware can't access the database directly
     // This is just a first layer of protection
     return NextResponse.next()

@@ -301,7 +301,7 @@ export async function deleteTicket(id: number) {
     })
 
     // Only admins can delete tickets
-    if (user?.role !== "admin") {
+    if (!user?.role?.some(role => role.toLowerCase().includes("admin"))) {
       throw new Error("Only admins can delete tickets")
     }
 
@@ -406,7 +406,8 @@ export async function deleteComment(id: number) {
     })
 
     // Only the comment author or admins can delete comments
-    if (user?.role !== "admin" && comment.user.id !== session.user.id) {
+    if (!user?.role?.some(role => role.toLowerCase().includes("admin"))
+      && comment.user.id !== session.user.id) {
       throw new Error("You don't have permission to delete this comment")
     }
 
@@ -430,9 +431,11 @@ export async function deleteComment(id: number) {
   }
 }
 
-// Get ticket statistics
 export async function getTicketStats() {
   try {
+    // Get total tickets count
+    const totalTickets = await db.supportTicket.count()
+
     // Get status counts
     const statusCounts = await db.supportTicket.groupBy({
       by: ["status"],
@@ -449,8 +452,116 @@ export async function getTicketStats() {
       },
     })
 
-    // Get total count
-    const totalCount = await db.supportTicket.count()
+    // Get recent tickets
+    const recentTickets = await db.supportTicket.findMany({
+      take: 5,
+      orderBy: {
+        createdAt: "desc",
+      },
+      include: {
+        createdBy: {
+          select: {
+            id: true,
+            username: true,
+          },
+        },
+      },
+    })
+
+    // Get tickets created this week
+    const oneWeekAgo = new Date()
+    oneWeekAgo.setDate(oneWeekAgo.getDate() - 7)
+
+    const ticketsThisWeek = await db.supportTicket.count({
+      where: {
+        createdAt: {
+          gte: oneWeekAgo,
+        },
+      },
+    })
+
+    // Get tickets created last week
+    const twoWeeksAgo = new Date()
+    twoWeeksAgo.setDate(twoWeeksAgo.getDate() - 14)
+
+    const ticketsLastWeek = await db.supportTicket.count({
+      where: {
+        createdAt: {
+          gte: twoWeeksAgo,
+          lt: oneWeekAgo,
+        },
+      },
+    })
+
+    // Calculate percent change
+    const percentChange =
+      ticketsLastWeek > 0 ? Math.round(((ticketsThisWeek - ticketsLastWeek) / ticketsLastWeek) * 100) : 0
+
+    // Calculate average resolution time (for resolved tickets)
+    const resolvedTickets = await db.supportTicket.findMany({
+      where: {
+        status: "resolved",
+      },
+      select: {
+        createdAt: true,
+        updatedAt: true,
+      },
+    })
+
+    let avgResolutionTime = 0
+    if (resolvedTickets.length > 0) {
+      const totalHours = resolvedTickets.reduce((sum, ticket) => {
+        const createdAt = new Date(ticket.createdAt)
+        const updatedAt = new Date(ticket.updatedAt)
+        const diffInHours = (updatedAt.getTime() - createdAt.getTime()) / (1000 * 60 * 60)
+        return sum + diffInHours
+      }, 0)
+
+      avgResolutionTime = Math.round(totalHours / resolvedTickets.length)
+    }
+
+    // Get top assignees
+    const topAssignees = await db.user.findMany({
+      where: {
+        assignedTickets: {
+          some: {},
+        },
+      },
+      select: {
+        id: true,
+        username: true,
+        _count: {
+          select: {
+            assignedTickets: true,
+          },
+        },
+      },
+      orderBy: {
+        assignedTickets: {
+          _count: "desc",
+        },
+      },
+      take: 5,
+    })
+
+    // Get resolved counts for each assignee
+    const assigneesWithStats = await Promise.all(
+      topAssignees.map(async (assignee) => {
+        const resolvedCount = await db.supportTicket.count({
+          where: {
+            assignedToId: assignee.id,
+            status: "resolved",
+          },
+        })
+
+        return {
+          id: assignee.id,
+          username: assignee.username,
+          ticketCount: assignee._count.assignedTickets,
+          resolvedCount,
+        }
+      }),
+    )
 
     // Format the results
     const statusStats = {
@@ -476,13 +587,42 @@ export async function getTicketStats() {
     })
 
     return {
-      total: totalCount,
+      totalTickets,
+      ticketsThisWeek,
+      ticketsLastWeek,
+      percentChange,
+      avgResolutionTime,
+      topAssignees: assigneesWithStats,
+      total: recentTickets.length,
       byStatus: statusStats,
       byPriority: priorityStats,
+      recentTickets,
     }
   } catch (error) {
     console.error("Error fetching ticket stats:", error)
-    throw new Error("Failed to fetch ticket statistics")
+    // Return a valid empty structure to prevent UI errors
+    return {
+      totalTickets: 0,
+      ticketsThisWeek: 0,
+      ticketsLastWeek: 0,
+      percentChange: 0,
+      avgResolutionTime: 0,
+      topAssignees: [],
+      total: 0,
+      byStatus: {
+        open: 0,
+        in_progress: 0,
+        resolved: 0,
+        closed: 0,
+      },
+      byPriority: {
+        low: 0,
+        medium: 0,
+        high: 0,
+        critical: 0,
+      },
+      recentTickets: [],
+    }
   }
 }
 

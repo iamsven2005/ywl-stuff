@@ -2,16 +2,16 @@
 
 import type React from "react"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
-import { Check, Download, Edit, MoreHorizontal, Trash, Upload, X } from "lucide-react"
+import { Check, Download, Edit, MoreHorizontal, Trash, Upload, X } from 'lucide-react'
 import { toast } from "sonner"
 import { formatDate } from "@/lib/utils"
-import { deleteAlertCondition, toggleAlertConditionStatus } from "../actions/alert-actions"
+import { deleteAlertCondition, getAlertConditions, toggleAlertConditionStatus } from "../actions/alert-actions"
 import Link from "next/link"
 import {
   AlertDialog,
@@ -25,13 +25,34 @@ import {
 } from "@/components/ui/alert-dialog"
 import { Input } from "@/components/ui/input"
 
-export function AlertConditionsTable({ initialAlertConditions }: { initialAlertConditions: any[] }) {
+export function AlertConditionsTable({ initialAlertConditions }: { initialAlertConditions?: any[] }) {
   const router = useRouter()
-  const [alertConditions, setAlertConditions] = useState(initialAlertConditions)
+  const [alertConditions, setAlertConditions] = useState<any[]>(initialAlertConditions || [])
+  const [isLoading, setIsLoading] = useState(!initialAlertConditions)
   const [isDeleting, setIsDeleting] = useState(false)
   const [deleteId, setDeleteId] = useState<number | null>(null)
   const [isImporting, setIsImporting] = useState(false)
   const [importFile, setImportFile] = useState<File | null>(null)
+
+  // Fetch alert conditions if not provided as props
+  useEffect(() => {
+    if (!initialAlertConditions) {
+      const fetchAlertConditions = async () => {
+        try {
+          setIsLoading(true)
+          const conditions = await getAlertConditions()
+          setAlertConditions(conditions)
+        } catch (error) {
+          console.error("Error fetching alert conditions:", error)
+          toast.error("Failed to load alert conditions")
+        } finally {
+          setIsLoading(false)
+        }
+      }
+
+      fetchAlertConditions()
+    }
+  }, [initialAlertConditions])
 
   // Toggle alert condition active status
   const handleToggleStatus = async (id: number, active: boolean) => {
@@ -183,6 +204,14 @@ export function AlertConditionsTable({ initialAlertConditions }: { initialAlertC
     }
   }
 
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center h-48">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
+      </div>
+    )
+  }
+
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center">
@@ -238,7 +267,7 @@ export function AlertConditionsTable({ initialAlertConditions }: { initialAlertC
                   <TableCell>{condition.timeWindowMin ? `${condition.timeWindowMin} minutes` : "N/A"}</TableCell>
                   <TableCell>{condition.countThreshold || "N/A"}</TableCell>
                   <TableCell>
-                    <Badge variant={condition.active ? "destructive" :"secondary"}>
+                    <Badge variant={condition.active ? "outline" : "secondary"}>
                       {condition.active ? "Active" : "Inactive"}
                     </Badge>
                   </TableCell>
@@ -339,4 +368,3 @@ export function AlertConditionsTable({ initialAlertConditions }: { initialAlertC
     </div>
   )
 }
-

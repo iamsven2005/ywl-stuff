@@ -28,8 +28,7 @@ export default function LoginPage() {
       if (result?.success) {
         toast.success(`Welcome back, ${result.username}!`)
 
-        // Redirect based on role
-        if (result.role === "admin") {
+        if (result?.role?.some(role => role.toLowerCase().includes("admin"))) {
           router.push("/logs")
         } else {
           router.push("/notifications")

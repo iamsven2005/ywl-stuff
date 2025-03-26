@@ -1,62 +1,60 @@
-import type { Metadata } from "next"
-import { getAlertConditions, getAlertEvents } from "../actions/alert-actions"
+import { Suspense } from "react"
 import { AlertConditionsTable } from "./alert-conditions-table"
 import { AlertEventsTable } from "./alert-events-table"
+import { AlertStats } from "./alert-stats"
+import { AlertDebugPanel } from "./alert-debug-panel"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
-import { Plus } from "lucide-react"
-import { AlertStats } from "./alert-stats"
+import { PlusCircle } from "lucide-react"
 import { DatabaseStatusBar } from "@/components/database-status-bar"
 
-export const metadata: Metadata = {
-  title: "Alerts",
-  description: "Manage system alerts and notifications",
-}
-
-export default async function AlertsPage() {
-  // Get alert conditions and recent unresolved events
-  const alertConditions = await getAlertConditions()
-  const { alertEvents } = await getAlertEvents({ resolved: false, page: 1, pageSize: 10 })
-
+export default function AlertsPage() {
   return (
-    <div className="container mx-auto py-6">
+    <div className="container mx-auto py-6 space-y-8">
       <DatabaseStatusBar />
 
-      <div className="flex justify-between items-center mb-6">
+      <div className="flex justify-between items-center">
         <div>
           <h1 className="text-3xl font-bold">Alerts</h1>
           <p className="text-muted-foreground">Manage system alerts and notifications</p>
         </div>
         <Button asChild>
           <Link href="/alerts/new">
-            <Plus className="mr-2 h-4 w-4" />
+            <PlusCircle className="mr-2 h-4 w-4" />
             New Alert Condition
           </Link>
         </Button>
       </div>
 
-      <AlertStats />
+      <Suspense fallback={<div>Loading stats...</div>}>
+        <AlertStats />
+      </Suspense>
 
-      <Tabs defaultValue="conditions" className="mt-6">
-        <TabsList>
-          <TabsTrigger value="conditions">Alert Conditions</TabsTrigger>
-          <TabsTrigger value="events">
-            Active Alerts
-            {alertEvents.length > 0 && (
-              <span className="ml-2 bg-red-100 text-red-800 text-xs font-medium px-2.5 py-0.5 rounded-full dark:bg-red-900 dark:text-red-300">
-                {alertEvents.length}
-              </span>
-            )}
-          </TabsTrigger>
-        </TabsList>
-        <TabsContent value="conditions">
-          <AlertConditionsTable initialAlertConditions={alertConditions} />
-        </TabsContent>
-        <TabsContent value="events">
-          <AlertEventsTable initialAlertEvents={alertEvents} showResolved={false} />
-        </TabsContent>
-      </Tabs>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="md:col-span-2">
+          <Tabs defaultValue="conditions">
+            <TabsList className="mb-4">
+              <TabsTrigger value="conditions">Alert Conditions</TabsTrigger>
+              <TabsTrigger value="events">Alert Events</TabsTrigger>
+            </TabsList>
+            <TabsContent value="conditions">
+              <Suspense fallback={<div>Loading alert conditions...</div>}>
+                <AlertConditionsTable />
+              </Suspense>
+            </TabsContent>
+            <TabsContent value="events">
+              <Suspense fallback={<div>Loading alert events...</div>}>
+                <AlertEventsTable />
+              </Suspense>
+            </TabsContent>
+          </Tabs>
+        </div>
+
+        <div>
+          <AlertDebugPanel />
+        </div>
+      </div>
     </div>
   )
 }

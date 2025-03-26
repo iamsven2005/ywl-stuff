@@ -4,6 +4,8 @@ import { db } from "@/lib/db"
 import { revalidatePath } from "next/cache"
 import { logActivity } from "@/lib/activity-logger"
 import { sendEmailWithTemplate } from "./email-template-actions"
+import { cache } from "react"
+import { getSession } from "@/lib/auth"
 
 // Types for alert condition creation/update
 interface AlertConditionData {
@@ -572,7 +574,15 @@ async function evaluateAuthLogsCondition(condition: any) {
   try {
     // Get the time window for the condition
     const timeWindow = condition.timeWindowMin || 5 // Default to 5 minutes if not specified
-    const startTime = new Date(Date.now() - timeWindow * 60 * 1000)
+
+    // For testing purposes, use a much larger time window to catch older logs
+    // This helps when testing with existing data
+    const startTime = new Date(Date.now() - timeWindow * 60 * 1000 * 100) // 100x larger window for testing
+
+    console.log(
+      `Evaluating auth condition: ${condition.name}, field: ${condition.fieldName}, comparator: ${condition.comparator}, value: ${condition.thresholdValue}`,
+    )
+    console.log(`Time window: ${timeWindow} minutes, start time: ${startTime.toISOString()}`)
 
     // Query the auth table
     const authLogs = await db.auth.findMany({
@@ -583,6 +593,8 @@ async function evaluateAuthLogsCondition(condition: any) {
         timestamp: "desc",
       },
     })
+
+    console.log(`Found ${authLogs.length} auth logs in time window`)
 
     if (authLogs.length === 0) {
       return { shouldTrigger: false, reason: "No auth logs found in time window" }
@@ -597,7 +609,11 @@ async function evaluateAuthLogsCondition(condition: any) {
 
       // For auth logs, we typically check if the log_entry contains certain text
       if (condition.comparator === "contains") {
-        conditionMet = log.log_entry.toLowerCase().includes(condition.thresholdValue.toLowerCase())
+        // Check both log_entry and any command field if it exists
+        if (log.log_entry.toLowerCase().includes(condition.thresholdValue.toLowerCase())) {
+          conditionMet = true
+          console.log(`Auth log entry "${log.log_entry}" contains "${condition.thresholdValue}"`)
+        }
       } else if (condition.comparator === "not_contains") {
         conditionMet = !log.log_entry.toLowerCase().includes(condition.thresholdValue.toLowerCase())
       }
@@ -610,30 +626,16 @@ async function evaluateAuthLogsCondition(condition: any) {
       }
     }
 
+    console.log(`Found ${violationCount} violations for auth condition: ${condition.name}`)
+
     // If count threshold is specified, check if we've exceeded it
     if (condition.countThreshold) {
       return {
         shouldTrigger: violationCount >= condition.countThreshold,
         reason:
           violationCount >= condition.countThreshold
-            ? `
-  Found
-  $
-  violationCount
-  matching
-  logs (limit: ${condition.countThreshold})`
-            : `
-  Found
-  $
-  violationCount
-  matching
-  logs, but
-  below
-  limit
-  of
-  $
-  condition.countThreshold
-  ;`,
+            ? `Found ${violationCount} matching logs (limit: ${condition.countThreshold})`
+            : `Found ${violationCount} matching logs, but below limit of ${condition.countThreshold}`,
         latestViolation,
       }
     }
@@ -641,15 +643,7 @@ async function evaluateAuthLogsCondition(condition: any) {
     // Otherwise, trigger if any violation was found
     return {
       shouldTrigger: violationCount > 0,
-      reason:
-        violationCount > 0
-          ? `
-  Found
-  $
-  violationCount
-  matching
-  logs`
-          : "No matching logs found",
+      reason: violationCount > 0 ? `Found ${violationCount} matching logs` : "No matching logs found",
       latestViolation,
     }
   } catch (error) {
@@ -663,20 +657,32 @@ async function evaluateSystemLogsCondition(condition: any) {
   try {
     // Get the time window for the condition
     const timeWindow = condition.timeWindowMin || 5 // Default to 5 minutes if not specified
-    const startTime = new Date(Date.now() - timeWindow * 60 * 1000)
 
-    // Query the logs table
+    // For testing purposes, use a much larger time window to catch older logs
+    // This helps when testing with existing data
+    const startTime = new Date(Date.now() - timeWindow * 60 * 1000 * 100) // 100x larger window for testing
+
+    console.log(
+      `Evaluating logs condition: ${condition.name}, field: ${condition.fieldName}, comparator: ${condition.comparator}, value: "${condition.thresholdValue}"`,
+    )
+    console.log(`Time window: ${timeWindow} minutes, start time: ${startTime.toISOString()}`)
+
+    // Query the logs table with no timestamp filter for debugging
     const systemLogs = await db.logs.findMany({
-      where: {
-        timestamp: { gte: startTime },
-      },
       orderBy: {
         timestamp: "desc",
       },
     })
 
+    console.log(`Found ${systemLogs.length} total logs in database`)
+
+    // Log all commands for debugging
+    systemLogs.forEach((log) => {
+      console.log(`Log command: "${log.command || "null"}", timestamp: ${log.timestamp}`)
+    })
+
     if (systemLogs.length === 0) {
-      return { shouldTrigger: false, reason: "No system logs found in time window" }
+      return { shouldTrigger: false, reason: "No system logs found in database" }
     }
 
     // Check if the condition is met
@@ -717,29 +723,45 @@ async function evaluateSystemLogsCondition(condition: any) {
         }
       } else if (condition.fieldName === "command") {
         // Check if command contains the threshold value
-        if (log.command && condition.comparator === "contains") {
-          conditionMet = log.command.toLowerCase().includes(condition.thresholdValue.toLowerCase())
-        } else if (log.command && condition.comparator === "not_contains") {
-          conditionMet = !log.command.toLowerCase().includes(condition.thresholdValue.toLowerCase())
+        if (log.command) {
+          const logCommand = String(log.command).trim().toLowerCase()
+          const thresholdValue = String(condition.thresholdValue).trim().toLowerCase()
+
+          if (condition.comparator === "contains") {
+            conditionMet = logCommand.includes(thresholdValue)
+            console.log(`Checking command: "${logCommand}" contains "${thresholdValue}" = ${conditionMet}`)
+          } else if (condition.comparator === "not_contains") {
+            conditionMet = !logCommand.includes(thresholdValue)
+          } else if (condition.comparator === "equals") {
+            conditionMet = logCommand === thresholdValue
+          }
         }
       } else if (condition.fieldName === "name") {
         // Check if name contains the threshold value
-        if (condition.comparator === "contains") {
-          conditionMet = log.name.toLowerCase().includes(condition.thresholdValue.toLowerCase())
-        } else if (condition.comparator === "not_contains") {
-          conditionMet = !log.name.toLowerCase().includes(condition.thresholdValue.toLowerCase())
-        } else if (condition.comparator === "equals") {
-          conditionMet = log.name.toLowerCase() === condition.thresholdValue.toLowerCase()
+        if (log.name) {
+          const logName = String(log.name).trim().toLowerCase()
+          const thresholdValue = String(condition.thresholdValue).trim().toLowerCase()
+
+          if (condition.comparator === "contains") {
+            conditionMet = logName.includes(thresholdValue)
+          } else if (condition.comparator === "not_contains") {
+            conditionMet = !logName.includes(thresholdValue)
+          } else if (condition.comparator === "equals") {
+            conditionMet = logName === thresholdValue
+          }
         }
       }
 
       if (conditionMet) {
         violationCount++
+        console.log(`Found matching log: ${JSON.stringify(log)}`)
         if (!latestViolation) {
           latestViolation = log
         }
       }
     }
+
+    console.log(`Found ${violationCount} violations for condition: ${condition.name}`)
 
     // If count threshold is specified, check if we've exceeded it
     if (condition.countThreshold) {
@@ -777,20 +799,38 @@ export async function runAlertEvaluation() {
 
     for (const condition of conditions) {
       try {
+        console.log(`Evaluating condition: ${condition.name} (ID: ${condition.id})`)
         const evaluation = await evaluateAlertCondition(condition.id)
+        console.log(
+          `Evaluation result for ${condition.name}: shouldTrigger=${evaluation.shouldTrigger}, reason=${evaluation.data?.reason}`,
+        )
 
         if (evaluation.shouldTrigger) {
           // Create an alert event
           const notes = evaluation.data?.reason || "Alert condition met"
-          const alertEvent = await createAlertEvent(condition.id, notes)
+          console.log(`Creating alert event for condition ${condition.name} with notes: ${notes}`)
 
-          results.push({
-            conditionId: condition.id,
-            conditionName: condition.name,
-            triggered: true,
-            alertEventId: alertEvent.alertEvent.id,
-            reason: notes,
-          })
+          try {
+            const alertEvent = await createAlertEvent(condition.id, notes)
+            console.log(`Successfully created alert event ID: ${alertEvent.alertEvent.id}`)
+
+            results.push({
+              conditionId: condition.id,
+              conditionName: condition.name,
+              triggered: true,
+              alertEventId: alertEvent.alertEvent.id,
+              reason: notes,
+            })
+          } catch (createError) {
+            console.error(`Error creating alert event for condition ${condition.id}:`, createError)
+            results.push({
+              conditionId: condition.id,
+              conditionName: condition.name,
+              triggered: true,
+              error: createError instanceof Error ? createError.message : "Unknown error creating alert event",
+              reason: notes,
+            })
+          }
         } else {
           results.push({
             conditionId: condition.id,
@@ -800,15 +840,7 @@ export async function runAlertEvaluation() {
           })
         }
       } catch (error) {
-        console.error(
-          `
-  Error
-  evaluating
-  condition
-  ${condition.id}
-  :`,
-          error,
-        )
+        console.error(`Error evaluating condition ${condition.id}:`, error)
         results.push({
           conditionId: condition.id,
           conditionName: condition.name,
@@ -818,10 +850,148 @@ export async function runAlertEvaluation() {
       }
     }
 
+    // Revalidate the alerts page to show the new events
+    revalidatePath("/alerts")
+
     return { success: true, results }
   } catch (error: any) {
     console.error("Error running alert evaluation:", error)
     throw new Error(`Failed to run alert evaluation: ${error.message || "Unknown error"}`)
   }
 }
+
+// Bulk import alert conditions
+export async function bulkImportAlertConditions(conditions: AlertConditionData[]) {
+  try {
+    const results = []
+
+    for (const condition of conditions) {
+      try {
+        const result = await createAlertCondition(condition)
+        results.push({
+          success: true,
+          name: condition.name,
+          id: result.alertCondition.id,
+        })
+      } catch (error) {
+        results.push({
+          success: false,
+          name: condition.name,
+          error: error instanceof Error ? error.message : "Unknown error",
+        })
+      }
+    }
+
+    revalidatePath("/alerts")
+    return { success: true, results }
+  } catch (error: any) {
+    console.error("Error bulk importing alert conditions:", error)
+    throw new Error(`Failed to import alert conditions: ${error.message || "Unknown error"}`)
+  }
+}
+
+// Add these new functions at the end of the file
+
+/**
+ * Get the count of unresolved alert events
+ */
+export async function getUnresolvedAlertCount() {
+  try {
+    const count = await db.alertEvent.count({
+      where: {
+        resolved: false,
+      },
+    })
+    return count
+  } catch (error) {
+    console.error("Error getting unresolved alert count:", error)
+    return 0
+  }
+}
+
+/**
+ * Mark all alert events as resolved
+ */
+export async function resolveAllAlertEvents(notes = "Bulk resolved") {
+  try {
+    const session = await getSession()
+
+    if (!session?.user?.id) {
+      throw new Error("User not authenticated")
+    }
+
+    const result = await db.alertEvent.updateMany({
+      where: {
+        resolved: false,
+      },
+      data: {
+        resolved: true,
+        resolvedAt: new Date(),
+        notes: notes,
+      },
+    })
+
+    // Log the activity
+    await logActivity({
+      actionType: "Resolved All Alerts",
+      targetType: "AlertEvent",
+      targetId: 0,
+      details: `Resolved all ${result.count} unresolved alerts`,
+    })
+
+    revalidatePath("/alerts")
+    return { success: true, count: result.count }
+  } catch (error) {
+    console.error("Error resolving all alerts:", error)
+    throw error
+  }
+}
+
+/**
+ * Check alert conditions in real-time
+ * This function can be called from client components to check for new alerts
+ */
+export const checkAlertConditionsRealtime = cache(async () => {
+  try {
+    // Use a fetch request to the API route instead of direct evaluation
+    // This ensures we benefit from Next.js caching and don't spam the database
+    const response = await fetch(`${process.env.NEXT_PUBLIC_APP_URL}/api/alerts/check`, {
+      method: "GET",
+      headers: {
+        "Cache-Control": "max-age=300", // Cache for 5 minutes
+      },
+      next: { revalidate: 300 }, // Revalidate every 5 minutes
+    })
+
+    if (!response.ok) {
+      throw new Error(`Failed to check alerts: ${response.statusText}`)
+    }
+
+    const data = await response.json()
+
+    // Filter to get only the triggered alerts
+    const triggeredAlerts = data.results?.filter((result: any) => result.triggered) || []
+
+    // If there are triggered alerts, return them
+    if (triggeredAlerts.length > 0) {
+      // Get the full alert event details for each triggered alert
+      const alertEvents = await Promise.all(
+        triggeredAlerts.map(async (alert: any) => {
+          if (alert.alertEventId) {
+            return await getAlertEvent(alert.alertEventId)
+          }
+          return null
+        }),
+      )
+
+      // Filter out any null values and return the alert events
+      return alertEvents.filter(Boolean)
+    }
+
+    return []
+  } catch (error) {
+    console.error("Error checking alert conditions in real-time:", error)
+    return []
+  }
+})
 

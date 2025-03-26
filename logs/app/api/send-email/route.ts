@@ -21,7 +21,7 @@ export async function POST(req: Request) {
 
     // Send email
     const info = await transporter.sendMail({
-      from: `"System Monitoring" <${process.env.FROM_EMAIL || "sven.tan@int.ywlgroup.com"}>`,
+      from: `"System Monitoring" <${"sven.tan@int.ywlgroup.com"}>`,
       to,
       subject,
       text,
@@ -29,6 +29,8 @@ export async function POST(req: Request) {
     })
 
     console.log("Email sent: ", info.messageId)
+    console.log("Email sent: ", info)
+
     return NextResponse.json({ success: true, messageId: info.messageId })
   } catch (error) {
     console.error("Error sending email: ", error)

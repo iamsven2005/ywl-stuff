@@ -57,11 +57,12 @@ export async function getUsers({
 }
 
 
-// Get all admin users
 export async function getAdminUsers() {
   const adminUsers = await db.user.findMany({
     where: {
-      role: "admin",
+      role: {
+        has: "admin",
+      },
     },
     select: {
       id: true,
@@ -73,25 +74,27 @@ export async function getAdminUsers() {
   return adminUsers
 }
 
+
 export async function addUser({
   username,
   email,
   password,
-  role = "USER", // Default to "USER"
+  role = ["USER"], // default as string array
 }: {
   username: string
   email: string | null
   password: string
-  role?: "ADMIN" | "USER" | "DRAFTER"
+  role?: ("ADMIN" | "USER" | "DRAFTER")[]
 }) {
   const user = await db.user.create({
     data: {
       username,
       email,
-      password, // ⚠️ Consider hashing this before saving
-      role,
+      password,
+      role, // ✅ this is now a string[]
     },
   })
+
 
   await logActivity({
     actionType: "Created User",
@@ -116,13 +119,18 @@ export async function updateUser({
   username: string
   email: string | null
   password?: string
-  role?: "ADMIN" | "USER" | "DRAFTER"
+  role?: ("ADMIN" | "USER" | "DRAFTER")[]
 }) {
-  const data: any = {
+  const data: Partial<{
+    username: string
+    email: string | null
+    password: string
+    role: ("ADMIN" | "USER" | "DRAFTER")[]
+  }> = {
     username,
     email,
   }
-
+  
   if (password) {
     data.password = password // ⚠️ Hashing is recommended before saving
   }

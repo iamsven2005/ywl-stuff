@@ -1,6 +1,8 @@
 "use client"
 
-import type React from "react"
+import React from "react"
+
+import { DialogFooter } from "@/components/ui/dialog"
 
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
@@ -35,6 +37,8 @@ import {
   Filter,
   ExternalLink,
   Terminal,
+  Plus,
+  FileCode,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { toast } from "sonner"
@@ -64,7 +68,9 @@ import { getAllRuleGroupsAndRules } from "../actions/rule-actions"
 import type { Rule } from "@prisma/client"
 import { processBatchForCommandMatches } from "../actions/command-monitoring-actions"
 import { CommandMatchAlert } from "@/components/command-match-alert"
-
+import { Label } from "@/components/ui/label"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { addCommandToRule } from "../actions/rule-actions"
 
 // Debounce function to limit how often a function can run
 function debounce<T extends (...args: any[]) => any>(func: T, wait: number): (...args: Parameters<T>) => void {
@@ -158,6 +164,12 @@ export default function LogsTable() {
   // Add this state inside the LogsTable component
   const [commandMatches, setCommandMatches] = useState<any[]>([])
 
+  // Add this state inside the LogsTable component, near the other state declarations
+  const [addToRuleDialogOpen, setAddToRuleDialogOpen] = useState(false)
+  const [selectedRuleId, setSelectedRuleId] = useState<string>("")
+  const [commandText, setCommandText] = useState<string>("")
+  const [isAddingCommand, setIsAddingCommand] = useState(false)
+
   // Apply debounced search
   const debouncedSearch = debounce((value: string) => {
     setDebouncedSearchQuery(value)
@@ -172,12 +184,14 @@ export default function LogsTable() {
     debouncedSearch(value)
   }
 
+  // Modify the fetchLogs function to check for command matches
   const fetchLogs = async () => {
-    setIsLoading(true);
+    setIsLoading(true)
     try {
-      const hosts = selectedHosts.includes("all") ? [] : selectedHosts;
-      const actions = selectedActions.includes("all") ? [] : selectedActions;
-  
+      const hosts = selectedHosts.includes("all") ? [] : selectedHosts
+
+      const actions = selectedActions.includes("all") ? [] : selectedActions
+
       const result = await getLogs({
         search: debouncedSearchQuery,
         hosts,
@@ -188,58 +202,50 @@ export default function LogsTable() {
         memThreshold: isResourceFiltersEnabled ? memFilter : null,
         page: currentPage,
         pageSize: pageSize,
-      });
-  
-      if (result) {
-        setLogs(result.logs || []); // If logs are null, set to an empty array
-        setTotalPages(result.pageCount || 1); // Default to 1 if null
-        setTotalItems(result.totalCount || 0); // Default to 0 if null
-        setMatchedCommands(result.matchedCommands || []); // Default to empty array
-      } else {
-        // Handle null response gracefully
-        setLogs([]);
-        setTotalPages(1);
-        setTotalItems(0);
-        setMatchedCommands([]);
-      }
-  
-      // Check for command matches
-      if (result && result.logs) {
-        const matches = await processBatchForCommandMatches(result.logs, "system");
-        setCommandMatches(matches || []);
-        
-        // Show toast notifications for matches
-        if (matches.length > 0) {
-          matches.forEach((match: any) => {
-            toast.info(
-              <div>
-                <p className="font-medium">Command Match Detected</p>
-                <p className="text-sm">Rule: {match.ruleName}</p>
-                <p className="text-sm">
-                  Command: <code className="bg-muted px-1 rounded">{match.command}</code>
+      })
+      if(result){
+        setLogs(result.logs)
+        setTotalPages(result.pageCount)
+        setTotalItems(result.totalCount)
+        setMatchedCommands(result.matchedCommands || [])
+              // Check for command matches
+      const matches = await processBatchForCommandMatches(result.logs, "system")
+      setCommandMatches(matches)
+      if (matches.length > 0) {
+        matches.forEach((match: any) => {
+          toast.info(
+            <div>
+              <p className="font-medium">Command Match Detected</p>
+              <p className="text-sm">Rule: {match.ruleName}</p>
+              <p className="text-sm">
+                Command: <code className="bg-muted px-1 rounded">{match.command}</code>
+              </p>
+              {match.emailTemplateId && (
+                <p className="text-xs mt-1 text-muted-foreground">
+                  Email notification sent via template: {match.emailTemplateName}
                 </p>
-                {match.emailTemplateId && (
-                  <p className="text-xs mt-1 text-muted-foreground">
-                    Email notification sent via template: {match.emailTemplateName}
-                  </p>
-                )}
-              </div>,
-              { duration: 5000 }
-            );
-          });
-        }
+              )}
+            </div>,
+            {
+              duration: 5000,
+            },
+          )
+        })
       }
+      }
+
+
+
+
+      // Show toast notifications for matches
+
     } catch (error) {
-      toast.error("Failed to fetch logs");
-      setLogs([]);
-      setTotalPages(1);
-      setTotalItems(0);
-      setMatchedCommands([]);
+      toast.error("Failed to fetch logs")
     } finally {
-      setIsLoading(false);
+      setIsLoading(false)
     }
-  };
-  
+  }
+
   // Load logs when filters or pagination changes
   useEffect(() => {
     fetchLogs()
@@ -460,26 +466,16 @@ export default function LogsTable() {
     const fetchDeviceNames = async () => {
       try {
         const deviceNames = await getAllDeviceNames()
-    
-        // Ensure deviceNames is not null
-        if (!deviceNames || !Array.isArray(deviceNames)) {
-          setHostOptions([{ label: "All Devices", value: "all" }]) // Fallback to default
-          toast.error("No device names available.")
-          return
-        }
-    
         const options = [
           { label: "All Devices", value: "all" },
-          ...deviceNames.map((name) => ({ label: name, value: name })),
+          ...(deviceNames || []).map((name) => ({ label: name, value: name })),
         ]
-    
         setHostOptions(options)
       } catch (error) {
         console.error("Failed to fetch device names:", error)
         toast.error("Failed to load device list")
       }
     }
-    
 
     fetchDeviceNames()
   }, [])
@@ -491,7 +487,11 @@ export default function LogsTable() {
     setIsTimeDeleteLoading(true)
     try {
       const result = await deleteLogsByTimePeriod(selectedTimePeriod)
-      toast.success(result.message)
+      if (result) {
+        toast.success(result.message)
+      } else {
+        toast.success("Logs deleted successfully")
+      }
       fetchLogs()
       router.refresh()
     } catch (error) {
@@ -518,28 +518,20 @@ export default function LogsTable() {
     }
   }
 
-useEffect(() => {
-  const fetchRuleGroupsAndRules = async () => {
-    try {
-      const ruleGroupsData = await getAllRuleGroupsAndRules();
-
-      // Ensure ruleGroupsData is an array before setting it
-      if (!ruleGroupsData || !Array.isArray(ruleGroupsData)) {
-        setRuleGroups([]); // Set an empty array as a fallback
-        toast.error("No rule groups available.");
-        return;
+  // Add useEffect to fetch rule groups and rules
+  useEffect(() => {
+    const fetchRuleGroupsAndRules = async () => {
+      try {
+        const ruleGroupsData = await getAllRuleGroupsAndRules()
+        setRuleGroups(ruleGroupsData)
+      } catch (error) {
+        console.error("Failed to fetch rule groups and rules:", error)
+        toast.error("Failed to load rule groups and rules")
       }
-
-      setRuleGroups(ruleGroupsData);
-    } catch (error) {
-      console.error("Failed to fetch rule groups and rules:", error);
-      toast.error("Failed to load rule groups and rules");
-      setRuleGroups([]); // Ensure ruleGroups is always an array
     }
-  };
 
-  fetchRuleGroupsAndRules();
-}, []);
+    fetchRuleGroupsAndRules()
+  }, [])
 
   // Add handlers for rule group and rule selection
   const handleRuleGroupSelect = (value: string) => {
@@ -558,6 +550,49 @@ useEffect(() => {
       setSelectedRules([...selectedRules, value])
     }
     setCurrentPage(1)
+  }
+
+  // Add this function inside the LogsTable component
+  const openAddToRuleDialog = (log: any) => {
+    if (!log.command) return
+
+    setSelectedCommand({
+      id: log.id,
+      command: log.command,
+      timestamp: log.timestamp,
+      host: log.host || "Unknown",
+      piuser: log.piuser || "Unknown",
+      pid: log.pid,
+      cpu: log.cpu,
+      mem: log.mem,
+    })
+    setCommandText(log.command)
+    setSelectedRuleId("")
+    setAddToRuleDialogOpen(true)
+  }
+
+  // Add this function inside the LogsTable component
+  const handleAddCommandToRule = async () => {
+    if (!selectedCommand || !selectedRuleId || !commandText.trim()) {
+      toast.error("Please select a rule and enter a command")
+      return
+    }
+
+    setIsAddingCommand(true)
+    try {
+      await addCommandToRule(Number.parseInt(selectedRuleId), commandText)
+
+      toast.success(`Command added to rule successfully`)
+      setAddToRuleDialogOpen(false)
+
+      // Refresh rule groups to show the new command
+      const ruleGroupsData = await getAllRuleGroupsAndRules()
+      setRuleGroups(ruleGroupsData)
+    } catch (error) {
+      toast.error(`Failed to add command: ${error instanceof Error ? error.message : "Unknown error"}`)
+    } finally {
+      setIsAddingCommand(false)
+    }
   }
 
   return (
@@ -1072,15 +1107,26 @@ useEffect(() => {
                   </TableCell>
                   <TableCell>
                     {log.command && (
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => openCommandModal(log)}
-                        title="View Command Details"
-                      >
-                        <ExternalLink className="h-4 w-4" />
-                        <span className="sr-only">View Command Details</span>
-                      </Button>
+                      <div className="flex items-center gap-1">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => openCommandModal(log)}
+                          title="View Command Details"
+                        >
+                          <ExternalLink className="h-4 w-4" />
+                          <span className="sr-only">View Command Details</span>
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => openAddToRuleDialog(log)}
+                          title="Add to Rule"
+                        >
+                          <Plus className="h-4 w-4" />
+                          <span className="sr-only">Add to Rule</span>
+                        </Button>
+                      </div>
                     )}
                   </TableCell>
                 </TableRow>
@@ -1166,7 +1212,7 @@ useEffect(() => {
               </div>
 
               <div className="flex flex-wrap gap-4">
-                {selectedCommand.cpu !== undefined && (
+                {selectedCommand.cpu !== undefined && selectedCommand.cpu !== null && (
                   <div className="flex items-center gap-2">
                     <Cpu className="h-4 w-4 text-muted-foreground" />
                     <span className="text-sm font-medium">CPU Usage:</span>
@@ -1185,7 +1231,7 @@ useEffect(() => {
                   </div>
                 )}
 
-                {selectedCommand.mem !== undefined && (
+                {selectedCommand.mem !== undefined && selectedCommand.mem !== null && (
                   <div className="flex items-center gap-2">
                     <Memory className="h-4 w-4 text-muted-foreground" />
                     <span className="text-sm font-medium">Memory Usage:</span>
@@ -1253,6 +1299,89 @@ useEffect(() => {
               </div>
             </div>
           )}
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => {
+                setCommandModalOpen(false)
+                setTimeout(() => {
+                  setCommandText(selectedCommand?.command || "")
+                  setSelectedRuleId("")
+                  setAddToRuleDialogOpen(true)
+                }, 100)
+              }}
+              className="gap-1"
+            >
+              <Plus className="h-4 w-4" />
+              Add to Rule
+            </Button>
+            <Button onClick={() => setCommandModalOpen(false)}>Close</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Add to Rule Dialog */}
+      <Dialog open={addToRuleDialogOpen} onOpenChange={setAddToRuleDialogOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <FileCode className="h-5 w-5 text-blue-500" />
+              Add Command to Rule
+            </DialogTitle>
+            <DialogDescription>Add this command to an existing rule for monitoring and automation.</DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4 py-2">
+            <div className="space-y-2">
+              <Label htmlFor="rule-select">Select Rule</Label>
+              <Select value={selectedRuleId} onValueChange={setSelectedRuleId}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select a rule" />
+                </SelectTrigger>
+                <SelectContent>
+                  {ruleGroups.map((group) => (
+                    <React.Fragment key={group.id}>
+                      {group.rules.length > 0 && (
+                        <>
+                          <div className="px-2 py-1.5 text-xs font-medium text-muted-foreground">{group.name}</div>
+                          {group.rules.map((rule: Rule) => (
+                            <SelectItem key={rule.id} value={rule.id.toString()}>
+                              {rule.name}
+                            </SelectItem>
+                          ))}
+                        </>
+                      )}
+                    </React.Fragment>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="command-text">Command</Label>
+              <Input
+                id="command-text"
+                value={commandText}
+                onChange={(e) => setCommandText(e.target.value)}
+                placeholder="Enter command text"
+              />
+              <p className="text-xs text-muted-foreground">
+                Edit the command if needed to match the pattern you want to monitor.
+              </p>
+            </div>
+          </div>
+
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setAddToRuleDialogOpen(false)}>
+              Cancel
+            </Button>
+            <Button
+              onClick={handleAddCommandToRule}
+              disabled={!selectedRuleId || !commandText.trim() || isAddingCommand}
+            >
+              {isAddingCommand ? "Adding..." : "Add Command"}
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
 

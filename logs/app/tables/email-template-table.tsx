@@ -71,9 +71,13 @@ export default function EmailTemplateTable() {
       setTemplates(
         fetchedTemplates.map(template => ({
           ...template,
-          assignedUsers: template.assignedUsers || [], // Ensure assignedUsers is always an array
+          assignedUsers: (template.assignedUsers || []).map((user: any) => ({
+            id: user.userId, // ✅ rename userId to id
+            username: user.username || "Unknown", // ✅ ensure username exists
+          }))
         }))
-      );
+      )
+      ;
     } catch (error) {
       console.error("Error fetching email templates:", error);
       toast.error("Failed to load email templates");

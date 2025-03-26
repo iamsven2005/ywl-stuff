@@ -81,7 +81,7 @@ export async function getRuleGroups({ search = "", page = 1, pageSize = 10 }: Ge
     }
   } catch (error) {
     console.error("Error fetching rule groups:", error)
-    return null
+    throw new Error("Failed to fetch rule groups")
   }
 }
 
@@ -508,7 +508,7 @@ export async function getAllRuleGroupsAndRules() {
     return ruleGroups
   } catch (error) {
     console.error("Error fetching all rule groups and rules:", error)
-    return null
+    throw new Error("Failed to fetch rule groups and rules")
   }
 }
 
@@ -534,6 +534,49 @@ export async function searchLogsByRuleCommands(ruleIds: number[]) {
   } catch (error) {
     console.error("Error searching logs by rule commands:", error)
     throw new Error("Failed to search logs by rule commands")
+  }
+}
+
+// Add this function to the rule-actions.ts file if it doesn't already exist
+// Add this at the end of the file
+
+export async function addCommandToRule(ruleId: number, commandText: string) {
+  try {
+    // Check if the rule exists
+    const rule = await db.rule.findUnique({
+      where: { id: ruleId },
+      include: { group: true },
+    })
+
+    if (!rule) {
+      throw new Error("Rule not found")
+    }
+
+    // Create the command
+    const command = await db.command.create({
+      data: {
+        ruleId,
+        command: commandText,
+      },
+    })
+
+    // Log the activity
+    await logActivity({
+      actionType: "Added Command",
+      targetType: "Rule",
+      targetId: ruleId,
+      details: `Added command "${commandText}" to rule "${rule.name}"`,
+    })
+
+    revalidatePath("/logs")
+    return {
+      success: true,
+      command,
+      message: `Command added to rule "${rule.name}" in group "${rule.group?.name || "Unknown"}"`,
+    }
+  } catch (error) {
+    console.error("Error adding command to rule:", error)
+    throw new Error(`Failed to add command to rule: ${error instanceof Error ? error.message : "Unknown error"}`)
   }
 }
 

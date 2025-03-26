@@ -23,7 +23,7 @@ export default function withAdminAuth<P extends object>(Component: React.Compone
             return
           }
 
-          if (user.role !== "admin") {
+          if (!user?.role?.some(role => role.toLowerCase().includes("admin"))) {
             router.push("/notifications")
             return
           }
