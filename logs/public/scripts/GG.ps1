@@ -29,18 +29,44 @@ foreach ($proc in $processes) {
     }
 }
 
+# === Collect Sensor Info from LibreHardwareMonitor ===
+$sensorData = Invoke-RestMethod -Uri "http://192.168.1.102:8080/data.json"
+$sensorList = @()
+
+function Parse-Sensors {
+    param ($nodes)
+    foreach ($node in $nodes) {
+        if ($node.Value -ne $null -and $node.Value -ne "") {
+            $sensorList += [PSCustomObject]@{
+                name   = $node.Text
+                value  = $node.Value
+                min    = $node.Min
+                max    = $node.Max
+            }
+        }
+        if ($node.Children) {
+            Parse-Sensors $node.Children
+        }
+    }
+}
+
+if ($sensorData.Children) {
+    Parse-Sensors $sensorData.Children
+}
+
 # === Final Combined Payload ===
 $payload = [PSCustomObject]@{
     hostname  = $env:COMPUTERNAME
     timestamp = (Get-Date).ToString("s")
     disks     = $diskInfo
     processes = $procList
+    sensors   = $sensorList
 }
 
 # === Send to API ===
-$jsonPayload = $payload | ConvertTo-Json -Depth 5
+$jsonPayload = $payload | ConvertTo-Json -Depth 6
 
-Invoke-RestMethod -Uri "http://192.168.1.102:3000/api/deviceinfo" `
+Invoke-RestMethod -Uri "http://192.168.1.26:3000/api/deviceinfo" `
                   -Method Post `
                   -ContentType "application/json" `
                   -Body $jsonPayload
