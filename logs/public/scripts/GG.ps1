@@ -1,6 +1,10 @@
+# === Initialize Arrays ===
+$sensorList = @()
+$diskInfo = @()
+$procList = @()
+
 # === Collect Disk Info ===
 $drives = Get-PSDrive -PSProvider 'FileSystem'
-$diskInfo = @()
 
 foreach ($drive in $drives) {
     $driveSize = $drive.Used + $drive.Free
@@ -18,7 +22,6 @@ foreach ($drive in $drives) {
 
 # === Collect Process Info ===
 $processes = Get-Process | Select-Object Id, ProcessName, CPU, WorkingSet64
-$procList = @()
 
 foreach ($proc in $processes) {
     $procList += [PSCustomObject]@{
@@ -30,30 +33,41 @@ foreach ($proc in $processes) {
 }
 
 # === Collect Sensor Info from LibreHardwareMonitor ===
-$sensorData = Invoke-RestMethod -Uri "http://192.168.1.102:8080/data.json"
-$sensorList = @()
+try {
+    $sensorData = Invoke-RestMethod -Uri "http://192.168.1.102:8080/data.json"
+} catch {
+    Write-Host "⚠️ Failed to fetch sensor data from LibreHardwareMonitor"
+    $sensorData = $null
+}
 
 function Parse-Sensors {
     param ($nodes)
+
     foreach ($node in $nodes) {
         if ($node.Value -ne $null -and $node.Value -ne "") {
+            # Write to console for debugging
+            Write-Host "- $($node.Text): $($node.Value)"
+
             $sensorList += [PSCustomObject]@{
-                name   = $node.Text
-                value  = $node.Value
-                min    = $node.Min
-                max    = $node.Max
+                name  = $node.Text
+                value = $node.Value
+                min   = $node.Min
+                max   = $node.Max
             }
         }
+
         if ($node.Children) {
             Parse-Sensors $node.Children
         }
     }
 }
 
-if ($sensorData.Children) {
+if ($sensorData -and $sensorData.Children) {
+    Write-Host "`n=== SENSOR DATA ==="
     Parse-Sensors $sensorData.Children
 }
-# === Final Combined Payload ===
+
+# === Build Payload ===
 $payload = [PSCustomObject]@{
     hostname  = $env:COMPUTERNAME
     timestamp = (Get-Date).ToString("s")
