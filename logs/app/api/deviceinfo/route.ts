@@ -39,22 +39,7 @@ function extractSensors(node: Sensor, depth = 0): void {
 export async function POST(req: NextRequest) {
   const data = await req.json();
 
-  // Get client IP
-// Get client IP and clean it if it's IPv6-mapped IPv4 (::ffff:192.168.1.xxx)
-const forwarded = req.headers.get("x-forwarded-for");
-let ip =
-  forwarded?.split(",")[0]?.trim() ||
-  (req as any).socket?.remoteAddress ||
-  "127.0.0.1";
-
-// Sanitize IPv6-mapped IPv4 address (::ffff:192.168.x.x → 192.168.x.x)
-if (ip.startsWith("::ffff:")) {
-  ip = ip.replace("::ffff:", "");
-}
-
-
   console.log(`\n===== Device Info from ${data.hostname} at ${data.timestamp} =====`);
-  console.log(`🌐 Client IP: ${ip}`);
 
   // --- Log Disk Info ---
   if (data.disks?.length) {
@@ -74,8 +59,7 @@ if (ip.startsWith("::ffff:")) {
 
   // --- Fetch & Log Sensor Info ---
   try {
-    const sensorUrl = `http://${ip}:8080/data.json`;
-    const res = await fetch(sensorUrl);
+    const res = await fetch('http://192.168.1.102:8080/data.json');
     const sensorData = await res.json();
 
     console.log('\n🌡️ Sensor Info:');
@@ -86,7 +70,7 @@ if (ip.startsWith("::ffff:")) {
       console.log('No sensor data found.');
     }
   } catch (err) {
-    console.error(`Failed to fetch sensor data from http://${ip}:8080/data.json`, err);
+    console.error('Failed to fetch sensor data:', err);
   }
 
   return NextResponse.json({ status: 'success' });
