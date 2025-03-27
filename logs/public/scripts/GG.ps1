@@ -45,9 +45,10 @@ foreach ($proc in $processes) {
 }
 
 # Final payload
-$payload = [PSCustomObject]@{
+$payload = @{
     hostname  = $env:COMPUTERNAME
     timestamp = (Get-Date).ToString("s")
+    disks     = $diskInfo
     processes = $procList
 }
 
