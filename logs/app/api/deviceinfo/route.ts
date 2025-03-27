@@ -15,26 +15,12 @@ type DiskInfo = {
   freeGB: number;
 };
 
-type Sensor = {
-  Text: string;
-  Value?: string;
-  Min?: string;
-  Max?: string;
-  Children?: Sensor[];
+type SensorInfo = {
+  name: string;
+  value: string;
+  min?: string;
+  max?: string;
 };
-
-function extractSensors(node: Sensor, depth = 0): void {
-  const indent = '  '.repeat(depth);
-  const hasValue = node.Value !== '' && node.Value !== undefined;
-
-  if (hasValue) {
-    console.log(`${indent}- ${node.Text}: ${node.Value}`);
-  }
-
-  if (node.Children && node.Children.length > 0) {
-    node.Children.forEach(child => extractSensors(child, depth + 1));
-  }
-}
 
 export async function POST(req: NextRequest) {
   const data = await req.json();
@@ -43,7 +29,7 @@ export async function POST(req: NextRequest) {
 
   // --- Log Disk Info ---
   if (data.disks?.length) {
-    console.log('📦 Disk Info:');
+    console.log('💾 Disk Info:');
     data.disks.forEach((disk: DiskInfo) => {
       console.log(`- ${disk.name}: ${disk.usedGB} GB used / ${disk.totalGB} GB total (${disk.freeGB} GB free)`);
     });
@@ -57,20 +43,12 @@ export async function POST(req: NextRequest) {
     });
   }
 
-  // --- Fetch & Log Sensor Info ---
-  try {
-    const res = await fetch('http://192.168.1.102:8080/data.json');
-    const sensorData = await res.json();
-
-    console.log('\n🌡️ Sensor Info:');
-    const rootNode = sensorData?.Children?.[0];
-    if (rootNode) {
-      extractSensors(rootNode);
-    } else {
-      console.log('No sensor data found.');
-    }
-  } catch (err) {
-    console.error('Failed to fetch sensor data:', err);
+  // --- Log Sensor Info ---
+  if (data.sensors?.length) {
+    console.log('\n🌡️ Sensor Readings:');
+    data.sensors.forEach((sensor: SensorInfo) => {
+      console.log(`- ${sensor.name}: ${sensor.value}`);
+    });
   }
 
   return NextResponse.json({ status: 'success' });
