@@ -1,6 +1,8 @@
 "use client"
 
-import { useState } from "react"
+import type React from "react"
+
+import { useState, useRef } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
@@ -11,6 +13,7 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { toast } from "sonner"
 import { createLibraryEntry } from "@/app/actions/library-actions"
+import { Loader2 } from "lucide-react"
 
 interface AddLibraryEntryDialogProps {
   isOpen: boolean
@@ -29,12 +32,16 @@ const formSchema = z.object({
     .transform((val) => (val ? Number.parseInt(val) : undefined)),
   remarks: z.string().optional(),
   attachmentUrl: z.string().optional(),
+  attachmentFilename: z.string().optional(),
 })
 
 type FormValues = z.infer<typeof formSchema>
 
 export function AddLibraryEntryDialog({ isOpen, onClose, onSuccess }: AddLibraryEntryDialogProps) {
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [selectedFile, setSelectedFile] = useState<File | null>(null)
+  const [isUploading, setIsUploading] = useState(false)
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -46,27 +53,85 @@ export function AddLibraryEntryDialog({ isOpen, onClose, onSuccess }: AddLibrary
       pubYear: undefined, // ✅ or null if your schema prefers it
       remarks: "",
       attachmentUrl: "",
+      attachmentFilename: "",
     },
   })
+
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      setSelectedFile(e.target.files[0])
+    }
+  }
+
+  const uploadFile = async (entryId: number): Promise<string | null> => {
+    if (!selectedFile) return null
+
+    try {
+      setIsUploading(true)
+
+      const formData = new FormData()
+      formData.append("file", selectedFile)
+      formData.append("entryId", entryId.toString())
+
+      const response = await fetch("/api/library-upload", {
+        method: "POST",
+        body: formData,
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.error || "Failed to upload file")
+      }
+
+      return data.url
+    } catch (error) {
+      console.error("Error uploading file:", error)
+      toast.error("Failed to upload PDF file")
+      return null
+    } finally {
+      setIsUploading(false)
+    }
+  }
 
   const handleSubmit = async (values: FormValues) => {
     try {
       setIsSubmitting(true)
 
-      await createLibraryEntry({
+      // Create the library entry first
+      const entry = await createLibraryEntry({
         ...values,
         author: values.author ?? null,
+        pubYear: values.pubYear ?? null,
         remarks: values.remarks ?? null,
         attachmentUrl: values.attachmentUrl ?? null,
-        pubYear: values.pubYear ?? null,
+        attachmentFilename: values.attachmentFilename ?? null,
         creationDate: new Date(),
         borrower: null,
         loanDate: null,
       })
       
 
-      toast.success("Library entry created successfully")
+      // If a file was selected, upload it and update the entry
+      if (selectedFile && entry.id) {
+        const fileUrl = await uploadFile(entry.id)
+
+        if (fileUrl) {
+          // The API already updates the entry with the attachment URL
+          toast.success("Library entry created with PDF attachment")
+        } else {
+          toast.success("Library entry created, but PDF upload failed")
+        }
+      } else {
+        toast.success("Library entry created successfully")
+      }
+
+      // Reset form and state
       form.reset()
+      setSelectedFile(null)
+      if (fileInputRef.current) fileInputRef.current.value = ""
+
       onSuccess()
       onClose()
     } catch (error) {
@@ -124,8 +189,22 @@ export function AddLibraryEntryDialog({ isOpen, onClose, onSuccess }: AddLibrary
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="attachmentUrl">Attachment URL</Label>
-            <Input id="attachmentUrl" {...form.register("attachmentUrl")} placeholder="Enter URL to PDF or document" />
+            <Label htmlFor="pdfUpload">PDF Document</Label>
+            <div className="flex items-center gap-2">
+              <Input
+                id="pdfUpload"
+                type="file"
+                accept=".pdf"
+                ref={fileInputRef}
+                onChange={handleFileChange}
+                className="flex-1"
+              />
+              {selectedFile && (
+                <div className="text-sm text-muted-foreground">
+                  {selectedFile.name} ({Math.round(selectedFile.size / 1024)} KB)
+                </div>
+              )}
+            </div>
           </div>
 
           <div className="space-y-2">
@@ -137,8 +216,15 @@ export function AddLibraryEntryDialog({ isOpen, onClose, onSuccess }: AddLibrary
             <Button type="button" variant="outline" onClick={onClose}>
               Cancel
             </Button>
-            <Button type="submit" disabled={isSubmitting}>
-              {isSubmitting ? "Creating..." : "Create Entry"}
+            <Button type="submit" disabled={isSubmitting || isUploading}>
+              {isSubmitting || isUploading ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  {isUploading ? "Uploading PDF..." : "Creating..."}
+                </>
+              ) : (
+                "Create Entry"
+              )}
             </Button>
           </DialogFooter>
         </form>
@@ -146,4 +232,3 @@ export function AddLibraryEntryDialog({ isOpen, onClose, onSuccess }: AddLibrary
     </Dialog>
   )
 }
-

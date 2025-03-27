@@ -188,6 +188,16 @@ model User {
   password    String
   email       String?  @unique
   role        String[]   @default(["admin"]) // e.g., "admin", "viewer", "operator"
+  Mobile      Int?
+  PrimaryContact  String?
+  MobileContact   Int?
+  Relationship    String?
+  SecondContact   String?
+  SecondMobile    Int?
+  SecondRelationship String?
+  Remarks         String?
+  ndafile         String?
+  ndasubmissiondate DateTime @default(now())
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   devices     DeviceUser[]
@@ -206,8 +216,45 @@ model User {
   Feedback Feedback[] @relation("FeedbackSender")
 
   FeedbackRecipient FeedbackRecipient[] @relation("FeedbackRecipient")
+
+  GroupMember GroupMember[]
+
+  Message Message[]
+}
+model Group {
+  id          Int         @id @default(autoincrement())
+  name        String
+  members     GroupMember[]
+  messages    Message[]
+  createdBy   String
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
 }
 
+model GroupMember {
+  id        Int   @id @default(autoincrement())
+  user      User     @relation(fields: [userId], references: [id])
+  userId    Int
+  group     Group    @relation(fields: [groupId], references: [id])
+  groupId   Int
+  joinedAt  DateTime @default(now())
+
+  @@unique([userId, groupId]) // Prevent duplicate entries
+}
+
+model Message {
+  id        Int   @id @default(autoincrement())
+  content   String
+  sender    User     @relation(fields: [senderId], references: [id])
+  senderId  Int
+  group     Group    @relation(fields: [groupId], references: [id])
+  groupId   Int
+  edited    Boolean  @default(false)
+  createdAt DateTime @default(now())
+  fileAttachment String?
+  fileOriginalName String?
+  fileType String?
+}
 // Junction table for many-to-many relation between User & EmailTemplate
 model UserEmailTemplate {
   userId        Int
@@ -334,7 +381,8 @@ model LibraryEntry {
   loanDate     DateTime? // Nullable loan date
   remarks      String?  @db.Text
 attachmentUrl   String?
-  createdAt    DateTime @default(now())
+ attachmentFilename String?
+   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 }
 
