@@ -1,3 +1,9 @@
+# === Config ===
+$hostname = $env:COMPUTERNAME
+$timestamp = (Get-Date).ToString("s")
+$localIP = (Test-Connection -ComputerName (hostname) -Count 1).IPV4Address.IPAddressToString
+$sensorUrl = "http://$localIP:8080/data.json"
+
 # === Collect Disk Info ===
 $drives = Get-PSDrive -PSProvider 'FileSystem'
 $diskInfo = @()
@@ -29,16 +35,27 @@ foreach ($proc in $processes) {
     }
 }
 
-# === Final Combined Payload ===
-$payload = [PSCustomObject]@{
-    hostname  = $env:COMPUTERNAME
-    timestamp = (Get-Date).ToString("s")
-    disks     = $diskInfo
-    processes = $procList
+# === Fetch Sensor Info from LibreHardwareMonitor ===
+$sensorInfo = $null
+try {
+    $sensorResponse = Invoke-RestMethod -Uri $sensorUrl -UseBasicParsing
+    $sensorInfo = $sensorResponse
+} catch {
+    Write-Host "⚠️ Failed to fetch sensor data from $sensorUrl"
+    $sensorInfo = @{ error = "Failed to fetch sensor data" }
 }
 
-# === Send to API ===
-$jsonPayload = $payload | ConvertTo-Json -Depth 5
+# === Final Combined Payload ===
+$payload = [PSCustomObject]@{
+    hostname  = $hostname
+    timestamp = $timestamp
+    disks     = $diskInfo
+    processes = $procList
+    sensors   = $sensorInfo
+}
+
+# === Convert and Send ===
+$jsonPayload = $payload | ConvertTo-Json -Depth 10
 
 Invoke-RestMethod -Uri "http://192.168.1.26:3000/api/deviceinfo" `
                   -Method Post `
