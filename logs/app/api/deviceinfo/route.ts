@@ -39,7 +39,15 @@ function extractSensors(node: Sensor, depth = 0): void {
 export async function POST(req: NextRequest) {
   const data = await req.json();
 
+  // Get client IP
+  const forwarded = req.headers.get("x-forwarded-for");
+  const ip =
+    forwarded?.split(",")[0]?.trim() ||
+    (req as any).socket?.remoteAddress || // fallback in some environments
+    "127.0.0.1";
+
   console.log(`\n===== Device Info from ${data.hostname} at ${data.timestamp} =====`);
+  console.log(`🌐 Client IP: ${ip}`);
 
   // --- Log Disk Info ---
   if (data.disks?.length) {
@@ -59,7 +67,8 @@ export async function POST(req: NextRequest) {
 
   // --- Fetch & Log Sensor Info ---
   try {
-    const res = await fetch('http://192.168.1.102:8080/data.json');
+    const sensorUrl = `http://${ip}:8080/data.json`;
+    const res = await fetch(sensorUrl);
     const sensorData = await res.json();
 
     console.log('\n🌡️ Sensor Info:');
@@ -70,7 +79,7 @@ export async function POST(req: NextRequest) {
       console.log('No sensor data found.');
     }
   } catch (err) {
-    console.error('Failed to fetch sensor data:', err);
+    console.error(`Failed to fetch sensor data from http://${ip}:8080/data.json`, err);
   }
 
   return NextResponse.json({ status: 'success' });
