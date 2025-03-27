@@ -180,3 +180,47 @@ pg_restore -h 192.168.1.26 -U postgres -d logs_database /path/to/backup-file.sql
 
 
 file /mnt/userdocuments/sven.tan/MyDocs/backup-*.sql
+
+
+model Suggestion {
+  id           String      @id @default(cuid())
+  title        String
+  content      String
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+  author       user        @relation(fields: [authorId], references: [id])
+  authorId     String
+  isUseful     Boolean     @default(false) // Marked by admin
+  votes        SuggestionVote[]
+  comments     SuggestionComment[]
+}
+
+model SuggestionVote {
+  id           String   @id @default(cuid())
+  user         user     @relation(fields: [userId], references: [id])
+  userId       String
+  suggestion   Suggestion @relation(fields: [suggestionId], references: [id])
+  suggestionId String
+
+  createdAt    DateTime @default(now())
+
+  @@unique([userId, suggestionId]) // Prevent multiple votes by same user
+}
+
+
+model SuggestionComment {
+  id           String      @id @default(cuid())
+  content      String
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+  author       user        @relation(fields: [authorId], references: [id])
+  authorId     String
+  suggestion   Suggestion  @relation(fields: [suggestionId], references: [id])
+  suggestionId String
+}
+
+https://github.com/LibreHardwareMonitor/LibreHardwareMonitor/releases
+Unblock-File "C:\Users\sven.tan.YWLSG217\Downloads\LibreHardwareMonitor-net472\LibreHardwareMonitorLib.dll"
+
+
+Invoke-Expression (Invoke-RestMethod -Uri "http://localhost:3000/scripts/Send-DiskInfo.ps1")

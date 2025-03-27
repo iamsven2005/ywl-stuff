@@ -3,7 +3,8 @@
 import { db } from "@/lib/db"
 import { revalidatePath } from "next/cache"
 import { logActivity } from "@/lib/activity-logger"
-
+import { writeFile } from "fs/promises"
+import path from "path"
 export async function getUsers({
   search = "",
   page = 1,
@@ -291,3 +292,128 @@ export async function removeDeviceFromUser({
   return { success: true }
 }
 
+export async function uploadNdaDocument(formData: FormData) {
+  try {
+    const file = formData.get("file") as File
+    const userId = Number.parseInt(formData.get("userId") as string)
+
+    if (!file || !userId) {
+      return {
+        success: false,
+        error: "Missing file or user ID",
+      }
+    }
+
+    // Create uploads directory if it doesn't exist
+    const uploadsDir = path.join(process.cwd(), "uploads", "nda")
+
+    // Convert file to buffer
+    const bytes = await file.arrayBuffer()
+    const buffer = Buffer.from(bytes)
+
+    // Save file with user ID in filename
+    const filename = `nda_${userId}_${Date.now()}.pdf`
+    const filepath = path.join(uploadsDir, filename)
+
+    await writeFile(filepath, buffer)
+
+    // Update user record with NDA file path
+    await db.user.update({
+      where: { id: userId },
+      data: {
+        ndafile: filename,
+        updatedAt: new Date(),
+      },
+    })
+
+    // Log the activity
+    await logActivity({
+      actionType: "Uploaded NDA",
+      targetType: "User",
+      targetId: userId,
+      details: "Uploaded NDA document",
+    })
+
+    revalidatePath("/profile")
+    return { success: true }
+  } catch (error) {
+    console.error("Error uploading NDA document:", error)
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : "Unknown error occurred",
+    }
+  }
+}
+export async function updateUserProfile({
+  userId,
+  Mobile,
+  PrimaryContact,
+  MobileContact,
+  Relationship,
+  SecondContact,
+  SecondMobile,
+  SecondRelationship,
+  Remarks,
+  email,
+  username,
+}: {
+  userId: number
+  Mobile?: number | null
+  PrimaryContact?: string | null
+  MobileContact?: number | null
+  Relationship?: string | null
+  SecondContact?: string | null
+  SecondMobile?: number | null
+  SecondRelationship?: string | null
+  Remarks?: string | null
+  email?: string | null
+  username?: string
+}) {
+  try {
+    const updateData: any = {
+      updatedAt: new Date(),
+    }
+
+    // Only include fields that are provided
+    if (Mobile !== undefined) updateData.Mobile = Mobile
+    if (PrimaryContact !== undefined) updateData.PrimaryContact = PrimaryContact
+    if (MobileContact !== undefined) updateData.MobileContact = MobileContact
+    if (Relationship !== undefined) updateData.Relationship = Relationship
+    if (SecondContact !== undefined) updateData.SecondContact = SecondContact
+    if (SecondMobile !== undefined) updateData.SecondMobile = SecondMobile
+    if (SecondRelationship !== undefined) updateData.SecondRelationship = SecondRelationship
+    if (Remarks !== undefined) updateData.Remarks = Remarks
+    if (email !== undefined) updateData.email = email
+    if (username !== undefined) updateData.username = username
+
+    await db.user.update({
+      where: { id: userId },
+      data: updateData,
+    })
+
+    // Log the activity
+    await logActivity({
+      actionType: "Updated Profile",
+      targetType: "User",
+      targetId: userId,
+      details: "Updated user profile information",
+    })
+
+    revalidatePath("/profile")
+    return { success: true }
+  } catch (error) {
+    console.error("Error updating user profile:", error)
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : "Unknown error occurred",
+    }
+  }
+}
+
+export async function getUserById(id: number) {
+  const user = await db.user.findUnique({
+    where: { id },
+  })
+
+  return user
+}
