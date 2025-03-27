@@ -53,7 +53,6 @@ function Parse-Sensors {
 if ($sensorData.Children) {
     Parse-Sensors $sensorData.Children
 }
-
 # === Final Combined Payload ===
 $payload = [PSCustomObject]@{
     hostname  = $env:COMPUTERNAME
