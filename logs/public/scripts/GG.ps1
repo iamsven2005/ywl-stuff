@@ -1,7 +1,12 @@
 # === Config ===
 $hostname = $env:COMPUTERNAME
 $timestamp = (Get-Date).ToString("s")
-$localIP = (Test-Connection -ComputerName (hostname) -Count 1).IPV4Address.IPAddressToString
+
+# Get reliable IPv4 address
+$localIP = Get-NetIPAddress -AddressFamily IPv4 `
+           | Where-Object { $_.InterfaceAlias -notmatch 'Loopback|Virtual|VM' -and $_.IPAddress -ne '127.0.0.1' } `
+           | Select-Object -First 1 -ExpandProperty IPAddress
+
 $sensorUrl = "http://$localIP:8080/data.json"
 
 # === Collect Disk Info ===
