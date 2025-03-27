@@ -1,5 +1,5 @@
 # === Initialize Arrays ===
-$sensorList = @()
+$sensorList = New-Object System.Collections.Generic.List[object]
 $diskInfo = @()
 $procList = @()
 
@@ -45,15 +45,14 @@ function Parse-Sensors {
 
     foreach ($node in $nodes) {
         if ($node.Value -ne $null -and $node.Value -ne "") {
-            # Write to console for debugging
-            Write-Host "- $($node.Text): $($node.Value)"
-
-            $sensorList += [PSCustomObject]@{
+            $cleaned = [PSCustomObject]@{
                 name  = $node.Text
                 value = $node.Value
                 min   = $node.Min
                 max   = $node.Max
             }
+            $sensorList.Add($cleaned)
+            Write-Host "- $($node.Text): $($node.Value)"
         }
 
         if ($node.Children) {
