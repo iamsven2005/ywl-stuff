@@ -40,11 +40,18 @@ export async function POST(req: NextRequest) {
   const data = await req.json();
 
   // Get client IP
-  const forwarded = req.headers.get("x-forwarded-for");
-  const ip =
-    forwarded?.split(",")[0]?.trim() ||
-    (req as any).socket?.remoteAddress || // fallback in some environments
-    "127.0.0.1";
+// Get client IP and clean it if it's IPv6-mapped IPv4 (::ffff:192.168.1.xxx)
+const forwarded = req.headers.get("x-forwarded-for");
+let ip =
+  forwarded?.split(",")[0]?.trim() ||
+  (req as any).socket?.remoteAddress ||
+  "127.0.0.1";
+
+// Sanitize IPv6-mapped IPv4 address (::ffff:192.168.x.x → 192.168.x.x)
+if (ip.startsWith("::ffff:")) {
+  ip = ip.replace("::ffff:", "");
+}
+
 
   console.log(`\n===== Device Info from ${data.hostname} at ${data.timestamp} =====`);
   console.log(`🌐 Client IP: ${ip}`);
