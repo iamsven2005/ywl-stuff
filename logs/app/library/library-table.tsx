@@ -66,7 +66,7 @@ export function LibraryTable({ entries, onRefresh, isAdmin }: LibraryTableProps)
 
   if (entries.length === 0) {
     return (
-      <div className="text-center py-8 bg-gray-50 rounded-md">
+      <div className="text-center py-8 rounded-md">
         <p className="text-lg font-medium">No library entries found</p>
         <p className="text-sm text-gray-500">Try adjusting your search filters</p>
       </div>
@@ -78,7 +78,7 @@ export function LibraryTable({ entries, onRefresh, isAdmin }: LibraryTableProps)
       <div className="overflow-x-auto border rounded-md">
         <table className="w-full border-collapse">
           <thead>
-            <tr className="bg-blue-100">
+            <tr>
               <th className="p-2 text-left border border-blue-200">PDF</th>
               <th className="p-2 text-left border border-blue-200">Category</th>
               <th className="p-2 text-left border border-blue-200">Ref No.</th>
@@ -94,7 +94,7 @@ export function LibraryTable({ entries, onRefresh, isAdmin }: LibraryTableProps)
           </thead>
           <tbody>
             {entries.map((entry) => (
-              <tr key={entry.id} className="hover:bg-gray-50">
+              <tr key={entry.id}>
                 <td className="p-2 border border-gray-200 text-center">
                   {entry.attachmentUrl && (
                     <a

@@ -232,6 +232,8 @@ model User {
   GroupMember GroupMember[]
 
   Message Message[]
+
+  TicketAttachment TicketAttachment[]
 }
 model Group {
   id          Int         @id @default(autoincrement())
@@ -332,6 +334,8 @@ model TicketComment {
 
   ticket      SupportTicket @relation(fields: [ticketId], references: [id], onDelete: Cascade)
   user        User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  TicketAttachment TicketAttachment[]
 }
 model SupportTicket {
   id             Int      @id @default(autoincrement())
@@ -350,8 +354,26 @@ model SupportTicket {
   relatedDevice  devices? @relation(fields: [relatedDeviceId], references: [id])
 
   comments       TicketComment[]
-}
+  attachments TicketAttachment[] // New relation
 
+}
+model TicketAttachment {
+  id          Int      @id @default(autoincrement())
+  filename    String
+  originalFilename String
+  fileSize    Int
+  mimeType    String
+  createdAt   DateTime @default(now())
+  
+  // Relations - can be attached to either a ticket or a comment
+  ticketId    Int?
+  commentId   Int?
+  uploaderId  Int
+  
+  ticket      SupportTicket? @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  comment     TicketComment? @relation(fields: [commentId], references: [id], onDelete: Cascade)
+  uploader    User           @relation(fields: [uploaderId], references: [id])
+}
 model AlertCondition {
   id              Int       @id @default(autoincrement())
   name            String    // e.g., "High CPU Temp", "Multiple Failed Logins"

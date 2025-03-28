@@ -145,15 +145,15 @@ export function TicketStats() {
           <CardTitle>Ticket Breakdown</CardTitle>
           <CardDescription>Current status of support tickets</CardDescription>
         </CardHeader>
-        <CardContent>
-          <Tabs defaultValue="status">
+        <CardContent >
+          <Tabs defaultValue="status" >
             <TabsList className="mb-4">
               <TabsTrigger value="status">By Status</TabsTrigger>
               <TabsTrigger value="priority">By Priority</TabsTrigger>
               <TabsTrigger value="assignees">Top Assignees</TabsTrigger>
             </TabsList>
 
-            <TabsContent value="status">
+            <TabsContent value="status" className="text-black">
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 <div className="flex flex-col items-center justify-center p-4 bg-blue-50 rounded-lg">
                   <div className="flex items-center gap-2 mb-2">
@@ -201,7 +201,7 @@ export function TicketStats() {
               </div>
             </TabsContent>
 
-            <TabsContent value="priority">
+            <TabsContent value="priority" className="text-black">
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 <div className="flex flex-col items-center justify-center p-4 bg-green-50 rounded-lg">
                   <span className="font-medium mb-2">Low</span>

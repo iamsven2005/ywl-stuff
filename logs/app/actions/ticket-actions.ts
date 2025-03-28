@@ -101,6 +101,7 @@ export async function getTickets({
         _count: {
           select: {
             comments: true,
+            attachments: true,
           },
         },
       },
@@ -157,9 +158,20 @@ export async function getTicket(id: number) {
                 email: true,
               },
             },
+            TicketAttachment: true,
           },
           orderBy: {
             createdAt: "asc",
+          },
+        },
+        attachments: {
+          include: {
+            uploader: {
+              select: {
+                id: true,
+                username: true,
+              },
+            },
           },
         },
       },
@@ -247,6 +259,8 @@ export async function updateTicket(data: UpdateTicketParams) {
       }
     }
 
+    console.log("Updating ticket with assignedToId:", assignedToId)
+
     // Update the ticket
     const ticket = await db.supportTicket.update({
       where: { id: data.id },
@@ -301,7 +315,7 @@ export async function deleteTicket(id: number) {
     })
 
     // Only admins can delete tickets
-    if (!user?.role?.some(role => role.toLowerCase().includes("admin"))) {
+    if (!user?.role.includes("admin")) {
       throw new Error("Only admins can delete tickets")
     }
 
@@ -406,8 +420,7 @@ export async function deleteComment(id: number) {
     })
 
     // Only the comment author or admins can delete comments
-    if (!user?.role?.some(role => role.toLowerCase().includes("admin"))
-      && comment.user.id !== session.user.id) {
+    if (!user?.role.includes("admin") && comment.user.id !== session.user.id) {
       throw new Error("You don't have permission to delete this comment")
     }
 
@@ -431,6 +444,79 @@ export async function deleteComment(id: number) {
   }
 }
 
+// Delete an attachment
+export async function deleteAttachment(id: number) {
+  try {
+    const session = await getSession()
+    if (!session?.user) {
+      throw new Error("You must be logged in to delete an attachment")
+    }
+
+    // Get the attachment for authorization check
+    const attachment = await db.ticketAttachment.findUnique({
+      where: { id },
+      include: {
+        uploader: {
+          select: {
+            id: true,
+          },
+        },
+        ticket: {
+          select: {
+            id: true,
+          },
+        },
+        comment: {
+          select: {
+            ticketId: true,
+            userId: true,
+          },
+        },
+      },
+    })
+
+    if (!attachment) {
+      throw new Error("Attachment not found")
+    }
+
+    // Get user role
+    const user = await db.user.findUnique({
+      where: { id: session.user.id },
+      select: { role: true },
+    })
+
+    // Only the uploader or admins can delete attachments
+    if (!user?.role.includes("admin")  && attachment.uploader.id !== session.user.id) {
+      throw new Error("You don't have permission to delete this attachment")
+    }
+
+    // Delete the attachment
+    await db.ticketAttachment.delete({
+      where: { id },
+    })
+
+    // Determine which ticket to revalidate
+    const ticketId = attachment.ticket?.id || attachment.comment?.ticketId
+
+    if (ticketId) {
+      await logActivity({
+        actionType: "Deleted Attachment",
+        targetType: "Ticket",
+        targetId: ticketId,
+        details: `Deleted attachment ${attachment.originalFilename} from ticket #${ticketId}`,
+      })
+
+      revalidatePath(`/tickets/${ticketId}`)
+    }
+
+    return { success: true }
+  } catch (error) {
+    console.error("Error deleting attachment:", error)
+    throw new Error("Failed to delete attachment")
+  }
+}
+
+// Get ticket statistics
 export async function getTicketStats() {
   try {
     // Get total tickets count
