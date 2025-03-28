@@ -51,7 +51,7 @@ model system_metrics {
   min       String?
   max       String?
 }
-model DiskMetric {
+model diskMetric {
   id        Int   @id @default(autoincrement())
   hostname  String
   name      String
