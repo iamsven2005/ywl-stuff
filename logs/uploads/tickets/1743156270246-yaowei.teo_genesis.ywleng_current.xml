@@ -1,0 +1,22 @@
+<transcript>
+ <messages>
+  <message>
+   <to>yaowei.teo</to>
+   <from>sven.tan@genesis.ywleng/Spark</from>
+   <body>Request for transfer file &quot;image_24.png&quot; (10.0 K) was received from yaowei.teo.</body>
+   <date>2025-03-28 17:11:30.992 SGT</date>
+  </message>
+  <message>
+   <to>yaowei.teo</to>
+   <from>sven.tan@genesis.ywleng/Spark</from>
+   <body>You have accepted transfer request for file &quot;image_24.png&quot; from yaowei.teo.</body>
+   <date>2025-03-28 17:11:31.325 SGT</date>
+  </message>
+  <message>
+   <to>yaowei.teo</to>
+   <from>sven.tan@genesis.ywleng/Spark</from>
+   <body>File &quot;image_24.png&quot; was successfully received from yaowei.teo.</body>
+   <date>2025-03-28 17:11:31.420 SGT</date>
+  </message>
+ </messages>
+</transcript>

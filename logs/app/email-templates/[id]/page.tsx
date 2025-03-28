@@ -158,11 +158,11 @@ export default function EmailTemplateDetailPage({ params }: { params: { id: stri
               <CardDescription>How the email will appear</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="border rounded-md p-4 bg-gray-50">
+              <div className="border rounded-md p-4">
                 <div className="mb-4 pb-2 border-b">
-                  <div className="text-sm text-gray-600">From: {process.env.FROM_EMAIL || "system@example.com"}</div>
-                  <div className="text-sm text-gray-600">To: [Recipient]</div>
-                  <div className="text-sm text-gray-600">Subject: {emailTemplate.subject}</div>
+                  <div className="text-sm">From: {process.env.FROM_EMAIL || "system@example.com"}</div>
+                  <div className="text-sm">To: [Recipient]</div>
+                  <div className="text-sm">Subject: {emailTemplate.subject}</div>
                 </div>
                 <div className="prose prose-sm max-w-none">
                   <div dangerouslySetInnerHTML={{ __html: emailTemplate.body.replace(/\n/g, "<br/>") }} />

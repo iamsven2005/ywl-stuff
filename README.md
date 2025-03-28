@@ -226,3 +226,6 @@ Unblock-File "C:\Users\sven.tan.YWLSG217\Downloads\LibreHardwareMonitor-net472\L
 Invoke-Expression (Invoke-RestMethod -Uri "http://localhost:3000/scripts/Send-DiskInfo.ps1")
 
 run-hidden.bat
+C:\Users\sven.tan.YWLSG217\AppData\Roaming\Spark\user\sven.tan@genesis.ywleng\transcripts
+
+todo: make ip dynamic

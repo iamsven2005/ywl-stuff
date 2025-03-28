@@ -12,6 +12,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { toast } from "sonner"
 import { createTicket } from "@/app/actions/ticket-actions"
+import { FileUpload } from "../file-upload"
 
 export function NewTicketForm({
   deviceNames,
@@ -27,6 +28,7 @@ export function NewTicketForm({
   const [priority, setPriority] = useState<"low" | "medium" | "high" | "critical">("medium")
   const [relatedDevice, setRelatedDevice] = useState<string>("")
   const [assignedToId, setAssignedToId] = useState<string>("")
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -51,7 +53,7 @@ export function NewTicketForm({
         // For now, we'll just use null
       }
 
-      await createTicket({
+      const ticket = await createTicket({
         title,
         description,
         priority,
@@ -59,13 +61,56 @@ export function NewTicketForm({
         assignedToId: assignedToId ? Number(assignedToId) : undefined,
       })
 
+      // Now that we have a ticket ID, upload any selected files
+      if (selectedFiles.length > 0) {
+        await uploadFiles(selectedFiles, ticket.id)
+      }
+
       toast.success("Ticket created successfully")
-      router.push("/tickets")
+      router.push(`/tickets/${ticket.id}`)
     } catch (error) {
       toast.error("Failed to create ticket")
       console.error(error)
     } finally {
       setIsSubmitting(false)
+    }
+  }
+
+  const handleFileSelect = (files: File[]) => {
+    setSelectedFiles((prev) => [...prev, ...files])
+    toast.success(`${files.length} file(s) selected for upload`)
+  }
+
+  const removeSelectedFile = (index: number) => {
+    setSelectedFiles((prev) => prev.filter((_, i) => i !== index))
+  }
+
+  const uploadFiles = async (files: File[], ticketId: number) => {
+    for (const file of files) {
+      try {
+        // Check file size (10MB limit)
+        if (file.size > 10 * 1024 * 1024) {
+          toast.error(`File ${file.name} exceeds the 10MB size limit`)
+          continue
+        }
+
+        const formData = new FormData()
+        formData.append("file", file)
+        formData.append("ticketId", ticketId.toString())
+
+        const response = await fetch("/api/ticket-upload", {
+          method: "POST",
+          body: formData,
+        })
+
+        if (!response.ok) {
+          const error = await response.json()
+          throw new Error(error.error || "Failed to upload file")
+        }
+      } catch (error) {
+        console.error("Error uploading file:", error)
+        toast.error(`Failed to upload file: ${file.name}`)
+      }
     }
   }
 
@@ -148,6 +193,34 @@ export function NewTicketForm({
                 ))}
               </SelectContent>
             </Select>
+          </div>
+
+          <div className="space-y-2">
+            <Label>Attachments (Optional)</Label>
+            <div className="mt-2">
+              <FileUpload onFileSelect={handleFileSelect} multiple />
+            </div>
+            {selectedFiles.length > 0 && (
+              <div className="mt-2 space-y-2">
+                <p className="text-sm font-medium">Selected files:</p>
+                <ul className="space-y-1">
+                  {selectedFiles.map((file, index) => (
+                    <li key={index} className="flex items-center justify-between p-2 text-sm border rounded-md">
+                      <span className="truncate max-w-[250px]">{file.name}</span>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => removeSelectedFile(index)}
+                        className="h-6 w-6 p-0"
+                      >
+                        ✕
+                      </Button>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
           </div>
         </CardContent>
         <CardFooter className="flex justify-between">

@@ -1,12 +1,9 @@
 "use client"
 
 import { AvatarFallback } from "@/components/ui/avatar"
-
 import { Avatar } from "@/components/ui/avatar"
-
 import type React from "react"
-
-import { useState } from "react"
+import { useState, useEffect, useRef } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
@@ -28,6 +25,8 @@ import {
 import { toast } from "sonner"
 import { updateTicket, addComment, deleteTicket, deleteComment } from "@/app/actions/ticket-actions"
 import { formatDate } from "@/lib/utils"
+import { FileUpload } from "../file-upload"
+import { AttachmentList } from "../attachment-list"
 
 // Status and priority options
 const statusOptions = [
@@ -67,59 +66,91 @@ interface TicketDetailProps {
 }
 
 export function TicketDetail({ ticket, currentUser, assignableUsers }: TicketDetailProps) {
+  console.log(ticket)
+  console.log(assignableUsers)
   const router = useRouter()
   const [status, setStatus] = useState(ticket.status)
   const [priority, setPriority] = useState(ticket.priority)
-  const [assignedTo, setAssignedTo] = useState(ticket.assignedTo?.id || "unassigned")
+  const [assignedTo, setAssignedTo] = useState(ticket.assignedTo?.id?.toString() || "unassigned")
   const [comment, setComment] = useState("")
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isDeleting, setIsDeleting] = useState(false)
+  const [isUpdating, setIsUpdating] = useState(false)
+  const [ticketAttachments, setTicketAttachments] = useState(ticket.attachments || [])
+  const [commentAttachments, setCommentAttachments] = useState<Record<number, any[]>>({})
+  const [selectedCommentFiles, setSelectedCommentFiles] = useState<File[]>([])
+  const commentIdRef = useRef<number | null>(null)
 
-  const isAdmin = currentUser?.role?.some((role: string) => role.toLowerCase().includes("admin"))
+  const isAdmin = currentUser?.role?.includes("admin")
+  const isCreator = currentUser?.id === ticket.createdBy.id
+  const canEdit = isAdmin || isCreator
 
+  useEffect(() => {
+    // Initialize comment attachments
+    const initialCommentAttachments: Record<number, any[]> = {}
+    ticket.comments.forEach((comment: any) => {
+      initialCommentAttachments[comment.id] = comment.TicketAttachment || []
+    })
+    setCommentAttachments(initialCommentAttachments)
+  }, [ticket.comments])
+
+  // Handle status change
   const handleStatusChange = async (value: string) => {
     try {
+      setIsUpdating(true)
       setStatus(value)
       await updateTicket({
         id: ticket.id,
         status: value,
-        assignedToId: null
+        assignedToId: assignedTo,
       })
       toast.success("Ticket status updated")
     } catch (error) {
+      console.error("Error updating status:", error)
       toast.error("Failed to update ticket status")
       setStatus(ticket.status) // Revert on error
+    } finally {
+      setIsUpdating(false)
     }
   }
 
   // Handle priority change
   const handlePriorityChange = async (value: string) => {
     try {
+      setIsUpdating(true)
       setPriority(value)
       await updateTicket({
         id: ticket.id,
         priority: value,
-        assignedToId: null
+        assignedToId: assignedTo,
       })
       toast.success("Ticket priority updated")
     } catch (error) {
+      console.error("Error updating priority:", error)
       toast.error("Failed to update ticket priority")
       setPriority(ticket.priority) // Revert on error
+    } finally {
+      setIsUpdating(false)
     }
   }
 
   // Handle assignee change
   const handleAssigneeChange = async (value: string) => {
     try {
+      setIsUpdating(true)
       setAssignedTo(value)
+      console.log("Updating assignee to:", value)
       await updateTicket({
         id: ticket.id,
-        assignedToId: value === "unassigned" ? null : Number.parseInt(value),
+        assignedToId: value,
       })
       toast.success("Ticket assignee updated")
     } catch (error) {
+      console.error("Error updating assignee:", error)
       toast.error("Failed to update ticket assignee")
-      setAssignedTo(ticket.assignedTo?.id || "unassigned") // Revert on error
+      setAssignedTo(ticket.assignedTo?.id?.toString() || "unassigned") // Revert on error
+    } finally {
+      setIsUpdating(false)
     }
   }
 
@@ -127,25 +158,74 @@ export function TicketDetail({ ticket, currentUser, assignableUsers }: TicketDet
   const handleCommentSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
-    if (!comment.trim()) {
-      toast.error("Comment cannot be empty")
+    if (!comment.trim() && selectedCommentFiles.length === 0) {
+      toast.error("Please enter a comment or attach a file")
       return
     }
 
     setIsSubmitting(true)
 
     try {
-      await addComment({
+      // Add the comment first
+      const newComment = await addComment({
         ticketId: ticket.id,
-        content: comment,
+        content: comment || "Attached file", // Use default text if no comment
       })
 
+      // Store the comment ID for file uploads
+      commentIdRef.current = newComment.id
+
+      // Upload any selected files
+      if (selectedCommentFiles.length > 0) {
+        await uploadCommentFiles(selectedCommentFiles, newComment.id)
+      }
+
       setComment("")
+      setSelectedCommentFiles([])
       toast.success("Comment added")
     } catch (error) {
+      console.error("Error adding comment:", error)
       toast.error("Failed to add comment")
     } finally {
       setIsSubmitting(false)
+    }
+  }
+
+  // Upload files for a comment
+  const uploadCommentFiles = async (files: File[], commentId: number) => {
+    for (const file of files) {
+      try {
+        // Check file size (10MB limit)
+        if (file.size > 10 * 1024 * 1024) {
+          toast.error(`File ${file.name} exceeds the 10MB size limit`)
+          continue
+        }
+
+        const formData = new FormData()
+        formData.append("file", file)
+        formData.append("commentId", commentId.toString())
+
+        const response = await fetch("/api/ticket-upload", {
+          method: "POST",
+          body: formData,
+        })
+
+        if (!response.ok) {
+          const error = await response.json()
+          throw new Error(error.error || "Failed to upload file")
+        }
+
+        const data = await response.json()
+
+        // Update the UI with the new attachment
+        setCommentAttachments((prev) => ({
+          ...prev,
+          [commentId]: [...(prev[commentId] || []), data.attachment],
+        }))
+      } catch (error) {
+        console.error("Error uploading file:", error)
+        toast.error(`Failed to upload file: ${file.name}`)
+      }
     }
   }
 
@@ -158,6 +238,7 @@ export function TicketDetail({ ticket, currentUser, assignableUsers }: TicketDet
       toast.success("Ticket deleted")
       router.push("/tickets")
     } catch (error) {
+      console.error("Error deleting ticket:", error)
       toast.error("Failed to delete ticket")
       setIsDeleting(false)
     }
@@ -169,8 +250,32 @@ export function TicketDetail({ ticket, currentUser, assignableUsers }: TicketDet
       await deleteComment(commentId)
       toast.success("Comment deleted")
     } catch (error) {
+      console.error("Error deleting comment:", error)
       toast.error("Failed to delete comment")
     }
+  }
+
+  // Handle ticket attachment upload
+  const handleTicketAttachmentUpload = (attachment: any) => {
+    setTicketAttachments((prev: any) => [...prev, attachment])
+  }
+
+  // Handle comment attachment upload
+  const handleCommentAttachmentUpload = (commentId: number, attachment: any) => {
+    setCommentAttachments((prev) => ({
+      ...prev,
+      [commentId]: [...(prev[commentId] || []), attachment],
+    }))
+  }
+
+  // Handle file selection for new comment
+  const handleCommentFileSelect = (files: File[]) => {
+    setSelectedCommentFiles((prev) => [...prev, ...files])
+  }
+
+  // Remove selected file for new comment
+  const removeSelectedCommentFile = (index: number) => {
+    setSelectedCommentFiles((prev) => prev.filter((_, i) => i !== index))
   }
 
   return (
@@ -224,7 +329,18 @@ export function TicketDetail({ ticket, currentUser, assignableUsers }: TicketDet
             </CardHeader>
             <CardContent>
               <p className="whitespace-pre-wrap">{ticket.description}</p>
+
+              {ticketAttachments.length > 0 && (
+                <div className="mt-4">
+                  <AttachmentList attachments={ticketAttachments} currentUserId={currentUser.id} isAdmin={isAdmin} />
+                </div>
+              )}
             </CardContent>
+            {canEdit && (
+              <CardFooter>
+                <FileUpload ticketId={ticket.id} onUploadComplete={handleTicketAttachmentUpload} multiple />
+              </CardFooter>
+            )}
           </Card>
 
           <Card>
@@ -273,6 +389,23 @@ export function TicketDetail({ ticket, currentUser, assignableUsers }: TicketDet
                         )}
                       </div>
                       <p className="whitespace-pre-wrap">{comment.content}</p>
+
+                      {commentAttachments[comment.id]?.length > 0 && (
+                        <div className="mt-2">
+                          <AttachmentList
+                            attachments={commentAttachments[comment.id]}
+                            currentUserId={currentUser.id}
+                            isAdmin={isAdmin}
+                          />
+                        </div>
+                      )}
+
+                      <div className="mt-2">
+                        <FileUpload
+                          commentId={comment.id}
+                          onUploadComplete={(attachment) => handleCommentAttachmentUpload(comment.id, attachment)}
+                        />
+                      </div>
                     </div>
                   </div>
                 ))
@@ -286,9 +419,37 @@ export function TicketDetail({ ticket, currentUser, assignableUsers }: TicketDet
                   onChange={(e) => setComment(e.target.value)}
                   rows={3}
                 />
-                <Button type="submit" disabled={isSubmitting}>
-                  {isSubmitting ? "Submitting..." : "Add Comment"}
-                </Button>
+
+                <div className="space-y-2">
+                  {selectedCommentFiles.length > 0 && (
+                    <div className="space-y-2">
+                      <p className="text-sm font-medium">Selected files:</p>
+                      <ul className="space-y-1">
+                        {selectedCommentFiles.map((file, index) => (
+                          <li key={index} className="flex items-center justify-between p-2 text-sm border rounded-md">
+                            <span className="truncate max-w-[250px]">{file.name}</span>
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => removeSelectedCommentFile(index)}
+                              className="h-6 w-6 p-0"
+                            >
+                              ✕
+                            </Button>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                </div>
+
+                <div className="flex justify-between items-center">
+                  <FileUpload onFileSelect={handleCommentFileSelect} multiple />
+                  <Button type="submit" disabled={isSubmitting}>
+                    {isSubmitting ? "Submitting..." : "Add Comment"}
+                  </Button>
+                </div>
               </form>
             </CardFooter>
           </Card>
@@ -315,7 +476,7 @@ export function TicketDetail({ ticket, currentUser, assignableUsers }: TicketDet
 
               <div>
                 <p className="text-sm font-medium mb-1">Status</p>
-                <Select value={status} onValueChange={handleStatusChange} disabled={!isAdmin}>
+                <Select value={status} onValueChange={handleStatusChange} disabled={!canEdit || isUpdating}>
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
@@ -331,7 +492,7 @@ export function TicketDetail({ ticket, currentUser, assignableUsers }: TicketDet
 
               <div>
                 <p className="text-sm font-medium mb-1">Priority</p>
-                <Select value={priority} onValueChange={handlePriorityChange} disabled={!isAdmin}>
+                <Select value={priority} onValueChange={handlePriorityChange} disabled={!canEdit || isUpdating}>
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
@@ -347,7 +508,7 @@ export function TicketDetail({ ticket, currentUser, assignableUsers }: TicketDet
 
               <div>
                 <p className="text-sm font-medium mb-1">Assigned To</p>
-                <Select value={assignedTo} onValueChange={handleAssigneeChange} disabled={!isAdmin}>
+                <Select value={assignedTo} onValueChange={handleAssigneeChange} disabled={!isAdmin || isUpdating}>
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>

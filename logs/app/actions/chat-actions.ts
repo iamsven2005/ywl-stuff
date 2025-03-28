@@ -3,8 +3,8 @@
 import { db } from "@/lib/db"
 import { revalidatePath } from "next/cache"
 import { getCurrentUser } from "../login/actions"
-
-// Get current user
+import { parseXMLDate, type XMLMessage } from "../utils/xml-utils"
+import { getSession } from "@/lib/auth"
 
 // Get all groups for the current user
 export async function getUserGroups() {
@@ -23,6 +23,122 @@ export async function getUserGroups() {
                   id: true,
                   username: true,
                   email: true,
+                  role: true,
+                },
+              },
+            },
+          },
+          messages: {
+            orderBy: { createdAt: "desc" },
+            take: 1,
+            include: {
+              sender: {
+                select: {
+                  id: true,
+                  username: true,
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+    orderBy: { group: { updatedAt: "desc" } },
+  })
+
+  return groupMembers.map((gm) => gm.group)
+}
+
+// Search groups by name
+export async function searchGroups(query: string) {
+  const user = await getCurrentUser()
+  if (!user) throw new Error("Unauthorized")
+
+  if (!query || query.length < 2) {
+    return []
+  }
+
+  const groupMembers = await db.groupMember.findMany({
+    where: {
+      userId: user.id,
+      group: {
+        name: {
+          contains: query,
+          mode: "insensitive",
+        },
+      },
+    },
+    include: {
+      group: {
+        include: {
+          members: {
+            include: {
+              user: {
+                select: {
+                  id: true,
+                  username: true,
+                  email: true,
+                  role: true,
+                },
+              },
+            },
+          },
+          messages: {
+            orderBy: { createdAt: "desc" },
+            take: 1,
+            include: {
+              sender: {
+                select: {
+                  id: true,
+                  username: true,
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+    orderBy: { group: { updatedAt: "desc" } },
+  })
+
+  return groupMembers.map((gm) => gm.group)
+}
+
+// Get groups by member role
+export async function getGroupsByMemberRole(role: string) {
+  const user = await getCurrentUser()
+  if (!user) throw new Error("Unauthorized")
+
+  if (!role || role === "all") {
+    return await getUserGroups()
+  }
+
+  const groupMembers = await db.groupMember.findMany({
+    where: {
+      userId: user.id,
+      group: {
+        members: {
+          some: {
+            user: {
+              role: {
+                has: role,
+              },
+            },
+          },
+        },
+      },
+    },
+    include: {
+      group: {
+        include: {
+          members: {
+            include: {
+              user: {
+                select: {
+                  id: true,
+                  username: true,
+                  email: true,
+                  role: true,
                 },
               },
             },
@@ -75,6 +191,7 @@ export async function getGroupMessages(groupId: number) {
           id: true,
           username: true,
           email: true,
+          role: true,
         },
       },
     },
@@ -134,11 +251,30 @@ export async function getAllUsers() {
       id: true,
       username: true,
       email: true,
+      role: true,
     },
     orderBy: { username: "asc" },
   })
 
   return users
+}
+
+// Get available roles for filtering
+export async function getAvailableRoles() {
+  const user = await getCurrentUser()
+  if (!user) throw new Error("Unauthorized")
+
+  const users = await db.user.findMany({
+    select: {
+      role: true,
+    },
+  })
+
+  // Extract unique roles from all users
+  const allRoles = users.flatMap((user) => user.role || [])
+  const uniqueRoles = [...new Set(allRoles)]
+
+  return uniqueRoles
 }
 
 // Create a new group
@@ -246,7 +382,7 @@ export async function removeUserFromGroup(groupId: number, userId: number) {
 }
 
 // Search for users
-export async function searchUsers(query: string) {
+export async function searchUsers(query: string, role?: string) {
   const currentUser = await getCurrentUser()
   if (!currentUser) throw new Error("Unauthorized")
 
@@ -254,9 +390,46 @@ export async function searchUsers(query: string) {
     return []
   }
 
+  const whereClause: any = {
+    OR: [{ username: { contains: query, mode: "insensitive" } }, { email: { contains: query, mode: "insensitive" } }],
+    id: { not: currentUser.id }, // Exclude current user
+  }
+
+  // Add role filter if provided
+  if (role && role !== "all") {
+    whereClause.role = {
+      has: role,
+    }
+  }
+
+  const users = await db.user.findMany({
+    where: whereClause,
+    select: {
+      id: true,
+      username: true,
+      email: true,
+      role: true,
+    },
+    take: 10,
+  })
+
+  return users
+}
+
+// Search users by role
+export async function searchUsersByRole(role: string) {
+  const currentUser = await getCurrentUser()
+  if (!currentUser) throw new Error("Unauthorized")
+
+  if (!role || role === "all") {
+    return []
+  }
+
   const users = await db.user.findMany({
     where: {
-      OR: [{ username: { contains: query, mode: "insensitive" } }, { email: { contains: query, mode: "insensitive" } }],
+      role: {
+        has: role,
+      },
       id: { not: currentUser.id }, // Exclude current user
     },
     select: {
@@ -265,7 +438,7 @@ export async function searchUsers(query: string) {
       email: true,
       role: true,
     },
-    take: 10,
+    take: 20,
   })
 
   return users
@@ -316,8 +489,6 @@ export async function addUserToGroup(groupId: number, userId: number) {
   return { success: true }
 }
 
-// Add these new functions for message management
-
 // Search messages in a group
 export async function searchMessages(groupId: number, query: string) {
   const user = await getCurrentUser()
@@ -355,6 +526,7 @@ export async function searchMessages(groupId: number, query: string) {
           id: true,
           username: true,
           email: true,
+          role: true,
         },
       },
     },
@@ -426,5 +598,144 @@ export async function editMessage(messageId: number, newContent: string) {
 
   revalidatePath("/chat")
   return { success: true }
+}
+
+// Update the importXMLMessages function to use our new date parsing
+export async function importXMLMessages(groupId: number, messages: XMLMessage[]) {
+  try {
+    // Get the current user ID from the session
+    const session = await getSession()
+    if (!session?.user?.id) {
+      throw new Error("You must be logged in to import messages")
+    }
+
+    // Get the group to verify it exists
+    const group = await db.group.findUnique({
+      where: { id: groupId },
+      include: { members: true },
+    })
+
+    if (!group) {
+      throw new Error("Group not found")
+    }
+
+    // Check if the current user is a member of the group
+    const isMember = group.members.some((member) => member.userId === session.user.id)
+    if (!isMember) {
+      throw new Error("You are not a member of this group")
+    }
+
+    // Get all users to map emails to user IDs
+    const users = await db.user.findMany()
+    const emailToUserMap = new Map()
+    users.forEach((user) => {
+      if (user.email) {
+        emailToUserMap.set(user.email.toLowerCase(), user.id)
+      }
+    })
+
+    // Process and import messages
+    const importedMessages = []
+
+    for (const message of messages) {
+      try {
+        // Extract email from the from field (remove any client info after /)
+        const fromEmail = message.from.split("/")[0].toLowerCase()
+
+        // Find the sender ID
+        let senderId = emailToUserMap.get(fromEmail)
+
+        // If sender not found, use the current user as the sender
+        if (!senderId) {
+          senderId = session.user.id
+        }
+
+        // Parse the date using our custom function
+        const parsedDate = parseXMLDate(message.date)
+
+        // Create the message
+        const newMessage = await db.message.create({
+          data: {
+            content: message.body,
+            senderId,
+            groupId,
+            createdAt: parsedDate,
+          },
+        })
+
+        importedMessages.push(newMessage)
+      } catch (error) {
+        console.error(`Error importing message: ${message.body}`, error)
+        // Continue with next message
+      }
+    }
+
+    // Log the activity
+    await db.activityLog.create({
+      data: {
+        userId: session.user.id,
+        actionType: "IMPORT_MESSAGES",
+        details: `Imported ${importedMessages.length} messages to group ${groupId}`,
+        targetType: "CHAT",
+        targetId: groupId,
+      },
+    })
+
+    revalidatePath("/chat")
+    return { success: true, count: importedMessages.length }
+  } catch (error) {
+    console.error("Error importing XML messages:", error)
+    throw error
+  }
+}
+
+export async function getGroupMessagesWithDetails(groupId: number) {
+  try {
+    const messages = await db.message.findMany({
+      where: { groupId },
+      orderBy: { createdAt: "asc" },
+      include: {
+        sender: {
+          select: {
+            id: true,
+            username: true,
+            email: true,
+          },
+        },
+      },
+    })
+
+    // Get group details to include receiver information
+    const group = await db.group.findUnique({
+      where: { id: groupId },
+      include: {
+        members: {
+          include: {
+            user: {
+              select: {
+                id: true,
+                username: true,
+                email: true,
+              },
+            },
+          },
+        },
+      },
+    })
+
+    // Transform messages to include receiver details
+    const messagesWithDetails = messages.map((message) => ({
+      ...message,
+      senderName: message.sender.username,
+      senderEmail: message.sender.email,
+      receiverName: group?.name,
+      receiverEmail: null, // Group chat doesn't have a single receiver email
+    }))
+
+    return messagesWithDetails
+  } catch (error) {
+    console.error("Error fetching messages with details:", error)
+    throw error
+  }
 }
 

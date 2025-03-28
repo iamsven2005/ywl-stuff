@@ -79,8 +79,8 @@ export function LibrarySearchFilters({ onSearch }: LibrarySearchFiltersProps) {
   }
 
   return (
-    <div className="bg-blue-50 border border-blue-200 rounded-md p-4 mb-6">
-      <div className="text-lg font-semibold mb-4 text-blue-800">
+    <div className="border border-blue-200 rounded-md p-4 mb-6">
+      <div className="text-lg font-semibold mb-4">
         The library information listed or entered below is applicable for YWL Group.
       </div>
 
