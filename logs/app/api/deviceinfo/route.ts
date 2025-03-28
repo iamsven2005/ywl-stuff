@@ -50,8 +50,8 @@ export async function POST(req: NextRequest) {
               sensor_name: sensor.name,
               value: numericValue,
               value_type: valueType,
-              min: sensor.min !== undefined ? Number.parseFloat(sensor.min) || null : null,
-              max: sensor.max !== undefined ? Number.parseFloat(sensor.max) || null : null,
+              min: sensor.min,
+              max: sensor.max,
             }
           })
           .filter((item: { value: null }) => item.value !== null), // Filter out items with null values
@@ -60,14 +60,14 @@ export async function POST(req: NextRequest) {
 
     // Insert Disk Info
     if (disks?.length) {
-      await db.diskMetric.createMany({
+      await db.diskmetric.createMany({
         data: disks.map((disk: any) => ({
           host: hostname,
           name: disk.name,
           label: disk.label,
-          totalGB: disk.totalGB,
-          usedGB: disk.usedGB,
-          freeGB: disk.freeGB,
+          totalgb: disk.totalgb,
+          usedgb: disk.usedgb,
+          freegb: disk.freegb,
         })),
       })
     }

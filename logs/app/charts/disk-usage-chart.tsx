@@ -220,9 +220,9 @@ export default function DiskUsageChart() {
 
             // Add the appropriate metric based on view mode
             if (viewMode === "used") {
-              newPoint[key] = diskData.usedGB
+              newPoint[key] = diskData.usedgb
             } else if (viewMode === "free") {
-              newPoint[key] = diskData.freeGB
+              newPoint[key] = diskData.freegb
             } else {
               // percent
               newPoint[key] = diskData.usedPercent
@@ -257,9 +257,9 @@ export default function DiskUsageChart() {
             key,
             name: diskName,
             label: diskData.label || diskName,
-            totalGB: diskData.totalGB,
-            usedGB: diskData.usedGB,
-            freeGB: diskData.freeGB,
+            totalgb: diskData.totalgb,
+            usedgb: diskData.usedgb,
+            freegb: diskData.freegb,
             usedPercent: diskData.usedPercent,
           })
         }
@@ -541,7 +541,7 @@ export default function DiskUsageChart() {
                               ></div>
                             </div>
                             <p className="text-xs mt-1 text-muted-foreground">
-                              {disk.usedGB.toFixed(1)} / {disk.totalGB.toFixed(1)} GB
+                              {disk.usedgb.toFixed(1)} / {disk.totalgb.toFixed(1)} GB
                             </p>
                           </div>
                         </div>

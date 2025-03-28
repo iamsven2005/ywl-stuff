@@ -113,9 +113,9 @@ export function prepareChartDataForExport(data: any[], type: "usage" | "memory" 
               row[`${host}_${diskName}`] = entry[key]
             } else if (typeof entry[key] === "object") {
               // For raw data (object with multiple properties)
-              row[`${host}_${diskName}_total`] = entry[key].totalGB
-              row[`${host}_${diskName}_used`] = entry[key].usedGB
-              row[`${host}_${diskName}_free`] = entry[key].freeGB
+              row[`${host}_${diskName}_total`] = entry[key].totalgb
+              row[`${host}_${diskName}_used`] = entry[key].usedgb
+              row[`${host}_${diskName}_free`] = entry[key].freegb
               row[`${host}_${diskName}_percent`] = entry[key].usedPercent
             }
           }

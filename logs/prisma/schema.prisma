@@ -52,14 +52,14 @@ model system_metrics {
 
   max       String?
 }
-model diskMetric {
+model diskmetric {
   id        Int   @id @default(autoincrement())
   host  String
   name      String
   label     String?
-  totalGB   Float
-  usedGB    Float
-  freeGB    Float
+  totalgb   Float
+  usedgb    Float
+  freegb    Float
   timestamp DateTime @default(now())
 }
 model notes {

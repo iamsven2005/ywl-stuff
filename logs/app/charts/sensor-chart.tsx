@@ -55,7 +55,7 @@ export default function SensorChart() {
   const [chartData, setChartData] = useState<any[]>([])
   const [isLoading, setIsLoading] = useState(false)
   const [timeRange, setTimeRange] = useState("24h")
-  const [viewMode, setViewMode] = useState<"temperature" | "voltage">("temperature")
+  const [viewMode, setViewMode] = useState<"temperature" | "power">("temperature")
   const [sensors, setSensors] = useState<{
     temperature: string[]
     voltage: string[]
@@ -285,7 +285,7 @@ export default function SensorChart() {
 
           if (
             (viewMode === "temperature" && sensorData.type === "temperature") ||
-            (viewMode === "voltage" && sensorData.type === "voltage")
+            (viewMode === "power" && sensorData.type === "power")
           ) {
             if (selectedSensors.includes(key)) {
               readings[sensorData.host].push({
@@ -317,7 +317,7 @@ export default function SensorChart() {
           </div>
 
           <div className="flex flex-wrap items-center gap-2">
-            <Tabs value={viewMode} onValueChange={(v) => setViewMode(v as "temperature" | "voltage")}>
+            <Tabs value={viewMode} onValueChange={(v) => setViewMode(v as "temperature" | "power")}>
               <TabsList>
                 <TabsTrigger value="temperature" className="gap-2">
                   <Thermometer className="h-4 w-4" />

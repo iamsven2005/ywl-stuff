@@ -663,7 +663,7 @@ export async function getDiskUsageData(timeRange: string) {
     }
 
     // Get disk metrics data within the time range
-    const diskData = await db.diskMetric.findMany({
+    const diskData = await db.diskmetric.findMany({
       where: {
         timestamp: {
           gte: startDate,
@@ -679,7 +679,7 @@ export async function getDiskUsageData(timeRange: string) {
     const timeSeriesMap = new Map()
     const interval = getIntervalFromTimeRange(timeRange)
 
-    diskData.forEach((data) => {
+    diskData.forEach((data: { host: any; name: any; timestamp: string | number | Date; label: any; totalgb: number; usedgb: number; freegb: any }) => {
       if (!data.host || !data.name) return // Skip entries without host or disk name
 
       // Round timestamp to the nearest interval
@@ -698,10 +698,10 @@ export async function getDiskUsageData(timeRange: string) {
         host: data.host,
         name: data.name,
         label: data.label || data.name,
-        totalGB: data.totalGB,
-        usedGB: data.usedGB,
-        freeGB: data.freeGB,
-        usedPercent: data.totalGB > 0 ? (data.usedGB / data.totalGB) * 100 : 0,
+        totalgb: data.totalgb,
+        usedgb: data.usedgb,
+        freegb: data.freegb,
+        usedPercent: data.totalgb > 0 ? (data.usedgb / data.totalgb) * 100 : 0,
       }
     })
 
