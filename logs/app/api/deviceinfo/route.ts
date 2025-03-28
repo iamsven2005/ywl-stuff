@@ -1,4 +1,5 @@
 // Update the POST function to handle value types for sensor data
+import { db } from "@/lib/db"
 import { type NextRequest, NextResponse } from "next/server"
 
 export async function POST(req: NextRequest) {
@@ -9,8 +10,6 @@ export async function POST(req: NextRequest) {
 
   // Insert Processes (Logs)
   if (processes?.length) {
-    // @ts-ignore
-    const { db } = await import("@vercel/postgres")
     await db.logs.createMany({
       data: processes.map((proc: any) => ({
         host: hostname,
@@ -25,8 +24,6 @@ export async function POST(req: NextRequest) {
 
   // Insert Sensor Data with value type extraction
   if (sensors?.length) {
-    // @ts-ignore
-    const { db } = await import("@vercel/postgres")
     await db.system_metrics.createMany({
       data: sensors.map((sensor: any) => {
         // Extract value type from sensor name
@@ -46,8 +43,6 @@ export async function POST(req: NextRequest) {
 
   // Insert Disk Info
   if (disks?.length) {
-    // @ts-ignore
-    const { db } = await import("@vercel/postgres")
     await db.diskMetric.createMany({
       data: disks.map((disk: any) => ({
         host: hostname,
