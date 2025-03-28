@@ -48,6 +48,8 @@ model system_metrics {
   value_type  String  @default("VALUE")
   value       Float   @default(0.0)
   host        String
+  min       String?
+
   max       String?
 }
 model diskMetric {

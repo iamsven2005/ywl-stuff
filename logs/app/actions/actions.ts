@@ -1,8 +1,7 @@
 "use server"
 
 import { db } from "@/lib/db"
-import { system_metrics } from "@prisma/client"
-
+import type { system_metrics } from "@prisma/client"
 
 // Log middleware for performance monitoring
 db.$use(async (params, next) => {
@@ -145,7 +144,7 @@ export async function getLogs({
     }
   } catch (error) {
     console.error("Error fetching logs:", error)
-    return null
+    throw new Error("Failed to fetch logs")
   }
 }
 
@@ -306,7 +305,7 @@ export async function getDeviceUsageData(timeRange: string) {
     }
   } catch (error) {
     console.error("Error fetching device usage data:", error)
-    return null
+    throw new Error("Failed to fetch device usage data")
   }
 }
 
@@ -344,7 +343,16 @@ export async function getMemoryUsageData(timeRange: string) {
       orderBy: {
         time: "asc",
       },
-      
+      select: {
+        id: true,
+        time: true,
+        host: true,
+        total_memory: true,
+        used_memory: true,
+        free_memory: true,
+        available_memory: true,
+        percent_usage: true,
+      },
     })
 
     // Process the data to create time series data
@@ -396,7 +404,7 @@ export async function getMemoryUsageData(timeRange: string) {
     }
   } catch (error) {
     console.error("Error fetching memory usage data:", error)
-    return null
+    throw new Error("Failed to fetch memory usage data")
   }
 }
 
@@ -431,7 +439,7 @@ export async function deleteLog(id: number) {
     return { success: true }
   } catch (error) {
     console.error("Error deleting log:", error)
-    return null
+    throw new Error("Failed to delete log")
   }
 }
 
@@ -447,7 +455,7 @@ export async function deleteMultipleLogs(ids: number[]) {
     return { success: true }
   } catch (error) {
     console.error("Error deleting logs:", error)
-    return null
+    throw new Error("Failed to delete logs")
   }
 }
 
@@ -485,14 +493,6 @@ export async function getSensorData(timeRange: string) {
       orderBy: {
         timestamp: "asc",
       },
-      select: {
-        id: true,
-        timestamp: true,
-        sensor_name: true,
-        value_type: true,
-        value: true,
-        host: true,
-      },
     })
 
     // Process the data to create time series data
@@ -516,14 +516,14 @@ export async function getSensorData(timeRange: string) {
         entry[data.sensor_name] = {
           value: data.value,
           type: data.value_type,
-          host: data.host,
+          host: data.host
         }
       } else {
         // Update with the latest values in the interval
         entry[data.sensor_name] = {
           value: data.value,
           type: data.value_type,
-          host: data.host,
+          host: data.host
         }
       }
     })
@@ -538,7 +538,7 @@ export async function getSensorData(timeRange: string) {
     }
   } catch (error) {
     console.error("Error fetching sensor data:", error)
-    return null
+    throw new Error("Failed to fetch sensor data")
   }
 }
 
@@ -635,6 +635,87 @@ export async function deleteAuthLogsByTimePeriod(period: string) {
   } catch (error) {
     console.error("Error deleting auth logs by time period:", error)
     throw new Error("Failed to delete auth logs by time period")
+  }
+}
+
+// Add this function to fetch disk metrics data for the chart
+export async function getDiskUsageData(timeRange: string) {
+  try {
+    // Calculate the start date based on the time range
+    const now = new Date()
+    const startDate = new Date()
+
+    switch (timeRange) {
+      case "1h":
+        startDate.setHours(now.getHours() - 1)
+        break
+      case "6h":
+        startDate.setHours(now.getHours() - 6)
+        break
+      case "24h":
+        startDate.setDate(now.getDate() - 1)
+        break
+      case "7d":
+        startDate.setDate(now.getDate() - 7)
+        break
+      default:
+        startDate.setDate(now.getDate() - 1) // Default to 24h
+    }
+
+    // Get disk metrics data within the time range
+    const diskData = await db.diskMetric.findMany({
+      where: {
+        timestamp: {
+          gte: startDate,
+        },
+      },
+      orderBy: {
+        timestamp: "asc",
+      },
+    })
+
+    // Process the data to create time series data
+    // We'll group by timestamp (rounded to appropriate intervals), host, and disk name
+    const timeSeriesMap = new Map()
+    const interval = getIntervalFromTimeRange(timeRange)
+
+    diskData.forEach((data) => {
+      if (!data.host || !data.name) return // Skip entries without host or disk name
+
+      // Round timestamp to the nearest interval
+      const timestamp = roundTimestampToInterval(new Date(data.timestamp), interval)
+      const key = timestamp.toISOString()
+
+      if (!timeSeriesMap.has(key)) {
+        timeSeriesMap.set(key, { timestamp: key })
+      }
+
+      const entry = timeSeriesMap.get(key)
+      const diskKey = `${data.host}|${data.name}`
+
+      // Initialize or update disk data
+      entry[diskKey] = {
+        host: data.host,
+        name: data.name,
+        label: data.label || data.name,
+        totalGB: data.totalGB,
+        usedGB: data.usedGB,
+        freeGB: data.freeGB,
+        usedPercent: data.totalGB > 0 ? (data.usedGB / data.totalGB) * 100 : 0,
+      }
+    })
+
+    // Convert map to array and sort by timestamp
+    const timeSeriesData = Array.from(timeSeriesMap.values()).sort(
+      (a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime(),
+    )
+
+    return {
+      timeSeriesData,
+    }
+  } catch (error) {
+    console.error("Error fetching disk usage data:", error)
+    throw new Error("Failed to fetch disk usage data")
   }
 }
 
