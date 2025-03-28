@@ -28,7 +28,7 @@ export async function POST(req: NextRequest) {
       data: sensors.map((sensor: any) => ({
         host: hostname,
         sensor_name: sensor.name,
-        value: sensor.value,
+        value_type: sensor.value,
         min: sensor.min ?? null,
         max: sensor.max ?? null,
       })),
