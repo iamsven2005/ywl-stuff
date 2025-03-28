@@ -234,6 +234,8 @@ model User {
   Message Message[]
 
   TicketAttachment TicketAttachment[]
+
+  UserPermission UserPermission[]
 }
 model Group {
   id          Int         @id @default(autoincrement())
@@ -445,4 +447,32 @@ model FeedbackRecipient {
   user       User      @relation("FeedbackRecipient", fields: [userId], references: [id])
 
   @@unique([feedbackId, userId])
+}
+
+
+model PagePermission {
+  id         Int      @id @default(autoincrement())
+  route      String   // e.g., "/logs", "/admin/settings"
+  description String? // Optional: e.g., "View all system logs"
+  createdAt  DateTime @default(now())
+
+  allowedRoles   RolePermission[]
+  allowedUsers   UserPermission[]
+}
+model RolePermission {
+  id               Int      @id @default(autoincrement())
+  roleName         String   // e.g., "admin", "viewer"
+  pagePermissionId Int
+  pagePermission   PagePermission @relation(fields: [pagePermissionId], references: [id])
+
+  @@unique([roleName, pagePermissionId])
+}
+model UserPermission {
+  id               Int      @id @default(autoincrement())
+  userId           Int
+  pagePermissionId Int
+  user             User            @relation(fields: [userId], references: [id])
+  pagePermission   PagePermission @relation(fields: [pagePermissionId], references: [id])
+
+  @@unique([userId, pagePermissionId])
 }

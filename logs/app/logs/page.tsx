@@ -22,6 +22,7 @@ import EmailTemplateTable from "@/app/tables/email-template-table"
 import UsersRolesTable from "../tables/user-roles"
 import { DatabaseStatusBar } from "@/components/database-status-bar"
 import DiskUsageChart from "../charts/disk-usage-chart"
+import PermissionsTable from "../tables/permissions-table"
 
 export default function LogsPage({userId}: any) {
   const [isBackingUp, setIsBackingUp] = useState(false)
@@ -206,7 +207,11 @@ export default function LogsPage({userId}: any) {
               </Card>
             </div>
           </TabsContent>
-
+          <TabsContent value="permissions">
+          <Suspense fallback={<LogsTableSkeleton />}>
+            <PermissionsTable />
+          </Suspense>
+        </TabsContent>
       </Tabs>
     </div>
   )

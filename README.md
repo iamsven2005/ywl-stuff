@@ -229,3 +229,4 @@ run-hidden.bat
 C:\Users\sven.tan.YWLSG217\AppData\Roaming\Spark\user\sven.tan@genesis.ywleng\transcripts
 
 todo: make ip dynamic
+192.168.1.183 -> AD domain
