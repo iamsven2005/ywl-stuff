@@ -39,7 +39,7 @@ export async function POST(req: NextRequest) {
   if (disks?.length) {
     await db.diskMetric.createMany({
       data: disks.map((disk: any) => ({
-        hostname,
+        host: hostname,
         name: disk.name,
         label: disk.label,
         totalGB: disk.totalGB,
