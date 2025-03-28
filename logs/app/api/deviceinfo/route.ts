@@ -1,53 +1,51 @@
+import { db } from '@/lib/db';
 import { NextRequest, NextResponse } from 'next/server';
 
-type ProcessInfo = {
-  pid: number;
-  name: string;
-  cpuTime: number;
-  memoryMB: number;
-};
-
-type DiskInfo = {
-  name: string;
-  label: string | null;
-  totalGB: number;
-  usedGB: number;
-  freeGB: number;
-};
-
-type SensorInfo = {
-  name: string;
-  value: string;
-  min?: string;
-  max?: string;
-};
 
 export async function POST(req: NextRequest) {
   const data = await req.json();
+  const { hostname, timestamp, processes, sensors, disks } = data;
 
-  console.log(`\n===== Device Info from ${data.hostname} at ${data.timestamp} =====`);
+  console.log(`\n===== Device Info from ${hostname} at ${timestamp} =====`);
 
-  // --- Log Disk Info ---
-  if (data.disks?.length) {
-    console.log('💾 Disk Info:');
-    data.disks.forEach((disk: DiskInfo) => {
-      console.log(`- ${disk.name}: ${disk.usedGB} GB used / ${disk.totalGB} GB total (${disk.freeGB} GB free)`);
+  // Insert Processes (Logs)
+  if (processes?.length) {
+    await db.logs.createMany({
+      data: processes.map((proc: any) => ({
+        hostname,
+        pid: proc.pid,
+        name: proc.name,
+        cpuTime: proc.cpuTime,
+        memoryMB: proc.memoryMB,
+      })),
+      skipDuplicates: true,
     });
   }
 
-  // --- Log Process Info ---
-  if (data.processes?.length) {
-    console.log('\n⚙️ Running Processes:');
-    data.processes.forEach((proc: ProcessInfo) => {
-      console.log(`- PID ${proc.pid} | ${proc.name} | CPU: ${proc.cpuTime} | RAM: ${proc.memoryMB} MB`);
+  // Insert Sensor Data
+  if (sensors?.length) {
+    await db.system_metrics.createMany({
+      data: sensors.map((sensor: any) => ({
+        hostname,
+        name: sensor.name,
+        value: sensor.value,
+        min: sensor.min ?? null,
+        max: sensor.max ?? null,
+      })),
     });
   }
 
-  // --- Log Sensor Info ---
-  if (data.sensors?.length) {
-    console.log('\n🌡️ Sensor Readings:');
-    data.sensors.forEach((sensor: SensorInfo) => {
-      console.log(`- ${sensor.name}: ${sensor.value}`);
+  // Insert Disk Info
+  if (disks?.length) {
+    await db.diskMetric.createMany({
+      data: disks.map((disk: any) => ({
+        hostname,
+        name: disk.name,
+        label: disk.label,
+        totalGB: disk.totalGB,
+        usedGB: disk.usedGB,
+        freeGB: disk.freeGB,
+      })),
     });
   }
 
