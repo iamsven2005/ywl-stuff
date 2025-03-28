@@ -14,9 +14,9 @@ foreach ($drive in $drives) {
     $diskInfo += [PSCustomObject]@{
         name    = $drive.Name
         label   = $drive.DisplayRoot
-        totalGB = [math]::Round($driveSize / 1GB, 2)
-        usedGB  = [math]::Round($driveUsed / 1GB, 2)
-        freeGB  = [math]::Round($driveFree / 1GB, 2)
+        totalgb = [math]::Round($driveSize / 1GB, 2)
+        usedgb  = [math]::Round($driveUsed / 1GB, 2)
+        freegb  = [math]::Round($driveFree / 1GB, 2)
     }
 }
 

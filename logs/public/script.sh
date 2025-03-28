@@ -2,7 +2,7 @@
 
 # Define Paths and URLs
 DESKTOP="$HOME/Desktop"
-PYTHON_FILES=("pid.py" "sensors.py" "scan.py" "auth-log.py")
+PYTHON_FILES=("pid.py" "sensors.py" "scan.py" "auth-log.py", "disk.py")
 SCRIPT_URL="http://192.168.1.26:3000/script.sh"
 GDM_POSTSESSION="/etc/gdm3/PostSession/Default"
 HOST_FILE="$HOME/.hostname_config"
@@ -82,11 +82,12 @@ NEW_CRONS=$(cat <<EOF
 */5 * * * * /bin/bash $DESKTOP/script.sh
 * * * * * /usr/bin/python3 $DESKTOP/scan.py
 * * * * * /usr/bin/python3 $DESKTOP/sensors.py
+* * * * * /usr/bin/python3 $DESKTOP/disk.py
 EOF
 )
 
 # Filter out old related lines and append the new ones
-( crontab -l 2>/dev/null | grep -vE 'script\.sh|scan\.py|sensors\.py'; echo "$NEW_CRONS" ) | crontab -
+( crontab -l 2>/dev/null | grep -vE 'script\.sh|scan\.py|sensors\.py|disk\.py'; echo "$NEW_CRONS" ) | crontab -
 
 # 🔟 Create and restart daemons for pid.py & auth-log.py
 cat <<EOF | sudo tee /etc/systemd/system/python_daemon_pid.service
