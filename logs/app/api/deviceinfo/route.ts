@@ -26,7 +26,7 @@ export async function POST(req: NextRequest) {
   if (sensors?.length) {
     await db.system_metrics.createMany({
       data: sensors.map((sensor: any) => ({
-        hostname,
+        host: hostname,
         sensor_name: sensor.name,
         value: sensor.value,
         min: sensor.min ?? null,
