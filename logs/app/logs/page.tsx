@@ -21,6 +21,7 @@ import ActivityLogsTable from "../tables/activity-logs-table"
 import EmailTemplateTable from "@/app/tables/email-template-table"
 import UsersRolesTable from "../tables/user-roles"
 import { DatabaseStatusBar } from "@/components/database-status-bar"
+import DiskUsageChart from "../charts/disk-usage-chart"
 
 export default function LogsPage({userId}: any) {
   const [isBackingUp, setIsBackingUp] = useState(false)
@@ -130,6 +131,9 @@ export default function LogsPage({userId}: any) {
 
         <Suspense fallback={<div className="h-[300px] w-full bg-muted/20 animate-pulse rounded-md"></div>}>
           <SensorChart />
+        </Suspense>
+        <Suspense fallback={<div className="h-[300px] w-full bg-muted/20 animate-pulse rounded-md"></div>}>
+          <DiskUsageChart/>
         </Suspense>
       </div>
 

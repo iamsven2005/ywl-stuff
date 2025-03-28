@@ -74,46 +74,59 @@ export function prepareUsersForExport(users: any[]) {
   })
 }
 
-// Function to prepare chart data for export
-export function prepareChartDataForExport(chartData: any[], metricType: string) {
-  return chartData.map((entry) => {
-    const result: Record<string, any> = {
-      Timestamp: new Date(entry.timestamp).toLocaleString(),
-    }
+// Add support for disk metrics in the prepareChartDataForExport function
+export function prepareChartDataForExport(data: any[], type: "usage" | "memory" | "sensor" | "disk") {
+  if (!data || data.length === 0) return []
 
-    // Add each device's data
+  const exportData: any[] = []
+
+  data.forEach((entry) => {
+    const timestamp = new Date(entry.timestamp).toLocaleString()
+    const row: any = { timestamp }
+
     Object.keys(entry).forEach((key) => {
       if (key !== "timestamp") {
-        if (metricType === "all") {
-          // For usage chart with CPU and memory
-          if (entry[key].cpu !== undefined) {
-            result[`${key} CPU %`] = entry[key].cpu !== null ? Number(entry[key].cpu).toFixed(1) : ""
+        if (type === "usage") {
+          // Handle CPU and memory usage data
+          const [host, metric] = key.split(".")
+          row[`${host}_${metric}`] = entry[key]
+        } else if (type === "memory") {
+          // Handle detailed memory usage data
+          if (typeof entry[key] === "object") {
+            Object.keys(entry[key]).forEach((memKey) => {
+              row[`${key}_${memKey}`] = entry[key][memKey]
+            })
           }
-          if (entry[key].mem !== undefined) {
-            result[`${key} Memory %`] = entry[key].mem !== null ? Number(entry[key].mem).toFixed(1) : ""
+        } else if (type === "sensor") {
+          // Handle sensor data
+          if (typeof entry[key] === "object") {
+            row[`${key}_value`] = entry[key].value
+            row[`${key}_type`] = entry[key].type
+            row[`${key}_host`] = entry[key].host
           }
-        } else if (metricType === "memory") {
-          // For memory usage chart
-          if (entry[key].percent_usage !== undefined) {
-            result[`${key} %`] = entry[key].percent_usage !== null ? Number(entry[key].percent_usage).toFixed(1) : ""
-          }
-        } else if (metricType === "sensor") {
-          // For sensor chart
-          if (entry[key].value !== undefined) {
-            const unit = entry[key].type === "temperature" ? "°C" : "mV"
-            result[`${key} (${unit})`] = entry[key].value !== null ? Number(entry[key].value).toFixed(1) : ""
-          }
-        } else {
-          // For specific metric type (cpu or mem)
-          if (entry[key][metricType] !== undefined) {
-            result[`${key} %`] = entry[key][metricType] !== null ? Number(entry[key][metricType]).toFixed(1) : ""
+        } else if (type === "disk") {
+          // Handle disk metrics data
+          if (key.includes("|")) {
+            const [host, diskName] = key.split("|")
+            if (typeof entry[key] === "number") {
+              // For processed data (single value)
+              row[`${host}_${diskName}`] = entry[key]
+            } else if (typeof entry[key] === "object") {
+              // For raw data (object with multiple properties)
+              row[`${host}_${diskName}_total`] = entry[key].totalGB
+              row[`${host}_${diskName}_used`] = entry[key].usedGB
+              row[`${host}_${diskName}_free`] = entry[key].freeGB
+              row[`${host}_${diskName}_percent`] = entry[key].usedPercent
+            }
           }
         }
       }
     })
 
-    return result
+    exportData.push(row)
   })
+
+  return exportData
 }
 
 // Add a function to prepare devices for import
