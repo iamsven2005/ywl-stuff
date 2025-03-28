@@ -48,12 +48,11 @@ model system_metrics {
   value_type  String
   value       Float
   host        String
-  name      String?
   min       String?
   max       String?
 }
 model DiskMetric {
-  id        String   @id @default(cuid())
+  id        Int   @id @default(autoincrement())
   hostname  String
   name      String
   label     String?

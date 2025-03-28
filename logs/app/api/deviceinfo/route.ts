@@ -12,11 +12,11 @@ export async function POST(req: NextRequest) {
   if (processes?.length) {
     await db.logs.createMany({
       data: processes.map((proc: any) => ({
-        hostname,
+        host: hostname,
         pid: proc.pid,
         name: proc.name,
-        cpuTime: proc.cpuTime,
-        memoryMB: proc.memoryMB,
+        cpu: proc.cpuTime,
+        mem: proc.memoryMB,
       })),
       skipDuplicates: true,
     });
@@ -27,7 +27,7 @@ export async function POST(req: NextRequest) {
     await db.system_metrics.createMany({
       data: sensors.map((sensor: any) => ({
         hostname,
-        name: sensor.name,
+        sensor_name: sensor.name,
         value: sensor.value,
         min: sensor.min ?? null,
         max: sensor.max ?? null,
