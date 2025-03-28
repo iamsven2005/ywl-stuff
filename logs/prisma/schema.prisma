@@ -48,8 +48,20 @@ model system_metrics {
   value_type  String
   value       Float
   host        String
+  name      String?
+  min       String?
+  max       String?
 }
-
+model DiskMetric {
+  id        String   @id @default(cuid())
+  hostname  String
+  name      String
+  label     String?
+  totalGB   Float
+  usedGB    Float
+  freeGB    Float
+  timestamp DateTime @default(now())
+}
 model notes {
   id          Int      @id @default(autoincrement())
   title       String
