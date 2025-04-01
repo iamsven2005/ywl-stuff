@@ -26,7 +26,7 @@ export async function middleware(request: NextRequest) {
   }
 
   // For admin-only routes
-  if (userId && (path.startsWith("/logs") || path.startsWith("/command"))) {
+  if (userId && (path.startsWith("/logs") || path.startsWith("/command-matches"))) {
     return NextResponse.next()
   }
 

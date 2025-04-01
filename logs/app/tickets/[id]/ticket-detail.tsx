@@ -291,13 +291,13 @@ export function TicketDetail({ ticket, currentUser, assignableUsers }: TicketDet
             {ticket.relatedDevice && <Badge variant="outline">Device: {ticket.relatedDevice.name}</Badge>}
           </div>
         </div>
-
         <div className="flex gap-2">
           <Button variant="outline" asChild>
             <Link href="/tickets">Back to Tickets</Link>
           </Button>
 
           {isAdmin && (
+
             <AlertDialog>
               <AlertDialogTrigger asChild>
                 <Button variant="destructive" disabled={isDeleting}>
@@ -317,9 +317,11 @@ export function TicketDetail({ ticket, currentUser, assignableUsers }: TicketDet
                 </AlertDialogFooter>
               </AlertDialogContent>
             </AlertDialog>
-          )}
+                        )}
+
         </div>
       </div>
+
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div className="md:col-span-2 space-y-6">
@@ -473,7 +475,10 @@ export function TicketDetail({ ticket, currentUser, assignableUsers }: TicketDet
                 <p className="text-sm font-medium">Last Updated</p>
                 <p>{formatDate(ticket.updatedAt, { hour: "numeric", minute: "numeric" })}</p>
               </div>
-
+              <Button>
+              <Link href={'/tickets/new'}>New Ticket</Link>
+              </Button>
+              {isAdmin && (
               <div>
                 <p className="text-sm font-medium mb-1">Status</p>
                 <Select value={status} onValueChange={handleStatusChange} disabled={!canEdit || isUpdating}>
@@ -488,9 +493,6 @@ export function TicketDetail({ ticket, currentUser, assignableUsers }: TicketDet
                     ))}
                   </SelectContent>
                 </Select>
-              </div>
-
-              <div>
                 <p className="text-sm font-medium mb-1">Priority</p>
                 <Select value={priority} onValueChange={handlePriorityChange} disabled={!canEdit || isUpdating}>
                   <SelectTrigger>
@@ -504,9 +506,6 @@ export function TicketDetail({ ticket, currentUser, assignableUsers }: TicketDet
                     ))}
                   </SelectContent>
                 </Select>
-              </div>
-
-              <div>
                 <p className="text-sm font-medium mb-1">Assigned To</p>
                 <Select value={assignedTo} onValueChange={handleAssigneeChange} disabled={!isAdmin || isUpdating}>
                   <SelectTrigger>
@@ -522,6 +521,7 @@ export function TicketDetail({ ticket, currentUser, assignableUsers }: TicketDet
                   </SelectContent>
                 </Select>
               </div>
+              )}
             </CardContent>
           </Card>
 

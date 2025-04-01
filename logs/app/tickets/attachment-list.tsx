@@ -83,7 +83,7 @@ export function AttachmentList({ attachments, currentUserId, isAdmin }: Attachme
                 </a>
               </Button>
 
-              {(isAdmin || currentUserId === attachment.uploader.id) && (
+              {(isAdmin || currentUserId === attachment.uploaderId) && (
                 <AlertDialog>
                   <AlertDialogTrigger asChild>
                     <Button

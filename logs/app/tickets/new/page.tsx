@@ -19,7 +19,9 @@ export default async function NewTicketPage() {
   const perm = await checkUserPermission(currentUser.id, "/tickets")
   if (perm.hasPermission === false) {
     return notFound()
-  }  const devices = await db.devices.findMany({
+  }
+  const isAdmin = currentUser.role.includes("admin")  
+  const devices = await db.devices.findMany({
     select: {
       id: true,
       name: true,
@@ -34,7 +36,7 @@ export default async function NewTicketPage() {
 
   return (
     <div className="container py-6">
-      <NewTicketForm deviceNames={devices.map((device) => device.name)} assignableUsers={assignableUsers} />
+      <NewTicketForm deviceNames={devices.map((device) => device.name)} assignableUsers={assignableUsers} isAdmin={isAdmin} />
     </div>
   )
 }

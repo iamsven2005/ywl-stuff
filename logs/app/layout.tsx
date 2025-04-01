@@ -7,7 +7,7 @@ import { CommandMatchAlert } from "@/components/command-match-alert"
 import { AlertMonitorWrapper } from "@/components/alert-monitor-wrapper"
 import { UserNav } from "@/components/user-nav"
 import { ThemeToggle } from "./theme-toggle"
-import { checkUserPermission } from "./actions/permission-actions"
+import { getCurrentUser } from "./login/actions"
 
 export const metadata: Metadata = {
   title: "v0 App",
@@ -15,17 +15,24 @@ export const metadata: Metadata = {
   generator: "v0.dev",
 }
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode
 }>) {
+
+  const user = await getCurrentUser()
+
   return (
     <html lang="en" suppressHydrationWarning>
       <body>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
           <div className="fixed top-4 right-4 z-50 flex items-center space-x-2">
+
+          {user?.role.includes("admin")&& (
             <CommandMatchAlert matches={[]} />
+
+          )}
             <AlertMonitorWrapper />
           </div>
           <UserNav/>

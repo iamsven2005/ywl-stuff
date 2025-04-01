@@ -17,9 +17,11 @@ import { FileUpload } from "../file-upload"
 export function NewTicketForm({
   deviceNames,
   assignableUsers,
+  isAdmin
 }: {
   deviceNames: string[]
   assignableUsers: { id: number; username: string }[]
+  isAdmin: boolean
 }) {
   const router = useRouter()
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -144,7 +146,7 @@ export function NewTicketForm({
               required
             />
           </div>
-
+          {isAdmin && (
           <div className="space-y-2">
             <Label htmlFor="priority">Priority</Label>
             <Select value={priority} onValueChange={(value: any) => setPriority(value)}>
@@ -159,9 +161,7 @@ export function NewTicketForm({
               </SelectContent>
             </Select>
             <p className="text-xs text-muted-foreground">Select the appropriate priority level for your issue</p>
-          </div>
 
-          <div className="space-y-2">
             <Label htmlFor="assignee">Assign To (Optional)</Label>
             <Select value={assignedToId} onValueChange={setAssignedToId}>
               <SelectTrigger>
@@ -176,9 +176,6 @@ export function NewTicketForm({
                 ))}
               </SelectContent>
             </Select>
-          </div>
-
-          <div className="space-y-2">
             <Label htmlFor="device">Related Device (Optional)</Label>
             <Select value={relatedDevice} onValueChange={setRelatedDevice}>
               <SelectTrigger>
@@ -194,7 +191,7 @@ export function NewTicketForm({
               </SelectContent>
             </Select>
           </div>
-
+                      )}
           <div className="space-y-2">
             <Label>Attachments (Optional)</Label>
             <div className="mt-2">

@@ -32,7 +32,7 @@ export default async function TicketPage({ params }: { params: { id: string } })
   return (
     <div className="container py-6">
       <Suspense fallback={<TicketDetailSkeleton />}>
-        <TicketDetail ticket={ticket} assignableUsers={assignableUsers} currentUser={currentUser} />
+        <TicketDetail ticket={ticket} assignableUsers={assignableUsers} currentUser={currentUser}/>
       </Suspense>
     </div>
   )

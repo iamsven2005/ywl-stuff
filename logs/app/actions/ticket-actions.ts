@@ -39,6 +39,16 @@ interface GetTicketsParams {
   pageSize?: number
 }
 
+interface GetTicketsParams {
+  status?: string
+  priority?: string
+  assignedToId?: number
+  createdById?: number
+  search?: string
+  page?: number
+  pageSize?: number
+}
+
 // Get all tickets with filtering and pagination
 export async function getTickets({
   status,
@@ -50,8 +60,29 @@ export async function getTickets({
   pageSize = 10,
 }: GetTicketsParams) {
   try {
+    const session = await getSession()
+    if (!session?.user) {
+      throw new Error("You must be logged in to view tickets")
+    }
+
     // Build where conditions
     const where: any = {}
+
+    // If not admin, only show tickets created by the current user
+    const user = await db.user.findUnique({
+      where: { id: session.user.id },
+      select: { role: true },
+    })
+
+    const userIsAdmin = user?.role.includes("admin")
+
+    // If not admin and no specific createdById is provided, filter by current user
+    if (!userIsAdmin && !createdById) {
+      where.createdById = session.user.id
+    } else if (createdById) {
+      // If a specific createdById is provided and user is admin, use that
+      where.createdById = createdById
+    }
 
     if (status) {
       where.status = status
@@ -63,10 +94,6 @@ export async function getTickets({
 
     if (assignedToId) {
       where.assignedToId = assignedToId
-    }
-
-    if (createdById) {
-      where.createdById = createdById
     }
 
     if (search) {

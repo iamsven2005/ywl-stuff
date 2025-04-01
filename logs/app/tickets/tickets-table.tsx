@@ -53,8 +53,11 @@ const priorityColors: Record<string, string> = {
   high: "bg-yellow-500 hover:bg-yellow-600",
   critical: "bg-red-500 hover:bg-red-600",
 }
-
-export function TicketsTable() {
+interface Props{
+  isAdmin: Boolean
+  id: number
+}
+export function TicketsTable({ isAdmin, id }: Props) {
   const router = useRouter()
   const pathname = usePathname()
   const searchParams = useSearchParams()
@@ -76,14 +79,16 @@ export function TicketsTable() {
     async function fetchTickets() {
       setLoading(true)
       try {
+        const createdById = !isAdmin ?id : undefined
+
         const result = await getTickets({
           status: status || undefined,
           priority: priority || undefined,
           page,
           pageSize: 10,
           search,
+          createdById,
         })
-
         setTickets(result.tickets)
         setTotalCount(result.totalCount)
         setPageCount(result.pageCount)
@@ -199,7 +204,9 @@ export function TicketsTable() {
               <TableHead className="w-[100px]">ID</TableHead>
               <TableHead>Title</TableHead>
               <TableHead className="hidden md:table-cell">Status</TableHead>
-              <TableHead className="hidden md:table-cell">Priority</TableHead>
+              {isAdmin && (
+                <TableHead className="hidden md:table-cell">Priority</TableHead>
+              )}
               <TableHead className="hidden lg:table-cell">Created By</TableHead>
               <TableHead className="hidden lg:table-cell">Created</TableHead>
               <TableHead className="hidden lg:table-cell">Assigned To</TableHead>
@@ -234,9 +241,12 @@ export function TicketsTable() {
                   <TableCell className="hidden md:table-cell">
                     <Badge className={statusColors[ticket.status]}>{ticket.status.replace("_", " ")}</Badge>
                   </TableCell>
-                  <TableCell className="hidden md:table-cell">
-                    <Badge className={priorityColors[ticket.priority]}>{ticket.priority}</Badge>
-                  </TableCell>
+                  {isAdmin && (
+                    <TableCell className="hidden md:table-cell">
+                      <Badge className={priorityColors[ticket.priority]}>{ticket.priority}</Badge>
+                    </TableCell>
+                  )}
+
                   <TableCell className="hidden lg:table-cell">{ticket.createdBy.username}</TableCell>
                   <TableCell className="hidden lg:table-cell">{formatDate(ticket.createdAt)}</TableCell>
                   <TableCell className="hidden lg:table-cell">
