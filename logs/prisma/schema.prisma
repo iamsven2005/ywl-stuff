@@ -72,7 +72,7 @@ model notes {
 model devices {
   id          Int      @id @default(autoincrement())
   name        String
-  ip_address  String?
+  ip_address  String?  @unique
   mac_address String?
   password    String?
   time        DateTime @default(now())

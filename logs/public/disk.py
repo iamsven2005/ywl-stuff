@@ -64,8 +64,8 @@ def log_disk_usage():
 
         for disk in disks:
             cursor.execute("""
-                INSERT INTO logs.diskmetric (host, name, label, totalGB, usedGB, freeGB, timestamp)
-                VALUES (%s, %s, %s, %s, %s, %s, %s)
+                INSERT INTO logs.diskmetric (host, name, label, totalGB, usedGB, freeGB)
+                VALUES (%s, %s, %s, %s, %s, %s)
             """, (
                 hostname,
                 disk["name"],
@@ -73,7 +73,6 @@ def log_disk_usage():
                 disk["totalGB"],
                 disk["usedGB"],
                 disk["freeGB"],
-                datetime.now()
             ))
             print(f"✅ Logged {disk['name']} at {disk['label']} ({disk['usedGB']}/{disk['totalGB']} GB)")
 
