@@ -8,6 +8,9 @@ import { DatabaseStatusBar } from "@/components/database-status-bar"
 import { TicketsTableSkeleton } from "./tickets-table-skeleton"
 import { TicketStats } from "./ticket-stats"
 import { TicketsTable } from "./tickets-table"
+import { getCurrentUser } from "../login/actions"
+import { notFound, redirect } from "next/navigation"
+import { checkUserPermission } from "../actions/permission-actions"
 
 export const metadata: Metadata = {
   title: "Support Tickets",
@@ -19,6 +22,14 @@ export default async function TicketsPage({
 }: {
   searchParams: { [key: string]: string | string[] | undefined }
 }) {
+    const currentUser = await getCurrentUser()
+    if (!currentUser) {
+      redirect("/login")
+    }
+    const perm = await checkUserPermission(currentUser.id, "/tickets")
+    if (perm.hasPermission === false) {
+      return notFound()
+    }
   const search = typeof searchParams.search === "string" ? searchParams.search : ""
   const status = typeof searchParams.status === "string" ? searchParams.status : ""
   const priority = typeof searchParams.priority === "string" ? searchParams.priority : ""

@@ -3,7 +3,7 @@
 import type React from "react"
 
 import { useState, useEffect } from "react"
-import { useRouter } from "next/navigation"
+import { notFound, redirect, useRouter } from "next/navigation"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -24,6 +24,8 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
 import { Input } from "@/components/ui/input"
+import { getCurrentUser } from "../login/actions"
+import { checkUserPermission } from "../actions/permission-actions"
 
 export function AlertConditionsTable({ initialAlertConditions }: { initialAlertConditions?: any[] }) {
   const router = useRouter()
@@ -39,6 +41,14 @@ export function AlertConditionsTable({ initialAlertConditions }: { initialAlertC
     if (!initialAlertConditions) {
       const fetchAlertConditions = async () => {
         try {
+            const currentUser = await getCurrentUser()
+            if (!currentUser) {
+              redirect("/login")
+            }
+            const perm = await checkUserPermission(currentUser.id, "/alerts")
+            if (perm.hasPermission === false) {
+              return notFound()
+            }
           setIsLoading(true)
           const conditions = await getAlertConditions()
           setAlertConditions(conditions)

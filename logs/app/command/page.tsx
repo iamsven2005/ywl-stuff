@@ -4,6 +4,9 @@ import { CommandMatchNotification } from "@/components/command-match-notificatio
 import { BulkAddressCommandMatches } from "@/components/bulk-address-command-matches"
 import { AddressedCommandMatchesTable } from "@/components/addressed-command-matches-table"
 import { Suspense } from "react"
+import { getCurrentUser } from "../login/actions"
+import { notFound, redirect } from "next/navigation"
+import { checkUserPermission } from "../actions/permission-actions"
 
 export const dynamic = "force-dynamic"
 export const revalidate = 0
@@ -13,6 +16,15 @@ export default async function CommandMatchesPage({
 }: {
   searchParams: { tab?: string; page?: string }
 }) {
+  const currentUser = await getCurrentUser()
+  if (!currentUser) {
+    redirect("/login")
+    return
+  }
+  const perm = await checkUserPermission(currentUser.id, "/command")
+  if (perm.hasPermission === false) {
+    return notFound()
+  }
   const tab = searchParams.tab || "unaddressed"
   const page = Number.parseInt(searchParams.page || "1", 10)
   const pageSize = 10
@@ -22,11 +34,11 @@ export default async function CommandMatchesPage({
     page,
     pageSize,
   })
-  
+
   const matches = response?.matches ?? [] // Ensure `matches` is always an array
   const totalCount = response?.totalCount ?? 0
   const pageCount = response?.pageCount ?? 1
-  
+
 
   // Transform the matches to include the required properties
   const transformedMatches = matches.map((match) => ({
@@ -98,9 +110,8 @@ export default async function CommandMatchesPage({
               <a
                 key={i}
                 href={`/command-matches?tab=${tab}&page=${i + 1}`}
-                className={`px-3 py-1 rounded ${
-                  page === i + 1 ? "bg-primary text-primary-foreground" : "bg-muted hover:bg-muted/80"
-                }`}
+                className={`px-3 py-1 rounded ${page === i + 1 ? "bg-primary text-primary-foreground" : "bg-muted hover:bg-muted/80"
+                  }`}
               >
                 {i + 1}
               </a>

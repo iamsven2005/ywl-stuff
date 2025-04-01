@@ -4,7 +4,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import LogsTable from "../tables/logs-table"
 import AuthLogsTable from "../tables/auth-logs-table"
 import { LogsTableSkeleton } from "../tables/logs-table-skeleton"
-import { ThemeToggle } from "../theme-toggle"
 import UsageChart from "../charts/usage-chart"
 import MemoryUsageChart from "../charts/memory-usage-chart"
 import SensorChart from "../charts/sensor-chart"
@@ -12,7 +11,6 @@ import DevicesTable from "../tables/devices-table"
 import NotesTable from "../tables/notes-table"
 import UsersTable from "../tables/users-table"
 import RulesTable from "../tables/rules-table"
-import { UserNav } from "@/components/user-nav"
 import { Button } from "@/components/ui/button"
 import { Download, RefreshCcw } from "lucide-react"
 import { toast } from "sonner"
@@ -115,9 +113,6 @@ export default function LogsPage({userId}: any) {
             <RefreshCcw className="ml-2 h-4 w-4" />
           </Button>
           <button onClick={sendEmail}>Send Test Email</button>
-
-          <ThemeToggle />
-          <UserNav />
         </div>
       </div>
 
@@ -148,6 +143,8 @@ export default function LogsPage({userId}: any) {
           <TabsTrigger value="rules">Rules</TabsTrigger>
           <TabsTrigger value="email">Email Template</TabsTrigger>
           <TabsTrigger value="notes">Notes</TabsTrigger>
+          <TabsTrigger value="permissions">Perms</TabsTrigger>
+
         </TabsList>
 
         <TabsContent value="system-logs">

@@ -2,6 +2,8 @@ import { getLibraryEntries } from "@/app/actions/library-actions"
 import { LibraryPage } from "./library-page"
 import { authOptions, getSession } from "@/lib/auth"
 import { getCurrentUser } from "../login/actions"
+import { checkUserPermission } from "../actions/permission-actions"
+import { notFound, redirect } from "next/navigation"
 
 interface PageProps {
   searchParams: {
@@ -20,8 +22,15 @@ interface PageProps {
 
 export default async function Page({ searchParams }: PageProps) {
   const user =  await getCurrentUser()
-  
   const isAdmin = !!user?.role?.some((role: string) => role.toLowerCase().includes("admin"))
+  if(user){
+    const perm = await checkUserPermission(user.id, "/library")
+    if (perm.hasPermission === false){
+      return notFound()
+    }
+  } else {
+    redirect("/login")
+  }
 
   const page = searchParams.page ? Number.parseInt(searchParams.page) : 1
   const search = searchParams.search || ""

@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { useRouter } from "next/navigation"
+import { notFound, useRouter } from "next/navigation"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -12,6 +12,7 @@ import { getCurrentUser } from "../login/actions"
 import FeedbackForm from "./feedback-form"
 import { toast } from "sonner"
 import { getReceivedFeedback, getSentFeedback, markFeedbackAsRead } from "../actions/feedback-actions"
+import { checkUserPermission } from "../actions/permission-actions"
 
 export default function FeedbackPage() {
   const [activeTab, setActiveTab] = useState("overview")
@@ -32,6 +33,9 @@ export default function FeedbackPage() {
           router.push("/login")
           return
         }
+        const perm = await checkUserPermission(currentUser.id, "/feedback")
+        if (perm.hasPermission === false){
+        return notFound() }
         setUser(currentUser)
         setIsManager(currentUser.role.includes("manager") || currentUser.role.includes("admin"))
         setIsLoading(false)

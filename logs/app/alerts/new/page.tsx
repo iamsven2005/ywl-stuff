@@ -2,6 +2,9 @@ import type { Metadata } from "next"
 import { AlertConditionForm } from "./alert-condition-form"
 import { getAllEmailTemplates } from "@/app/actions/email-template-actions"
 import { DatabaseStatusBar } from "@/components/database-status-bar"
+import { getCurrentUser } from "@/app/login/actions"
+import { notFound, redirect } from "next/navigation"
+import { checkUserPermission } from "@/app/actions/permission-actions"
 
 export const metadata: Metadata = {
   title: "Create Alert Condition",
@@ -9,6 +12,14 @@ export const metadata: Metadata = {
 }
 
 export default async function NewAlertConditionPage() {
+    const currentUser = await getCurrentUser()
+    if (!currentUser) {
+      redirect("/login")
+    }
+    const perm = await checkUserPermission(currentUser.id, "/alerts")
+    if (perm.hasPermission === false) {
+      return notFound()
+    }
   // Get all email templates for the dropdown
   const emailTemplates = await getAllEmailTemplates()
 

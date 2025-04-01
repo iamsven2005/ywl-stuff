@@ -2,6 +2,9 @@ import type { Metadata } from "next"
 import { NewTicketForm } from "@/app/tickets/new/new-ticket-form"
 import { getAssignableUsers } from "@/app/actions/ticket-actions"
 import { db } from "@/lib/db"
+import { getCurrentUser } from "@/app/login/actions"
+import { notFound, redirect } from "next/navigation"
+import { checkUserPermission } from "@/app/actions/permission-actions"
 
 export const metadata: Metadata = {
   title: "Create New Ticket",
@@ -9,8 +12,14 @@ export const metadata: Metadata = {
 }
 
 export default async function NewTicketPage() {
-  // Get all devices for the dropdown
-  const devices = await db.devices.findMany({
+  const currentUser = await getCurrentUser()
+  if (!currentUser) {
+    redirect("/login")
+  }
+  const perm = await checkUserPermission(currentUser.id, "/tickets")
+  if (perm.hasPermission === false) {
+    return notFound()
+  }  const devices = await db.devices.findMany({
     select: {
       id: true,
       name: true,

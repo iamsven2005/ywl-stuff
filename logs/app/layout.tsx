@@ -5,6 +5,9 @@ import { Toaster } from "sonner"
 import { ThemeProvider } from "@/components/theme-provider"
 import { CommandMatchAlert } from "@/components/command-match-alert"
 import { AlertMonitorWrapper } from "@/components/alert-monitor-wrapper"
+import { UserNav } from "@/components/user-nav"
+import { ThemeToggle } from "./theme-toggle"
+import { checkUserPermission } from "./actions/permission-actions"
 
 export const metadata: Metadata = {
   title: "v0 App",
@@ -25,6 +28,9 @@ export default function RootLayout({
             <CommandMatchAlert matches={[]} />
             <AlertMonitorWrapper />
           </div>
+          <UserNav/>
+          <ThemeToggle />
+
           {children}
           <Toaster />
         </ThemeProvider>

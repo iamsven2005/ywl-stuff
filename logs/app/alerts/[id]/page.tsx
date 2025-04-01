@@ -1,5 +1,5 @@
 import type { Metadata } from "next"
-import { notFound } from "next/navigation"
+import { notFound, redirect } from "next/navigation"
 import Link from "next/link"
 import { getAlertCondition, getAlertEvents } from "@/app/actions/alert-actions"
 import { Button } from "@/components/ui/button"
@@ -8,6 +8,8 @@ import { Badge } from "@/components/ui/badge"
 import { AlertEventsTable } from "../alert-events-table"
 import { Edit, Bell, Clock, AlertCircle, CheckCircle, ExternalLink } from "lucide-react"
 import { DatabaseStatusBar } from "@/components/database-status-bar"
+import { getCurrentUser } from "@/app/login/actions"
+import { checkUserPermission } from "@/app/actions/permission-actions"
 
 export const metadata: Metadata = {
   title: "Alert Condition Details",
@@ -16,7 +18,14 @@ export const metadata: Metadata = {
 
 export default async function AlertConditionDetailPage({ params }: { params: { id: string } }) {
   const id = Number.parseInt(params.id, 10)
-
+  const currentUser = await getCurrentUser()
+  if (!currentUser) {
+    redirect("/login")
+  }
+  const perm = await checkUserPermission(currentUser.id, "/alerts")
+  if (perm.hasPermission === false) {
+    return notFound()
+  }
   // Get the alert condition
   const alertCondition = await getAlertCondition(id).catch(() => null)
 

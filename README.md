@@ -230,3 +230,17 @@ C:\Users\sven.tan.YWLSG217\AppData\Roaming\Spark\user\sven.tan@genesis.ywleng\tr
 
 todo: make ip dynamic
 192.168.1.183 -> AD domain
+For perm access
+
+  const currentUser = await getCurrentUser()
+  if (!currentUser) {
+    redirect("/login")
+    return
+  }
+  const perm = await checkUserPermission(currentUser.id, "/chat")
+  if (perm.hasPermission === false) {
+    return notFound()
+  }
+  if (!session?.user?.id) {
+    throw new Error("User not authenticated")
+  }

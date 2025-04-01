@@ -49,6 +49,8 @@ import type { devices } from "@prisma/client"
 import * as XLSX from "xlsx"
 import { addDevice, deleteDevice, getDevices, updateDevice } from "../actions/device-actions"
 import { exportToExcel, generateDeviceImportTemplate, prepareDevicesForExport } from "../export-utils"
+import { DeviceStatusIndicator } from "@/components/device-status-indicator"
+// Import the DeviceStatusIndicator component
 
 // Debounce function to limit how often a function can run
 function debounce<T extends (...args: any[]) => any>(func: T, wait: number): (...args: Parameters<T>) => void {
@@ -65,15 +67,15 @@ const pageSizeOptions = [10, 25, 50, 100]
 
 // Device type definition
 interface DeviceRow {
-  Name?: string;
-  "IP Address"?: string;
-  ip_address?: string;
-  "MAC Address"?: string;
-  mac_address?: string;
-  Password?: string;
-  password?: string;
-  Notes?: string;
-  notes?: string;
+  Name?: string
+  "IP Address"?: string
+  ip_address?: string
+  "MAC Address"?: string
+  mac_address?: string
+  Password?: string
+  password?: string
+  Notes?: string
+  notes?: string
 }
 // Form type for adding/editing devices
 interface DeviceForm {
@@ -141,28 +143,19 @@ export default function DevicesTable() {
         search: debouncedSearchQuery,
         page: currentPage,
         pageSize: pageSize,
-      });
-  
-      if (result) {
-        setDevices(result.devices || []);
-        setTotalPages(result.pageCount || 1);
-        setTotalItems(result.totalCount || 0);
-      } else {
-        // Handle null response gracefully
-        setDevices([]);
-        setTotalPages(1);
-        setTotalItems(0);
+      })
+      if(result){
+        setDevices(result.devices)
+        setTotalPages(result.pageCount)
+        setTotalItems(result.totalCount)
       }
+
     } catch (error) {
-      toast.error("Failed to fetch devices");
-      setDevices([]);
-      setTotalPages(1);
-      setTotalItems(0);
+      toast.error("Failed to fetch devices")
     } finally {
-      setIsLoading(false);
+      setIsLoading(false)
     }
-  };
-  
+  }
 
   // Load devices when filters or pagination changes
   useEffect(() => {
@@ -430,26 +423,26 @@ export default function DevicesTable() {
 
   const handleImport = async () => {
     if (!importFile) {
-      toast.error("Please select a file to import");
-      return;
+      toast.error("Please select a file to import")
+      return
     }
-  
-    setIsImporting(true);
+
+    setIsImporting(true)
     try {
-      const reader = new FileReader();
+      const reader = new FileReader()
       reader.onload = async (evt) => {
         try {
-          const binaryStr = evt.target?.result;
-          const workbook = XLSX.read(binaryStr, { type: "binary" });
-          const sheetName = workbook.SheetNames[0];
-          const worksheet = workbook.Sheets[sheetName];
-  
+          const binaryStr = evt.target?.result
+          const workbook = XLSX.read(binaryStr, { type: "binary" })
+          const sheetName = workbook.SheetNames[0]
+          const worksheet = workbook.Sheets[sheetName]
+
           // ✅ Explicitly type the data returned by sheet_to_json
-          const data: DeviceRow[] = XLSX.utils.sheet_to_json(worksheet);
-  
-          let successCount = 0;
-          let errorCount = 0;
-  
+          const data: DeviceRow[] = XLSX.utils.sheet_to_json(worksheet)
+
+          let successCount = 0
+          let errorCount = 0
+
           for (const row of data) {
             try {
               const deviceData = {
@@ -458,45 +451,45 @@ export default function DevicesTable() {
                 mac_address: row["MAC Address"] || row.mac_address || null,
                 password: row.Password || row.password || null,
                 notes: row.Notes || row.notes || "",
-              };
-  
-              if (!deviceData.name) {
-                errorCount++;
-                continue;
               }
-  
-              await addDevice(deviceData);
-              successCount++;
+
+              if (!deviceData.name) {
+                errorCount++
+                continue
+              }
+
+              await addDevice(deviceData)
+              successCount++
             } catch (error) {
-              console.error("Error importing device:", error);
-              errorCount++;
+              console.error("Error importing device:", error)
+              errorCount++
             }
           }
-  
+
           if (successCount > 0) {
-            toast.success(`Successfully imported ${successCount} devices`);
-            fetchDevices();
-            router.refresh();
-            setImportModalOpen(false);
+            toast.success(`Successfully imported ${successCount} devices`)
+            fetchDevices()
+            router.refresh()
+            setImportModalOpen(false)
           }
-  
+
           if (errorCount > 0) {
-            toast.error(`Failed to import ${errorCount} devices`);
+            toast.error(`Failed to import ${errorCount} devices`)
           }
         } catch (error) {
-          console.error("Error processing Excel file:", error);
-          toast.error("Failed to process Excel file");
+          console.error("Error processing Excel file:", error)
+          toast.error("Failed to process Excel file")
         } finally {
-          setIsImporting(false);
+          setIsImporting(false)
         }
-      };
-      reader.readAsBinaryString(importFile);
+      }
+      reader.readAsBinaryString(importFile)
     } catch (error) {
-      console.error("Import error:", error);
-      toast.error("Failed to import devices");
-      setIsImporting(false);
+      console.error("Import error:", error)
+      toast.error("Failed to import devices")
+      setIsImporting(false)
     }
-  };
+  }
   return (
     <div className="space-y-4">
       <div className="flex flex-col sm:flex-row gap-4 justify-between">
@@ -559,6 +552,8 @@ export default function DevicesTable() {
               <TableHead className="w-[180px]">MAC Address</TableHead>
               <TableHead className="w-[150px]">Added</TableHead>
               <TableHead>Notes</TableHead>
+              {/* Add this to your table columns definition */}
+              <TableHead>Status</TableHead>
               <TableHead className="w-[100px]">Actions</TableHead>
             </TableRow>
           </TableHeader>
@@ -604,6 +599,13 @@ export default function DevicesTable() {
                   <TableCell>{formatDate(device.time)}</TableCell>
                   <TableCell>
                     <div className="max-w-[300px] truncate">{device.notes}</div>
+                  </TableCell>
+                  {/* cell: ({ row }) => {
+                    const deviceId = row.original.id;
+                    return <DeviceStatusIndicator deviceId={deviceId} />;
+                  } */}
+                  <TableCell>
+                    <DeviceStatusIndicator deviceId={device.id} />
                   </TableCell>
                   <TableCell>
                     <div className="flex gap-2">

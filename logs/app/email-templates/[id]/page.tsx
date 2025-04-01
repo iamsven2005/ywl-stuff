@@ -1,6 +1,6 @@
 "use client"
 
-import { useRouter } from "next/navigation"
+import { notFound, useRouter } from "next/navigation"
 import Link from "next/link"
 import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
@@ -9,6 +9,8 @@ import { getEmailTemplate } from "@/app/actions/email-template-actions"
 import { ArrowLeft, Edit, Eye } from "lucide-react"
 import { DatabaseStatusBar } from "@/components/database-status-bar"
 import { EmailTemplateForm } from "@/components/email-template-form"
+import { getCurrentUser } from "@/app/login/actions"
+import { checkUserPermission } from "@/app/actions/permission-actions"
 
 export default function EmailTemplateDetailPage({ params }: { params: { id: string } }) {
   const id = Number.parseInt(params.id, 10)
@@ -27,6 +29,14 @@ export default function EmailTemplateDetailPage({ params }: { params: { id: stri
   useEffect(() => {
     async function loadEmailTemplate() {
       try {
+                const currentUser = await getCurrentUser()
+                if (!currentUser) {
+                  router.push("/login")
+                  return
+                }
+                const perm = await checkUserPermission(currentUser.id, "/email-templates")
+                if (perm.hasPermission === false){
+                return notFound() }
         setLoading(true)
         const template = await getEmailTemplate(id)
         if (!template) {

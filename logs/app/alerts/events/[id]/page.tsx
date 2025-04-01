@@ -1,5 +1,5 @@
 import type { Metadata } from "next"
-import { notFound } from "next/navigation"
+import { notFound, redirect } from "next/navigation"
 import Link from "next/link"
 import { getAlertEvent, resolveAlertEvent } from "@/app/actions/alert-actions"
 import { Button } from "@/components/ui/button"
@@ -7,6 +7,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge"
 import { AlertCircle, Bell, CheckCircle } from "lucide-react"
 import { DatabaseStatusBar } from "@/components/database-status-bar"
+import { getCurrentUser } from "@/app/login/actions"
+import { checkUserPermission } from "@/app/actions/permission-actions"
 
 export const metadata: Metadata = {
   title: "Alert Event Details",
@@ -15,7 +17,14 @@ export const metadata: Metadata = {
 
 export default async function AlertEventDetailPage({ params }: { params: { id: string } }) {
   const id = Number.parseInt(params.id, 10)
-
+  const currentUser = await getCurrentUser()
+  if (!currentUser) {
+    redirect("/login")
+  }
+  const perm = await checkUserPermission(currentUser.id, "/alerts")
+  if (perm.hasPermission === false) {
+    return notFound()
+  }
   // Get the alert event
   const alertEvent = await getAlertEvent(id).catch(() => null)
 
