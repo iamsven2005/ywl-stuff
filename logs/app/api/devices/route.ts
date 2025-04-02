@@ -23,7 +23,7 @@ export async function POST(req: NextRequest) {
           mac_address: mac || "",
           name: name || "Unknown",
           notes: vendor || "", // Store vendor in notes field
-          status: "active",
+          status: "online",
         },
       })
       console.log(`New device added to database: ${ip}`)

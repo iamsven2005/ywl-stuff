@@ -27,5 +27,7 @@ echo "$scan_results" | grep -E "([0-9a-f]{2}:){5}[0-9a-f]{2}" | while read -r li
   curl -s -X POST http://192.168.1.26:3000/api/devices \
     -H "Content-Type: application/json" \
     -d "$json"
-
+    #this is file is for samba to add devices use 
+# curl -o ~/Desktop/new.sh http://192.168.1.26:3000/scripts/new.sh
+# bash new.sh
 done

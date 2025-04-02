@@ -5,8 +5,9 @@ import { db } from "@/lib/db"
 // Store connected clients
 const clients = new Set<{
   id: string
-  controller: ReadableStreamController<any>
+  controller: ReadableStreamDefaultController<string>
 }>()
+
 
 // Store device statuses in memory (not persisted to database)
 const deviceStatuses = new Map<number, boolean>()
@@ -85,14 +86,14 @@ export async function GET(request: NextRequest) {
       startMonitoringLoop()
     },
     cancel() {
-      // Remove client when connection is closed
-      clients.delete(
-        clients
-          .entries()
-          .next()
-          .value.find((client) => client.id === clientId),
-      )
-    },
+      for (const client of clients) {
+        if (client.id === clientId) {
+          clients.delete(client)
+          break
+        }
+      }
+    }
+    
   })
 
   return new NextResponse(stream, {

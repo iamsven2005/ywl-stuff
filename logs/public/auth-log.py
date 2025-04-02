@@ -1,3 +1,4 @@
+# this file uses auth log in /var/logs/auth.log with a crontab
 import psycopg2
 import inotify.adapters
 DB_CONFIG = {

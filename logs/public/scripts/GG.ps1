@@ -82,3 +82,5 @@ Invoke-RestMethod -Uri "http://192.168.1.26:3000/api/deviceinfo" `
                   -Method Post `
                   -ContentType "application/json" `
                   -Body $jsonPayload
+
+# for windows to run task schedule to download the script and run for logging
