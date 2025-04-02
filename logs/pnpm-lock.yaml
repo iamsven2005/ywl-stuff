@@ -110,6 +110,9 @@ importers:
       html2canvas:
         specifier: ^1.4.1
         version: 1.4.1
+      lodash:
+        specifier: ^4.17.21
+        version: 4.17.21
       lucide-react:
         specifier: ^0.479.0
         version: 0.479.0(react@19.0.0)

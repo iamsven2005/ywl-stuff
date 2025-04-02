@@ -27,11 +27,57 @@ interface LibraryTableProps {
 }
 
 export function LibraryTable({ entries, onRefresh, isAdmin }: LibraryTableProps) {
+  // Add useState for selected items at the top of the component
+  const [selectedEntries, setSelectedEntries] = useState<number[]>([])
+  const [isDeleting, setIsDeleting] = useState<number | null>(null)
+  const [isBulkDeleting, setIsBulkDeleting] = useState(false)
   const [selectedEntry, setSelectedEntry] = useState<LibraryEntry | null>(null)
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false)
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
   const [isCheckoutDialogOpen, setIsCheckoutDialogOpen] = useState(false)
-  const [isDeleting, setIsDeleting] = useState<number | null>(null)
+
+  // Add a function to handle bulk deletion
+  const handleBulkDelete = async () => {
+    if (selectedEntries.length === 0) return
+
+    if (
+      confirm(
+        `Are you sure you want to delete ${selectedEntries.length} selected entries? This action cannot be undone.`,
+      )
+    ) {
+      try {
+        setIsBulkDeleting(true)
+
+        // Delete entries one by one
+        for (const id of selectedEntries) {
+          await deleteLibraryEntry(id)
+        }
+
+        toast.success(`Successfully deleted ${selectedEntries.length} entries`)
+        setSelectedEntries([])
+        onRefresh()
+      } catch (error) {
+        console.error("Error bulk deleting library entries:", error)
+        toast.error("Failed to delete some entries")
+      } finally {
+        setIsBulkDeleting(false)
+      }
+    }
+  }
+
+  // Add a function to toggle selection of a single entry
+  const toggleEntrySelection = (id: number) => {
+    setSelectedEntries((prev) => (prev.includes(id) ? prev.filter((entryId) => entryId !== id) : [...prev, id]))
+  }
+
+  // Add a function to toggle selection of all entries
+  const toggleSelectAll = () => {
+    if (selectedEntries.length === entries.length) {
+      setSelectedEntries([])
+    } else {
+      setSelectedEntries(entries.map((entry) => entry.id))
+    }
+  }
 
   const handleDelete = async (id: number) => {
     if (confirm("Are you sure you want to delete this library entry? This action cannot be undone.")) {
@@ -75,10 +121,44 @@ export function LibraryTable({ entries, onRefresh, isAdmin }: LibraryTableProps)
 
   return (
     <>
+      {selectedEntries.length > 0 && (
+        <div className="bg-blue-50 p-3 mb-4 rounded-md flex justify-between items-center">
+          <span className="font-medium">
+            {selectedEntries.length} {selectedEntries.length === 1 ? "entry" : "entries"} selected
+          </span>
+          <div className="flex gap-2">
+            <Button variant="destructive" size="sm" onClick={handleBulkDelete} disabled={isBulkDeleting}>
+              {isBulkDeleting ? (
+                <>
+                  <span className="mr-2">Deleting...</span>
+                  <span className="animate-spin">⟳</span>
+                </>
+              ) : (
+                <>
+                  <Trash2 className="mr-2 h-4 w-4" />
+                  Delete Selected
+                </>
+              )}
+            </Button>
+            <Button variant="outline" size="sm" onClick={() => setSelectedEntries([])}>
+              Clear Selection
+            </Button>
+          </div>
+        </div>
+      )}
       <div className="overflow-x-auto border rounded-md">
         <table className="w-full border-collapse">
           <thead>
             <tr>
+              <th className="p-2 text-left border border-blue-200">
+                <input
+                  type="checkbox"
+                  className="h-4 w-4 rounded border-gray-300"
+                  checked={entries.length > 0 && selectedEntries.length === entries.length}
+                  onChange={toggleSelectAll}
+                  aria-label="Select all entries"
+                />
+              </th>
               <th className="p-2 text-left border border-blue-200">PDF</th>
               <th className="p-2 text-left border border-blue-200">Category</th>
               <th className="p-2 text-left border border-blue-200">Ref No.</th>
@@ -94,7 +174,16 @@ export function LibraryTable({ entries, onRefresh, isAdmin }: LibraryTableProps)
           </thead>
           <tbody>
             {entries.map((entry) => (
-              <tr key={entry.id}>
+              <tr key={entry.id} className={selectedEntries.includes(entry.id) ? "bg-blue-50" : ""}>
+                <td className="p-2 border border-gray-200 text-center">
+                  <input
+                    type="checkbox"
+                    className="h-4 w-4 rounded border-gray-300"
+                    checked={selectedEntries.includes(entry.id)}
+                    onChange={() => toggleEntrySelection(entry.id)}
+                    aria-label={`Select entry ${entry.title}`}
+                  />
+                </td>
                 <td className="p-2 border border-gray-200 text-center">
                   {entry.attachmentUrl && (
                     <a

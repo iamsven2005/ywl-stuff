@@ -13,7 +13,12 @@ import Book from "./types"
 interface BookListProps {
   books: Book[]
 }
-
+interface SaveBooksResponse {
+    success: boolean
+    message: string
+    count: number
+  }
+  
 export function BookList({ books }: BookListProps) {
   const [searchTerm, setSearchTerm] = useState("")
   const [isSaving, setIsSaving] = useState(false)
