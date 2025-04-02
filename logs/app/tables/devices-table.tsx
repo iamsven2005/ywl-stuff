@@ -51,6 +51,7 @@ import { addDevice, deleteDevice, getDevices, updateDevice } from "../actions/de
 import { exportToExcel, generateDeviceImportTemplate, prepareDevicesForExport } from "../export-utils"
 import { DeviceStatusIndicator } from "@/components/device-status-indicator"
 // Import the DeviceStatusIndicator component
+import { useDeviceStatus } from "../hooks/use-device-status" // Adjust path if needed
 
 // Debounce function to limit how often a function can run
 function debounce<T extends (...args: any[]) => any>(func: T, wait: number): (...args: Parameters<T>) => void {
@@ -127,6 +128,7 @@ export default function DevicesTable() {
     // Reset to first page when search changes
     setCurrentPage(1)
   }, 300)
+  const { deviceStatuses, isConnected } = useDeviceStatus()
 
   // Update search query and trigger debounced search
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -605,7 +607,7 @@ export default function DevicesTable() {
                     return <DeviceStatusIndicator deviceId={deviceId} />;
                   } */}
                   <TableCell>
-                    <DeviceStatusIndicator deviceId={device.id} />
+                  <DeviceStatusIndicator status={deviceStatuses[device.id]} isConnected={isConnected} />
                   </TableCell>
                   <TableCell>
                     <div className="flex gap-2">
