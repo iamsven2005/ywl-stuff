@@ -61,11 +61,11 @@ async function startMonitoringLoop() {
       }
 
       // Sleep for 30 seconds before the next check
-      await new Promise((resolve) => setTimeout(resolve, 30000))
+      await new Promise((resolve) => setTimeout(resolve, 3000))
     } catch (error) {
       console.error("Error in monitoring loop:", error)
       // Sleep for 10 seconds before retrying after an error
-      await new Promise((resolve) => setTimeout(resolve, 10000))
+      await new Promise((resolve) => setTimeout(resolve, 1000))
     }
   }
 

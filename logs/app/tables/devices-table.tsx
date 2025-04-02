@@ -64,7 +64,7 @@ function debounce<T extends (...args: any[]) => any>(func: T, wait: number): (..
 }
 
 // Page size options
-const pageSizeOptions = [10, 25, 50, 100]
+const pageSizeOptions = [5, 10, 25, 50, 100]
 
 // Device type definition
 interface DeviceRow {
@@ -602,10 +602,6 @@ export default function DevicesTable() {
                   <TableCell>
                     <div className="max-w-[300px] truncate">{device.notes}</div>
                   </TableCell>
-                  {/* cell: ({ row }) => {
-                    const deviceId = row.original.id;
-                    return <DeviceStatusIndicator deviceId={deviceId} />;
-                  } */}
                   <TableCell>
                   <DeviceStatusIndicator status={deviceStatuses[device.id]} isConnected={isConnected} />
                   </TableCell>
