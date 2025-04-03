@@ -144,6 +144,11 @@ export function TicketStats() {
         <CardHeader className="pb-2">
           <CardTitle>Ticket Breakdown</CardTitle>
           <CardDescription>Current status of support tickets</CardDescription>
+                <div>5 emergency - problem is causing serious disruption to operation, must solve immediately</div>
+                <div>4 urgent - urgent but can still accept taking more than half a day to solve the problem</div>
+                <div>3 high</div>
+                <div>2 medium</div>
+                <div>1 low</div>
         </CardHeader>
         <CardContent >
           <Tabs defaultValue="status" >

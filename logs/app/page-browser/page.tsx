@@ -1,8 +1,19 @@
+import { notFound, redirect } from "next/navigation"
 import { getPages } from "../actions/page-actions"
+import { getCurrentUser } from "../login/actions"
 import { PageBrowserClient } from "./page-browser-client"
+import { checkUserPermission } from "../actions/permission-actions"
 
 export default async function PageBrowser() {
   const { pages = [], error } = await getPages()
+      const currentUser = await getCurrentUser()
+      if (!currentUser) {
+        redirect("/login")
+      }
+      const perm = await checkUserPermission(currentUser.id, "/page-browser")
+      if (perm.hasPermission === false) {
+        return notFound()
+      }
 
   // Base URL for the iframe
   const baseUrl = "http://192.168.1.71:8000/wci1/menu"

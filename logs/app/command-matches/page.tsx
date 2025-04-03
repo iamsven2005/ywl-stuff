@@ -21,7 +21,7 @@ export default async function CommandMatchesPage({
     redirect("/login")
     return
   }
-  const perm = await checkUserPermission(currentUser.id, "/command")
+  const perm = await checkUserPermission(currentUser.id, "/command-matches")
   if (perm.hasPermission === false) {
     return notFound()
   }

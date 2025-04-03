@@ -12,7 +12,7 @@ export async function ChatLayout() {
   const currentUser = await getCurrentUser()
   if (!currentUser) {
     redirect("/login")
-    return
+    
   }
   const perm = await checkUserPermission(currentUser.id, "/chat")
   if (perm.hasPermission === false) {

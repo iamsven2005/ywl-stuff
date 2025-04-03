@@ -18,7 +18,6 @@ export default async function EditAlertConditionPage({
   const currentUser = await getCurrentUser()
   if (!currentUser) {
     redirect("/login")
-    return
   }
   const perm = await checkUserPermission(currentUser.id, "/alerts")
   if (perm.hasPermission === false) {

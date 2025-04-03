@@ -9,7 +9,7 @@ export default async function ProfilePage() {
   if (!currentUser) {
     redirect("/login")
   }
-  const perm = await checkUserPermission(currentUser.id, "/alerts")
+  const perm = await checkUserPermission(currentUser.id, "/profile")
   if (perm.hasPermission === false) {
     return notFound()
   }

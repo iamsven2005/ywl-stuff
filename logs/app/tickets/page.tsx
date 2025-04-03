@@ -40,7 +40,7 @@ export default async function TicketsPage({
   const pageSize = typeof  searchParams.pageSize === "string" ? Number.parseInt( searchParams.pageSize) : 10
 
   return (
-    <div className="container mx-auto py-6">
+    <div className="container mx-auto py-6 p-5">
       <DatabaseStatusBar />
 
       <div className="flex justify-between items-center mb-6">

@@ -21,6 +21,7 @@ import { Loader2, Trash2, Edit } from "lucide-react"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area"
 import { ModelEntry, User } from "@prisma/client"
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 
 interface ModelEntryModalProps {
   projectId: number
@@ -223,9 +224,12 @@ export function ModelEntryModal({ projectId, isOpen, onClose, onSuccess }: Model
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[800px]">
         <DialogHeader>
-          <DialogTitle>Add Model Entry</DialogTitle>
+          <DialogTitle>Model Entry</DialogTitle>
         </DialogHeader>
-
+        <Accordion type="single" collapsible className="w-full">
+        <AccordionItem value="item-1">
+        <AccordionTrigger>Add Entry</AccordionTrigger>
+        <AccordionContent>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4 py-4">
             <FormField
@@ -298,13 +302,13 @@ export function ModelEntryModal({ projectId, isOpen, onClose, onSuccess }: Model
             </DialogFooter>
           </form>
         </Form>
-        <div className="space-y-4">
-  <div>
-    <label>Upload HTML File</label>
+        
+        </AccordionContent>
+        </AccordionItem>
+        <AccordionItem value="item-2">
+        <AccordionTrigger>Upload HTML File</AccordionTrigger>
+        <AccordionContent>
     <Input type="file" accept=".html,text/html" onChange={handleFileUpload} />
-  </div>
-
-  <div>
     <label>Or paste HTML content</label>
     <Textarea
       placeholder="Paste raw HTML source here..."
@@ -315,19 +319,15 @@ export function ModelEntryModal({ projectId, isOpen, onClose, onSuccess }: Model
         setParsedHtml(doc)
       }}
     />
-  </div>
-
-  <div>
     <Button variant="secondary" onClick={handleImportFromHTML} disabled={!parsedHtml}>
       Import Entries from HTML
     </Button>
-  </div>
-</div>
-
-
-        {/* Display existing model entries */}
+    </AccordionContent>
+      </AccordionItem>
+      <AccordionItem value="item-3">
+        <AccordionTrigger>Existing Model Entries</AccordionTrigger>
+        <AccordionContent>
         <div className="mt-6">
-          <h3 className="text-lg font-medium">Existing Model Entries</h3>
           <Input
             type="search"
             placeholder="Search entries..."
@@ -404,6 +404,11 @@ export function ModelEntryModal({ projectId, isOpen, onClose, onSuccess }: Model
             </ScrollArea>
           )}
         </div>
+        </AccordionContent>
+        </AccordionItem>
+    </Accordion>
+
+
       </DialogContent>
     </Dialog>
   )
