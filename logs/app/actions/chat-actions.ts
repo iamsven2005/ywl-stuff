@@ -247,12 +247,6 @@ export async function getAllUsers() {
     where: {
       id: { not: user.id }, // Exclude current user
     },
-    select: {
-      id: true,
-      username: true,
-      email: true,
-      role: true,
-    },
     orderBy: { username: "asc" },
   })
 
