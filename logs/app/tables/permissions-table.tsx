@@ -28,6 +28,7 @@ import {
   getAllRoles,
   getAllUsersForPermissions,
 } from "@/app/actions/permission-actions"
+import Link from "next/link"
 
 export default function PermissionsTable() {
   const router = useRouter()
@@ -268,7 +269,7 @@ export default function PermissionsTable() {
                 <TableRow key={permission.id}>
                   <TableCell>{permission.id}</TableCell>
                   <TableCell>
-                    <div className="font-medium">{permission.route}</div>
+                    <Link href={permission.route} className="font-medium">{permission.route}</Link>
                   </TableCell>
                   <TableCell>{permission.description || "—"}</TableCell>
                   <TableCell>
