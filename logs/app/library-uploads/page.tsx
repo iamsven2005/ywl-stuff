@@ -1,5 +1,5 @@
 import UploadForm from "./upload-form";
-
+// This page is for upload of books from html file
 export default function UploadsPage() {
   return (
     <div className="container mx-auto py-8 px-4">
@@ -11,4 +11,3 @@ export default function UploadsPage() {
     </div>
   )
 }
-

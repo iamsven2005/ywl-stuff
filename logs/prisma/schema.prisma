@@ -476,3 +476,8 @@ model UserPermission {
 
   @@unique([userId, pagePermissionId])
 }
+
+model pages{
+  id              Int       @id @default(autoincrement())
+notes String?
+}
