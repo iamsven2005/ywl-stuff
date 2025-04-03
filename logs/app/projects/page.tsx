@@ -10,11 +10,12 @@ import { Badge } from "@/components/ui/badge"
 import { getAllProjects, getProjectTypes, assignProjectType } from "./actions" // Import actions
 import type { User } from "@prisma/client"
 import { toast } from "sonner"
-import { Plus, HardDrive } from "lucide-react"
+import { Plus, HardDrive, Upload } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { AddProjectModal } from "./add-project-modal"
 import { AssignUsersModal } from "./assign-users-modal"
 import { ModelEntryModal } from "./model-entry-modal"
+import UploadProjects from "./upload-projects"
 
 interface Project {
   id: number
@@ -54,6 +55,7 @@ export default function ProjectsPage() {
   const [availableUsers, setAvailableUsers] = useState<User[]>([])
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [addModalOpen, setAddModalOpen] = useState(false)
+  const [isUploadModalOpen, setIsUploadModalOpen] = useState(false)
 
   useEffect(() => {
     fetchData()
@@ -134,7 +136,10 @@ export default function ProjectsPage() {
           <Plus className="h-4 w-4" />
           Add Project
         </Button>
-      </div>
+        <Button variant="outline" onClick={() => setIsUploadModalOpen(true)}>
+            <Upload className="h-4 w-4 mr-2" />
+            Upload Projects
+          </Button>      </div>
 
       <Card className="mb-6">
         <CardHeader>
@@ -240,6 +245,7 @@ export default function ProjectsPage() {
         onClose={closeModelEntryModal}
         onSuccess={fetchData}
       />
+    <UploadProjects isOpen={isUploadModalOpen} onClose={() => setIsUploadModalOpen(false)} onSuccess={fetchData} />
     </div>
   )
 }

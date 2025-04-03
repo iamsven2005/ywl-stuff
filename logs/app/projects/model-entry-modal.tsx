@@ -19,7 +19,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { getAllUsersForPermissions } from "./actions"
 import { Loader2, Trash2, Edit } from "lucide-react"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { ScrollArea } from "@/components/ui/scroll-area"
+import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area"
 import { ModelEntry, User } from "@prisma/client"
 
 interface ModelEntryModalProps {
@@ -45,6 +45,7 @@ export function ModelEntryModal({ projectId, isOpen, onClose, onSuccess }: Model
   const [loadingEntries, setLoadingEntries] = useState(true)
   const [searchQuery, setSearchQuery] = useState("")
   const [editingEntryId, setEditingEntryId] = useState<number | null>(null)
+  const [parsedHtml, setParsedHtml] = useState<Document | null>(null)
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -151,10 +152,76 @@ export function ModelEntryModal({ projectId, isOpen, onClose, onSuccess }: Model
   const filteredModelEntries = modelEntries.filter((entry: ModelEntry) =>
     entry.code.toLowerCase().includes(searchQuery.toLowerCase()),
   )
-
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+  
+    const reader = new FileReader()
+    reader.onload = () => {
+      const htmlString = reader.result as string
+      const parser = new DOMParser()
+      const doc = parser.parseFromString(htmlString, "text/html")
+      setParsedHtml(doc)
+      toast.success("HTML file loaded and parsed.")
+    }
+    reader.onerror = () => {
+      toast.error("Failed to read file.")
+    }
+    reader.readAsText(file)
+  }
+  
+  const handleImportFromHTML = async () => {
+    if (!parsedHtml) return
+  
+    try {
+      const entries: { code: string; description: string; createBy: string }[] = []
+  
+      const codes = Array.from(parsedHtml.querySelectorAll('input[name="modelCode"]'))
+      const descs = Array.from(parsedHtml.querySelectorAll('input[name="modelDesc"]'))
+      const users = Array.from(parsedHtml.querySelectorAll('input[name="modelCreUsr"]'))
+  
+      for (let i = 0; i < codes.length; i++) {
+        const code = codes[i]?.getAttribute("value") || ""
+        const description = descs[i]?.getAttribute("value") || ""
+        const createBy = users[i]?.nextSibling?.textContent?.trim() || "unknown"
+  
+        if (code && createBy) {
+          entries.push({ code, description, createBy })
+        }
+      }
+  
+      if (entries.length === 0) {
+        toast.error("No valid entries found.")
+        return
+      }
+  
+      setIsSubmitting(true)
+      for (const entry of entries) {
+        await createModelEntry({
+          projectId,
+          code: entry.code,
+          description: entry.description,
+          createBy: entry.createBy,
+        })
+      }
+  
+      toast.success(`${entries.length} entries imported successfully`)
+      fetchModelEntries()
+      onSuccess()
+      setParsedHtml(null)
+    } catch (error) {
+      console.error("Error importing model entries:", error)
+      toast.error("Failed to import model entries")
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+  
+  
+  
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[600px]">
+      <DialogContent className="sm:max-w-[800px]">
         <DialogHeader>
           <DialogTitle>Add Model Entry</DialogTitle>
         </DialogHeader>
@@ -231,6 +298,13 @@ export function ModelEntryModal({ projectId, isOpen, onClose, onSuccess }: Model
             </DialogFooter>
           </form>
         </Form>
+        <div className="space-y-2">
+  <label>Upload HTML File</label>
+  <Input type="file" accept=".html,text/html" onChange={handleFileUpload} />
+  <Button variant="secondary" onClick={handleImportFromHTML} disabled={!parsedHtml}>
+    Import Entries from File
+  </Button>
+</div>
 
         {/* Display existing model entries */}
         <div className="mt-6">
@@ -249,7 +323,9 @@ export function ModelEntryModal({ projectId, isOpen, onClose, onSuccess }: Model
           ) : filteredModelEntries.length === 0 ? (
             <div className="text-center p-4 text-muted-foreground">No model entries found.</div>
           ) : (
-            <ScrollArea className="max-h-64">
+            <ScrollArea className="h-72 w-190 rounded-md border">
+                      <ScrollBar orientation="horizontal" />
+
               <Table>
                 <TableHeader>
                   <TableRow>
@@ -263,8 +339,8 @@ export function ModelEntryModal({ projectId, isOpen, onClose, onSuccess }: Model
                   {filteredModelEntries.map((entry: ModelEntry
                   ) => (
                     <TableRow key={entry.id}>
-                      <TableCell>{entry.code}</TableCell>
-                      <TableCell>{entry.description}</TableCell>
+                      <TableCell className="max-w-[200px] whitespace-normal break-words">{entry.code}</TableCell>
+                      <TableCell className="max-w-[200px] whitespace-normal break-words">{entry.description}</TableCell>
                       <TableCell>{entry.createBy}</TableCell>
                       <TableCell className="text-right">
                         {editingEntryId === entry.id ? (
