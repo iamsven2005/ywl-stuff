@@ -10,10 +10,11 @@ import { Badge } from "@/components/ui/badge"
 import { getAllProjects, getProjectTypes, assignProjectType } from "./actions" // Import actions
 import type { User } from "@prisma/client"
 import { toast } from "sonner"
-import { Plus } from "lucide-react"
+import { Plus, HardDrive } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { AddProjectModal } from "./add-project-modal"
 import { AssignUsersModal } from "./assign-users-modal"
+import { ModelEntryModal } from "./model-entry-modal"
 
 interface Project {
   id: number
@@ -48,6 +49,7 @@ export default function ProjectsPage() {
   const [searchQuery, setSearchQuery] = useState("")
   const [selectedProjectId, setSelectedProjectId] = useState<number | null>(null)
   const [isAssignModalOpen, setIsAssignModalOpen] = useState(false)
+  const [isModelEntryModalOpen, setIsModelEntryModalOpen] = useState(false)
   const [projectAssignments, setProjectAssignments] = useState<ProjectAssignment[]>([])
   const [availableUsers, setAvailableUsers] = useState<User[]>([])
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -60,10 +62,10 @@ export default function ProjectsPage() {
     const delayDebounce = setTimeout(() => {
       fetchData()
     }, 300) // debounce to avoid spamming queries
-  
+
     return () => clearTimeout(delayDebounce)
   }, [searchQuery])
-  
+
   const fetchData = async () => {
     try {
       setLoading(true)
@@ -82,7 +84,6 @@ export default function ProjectsPage() {
     e.preventDefault()
     fetchData()
   }
-  
 
   const handleProjectTypeChange = async (projectId: number, projectTypeId: string) => {
     try {
@@ -104,6 +105,16 @@ export default function ProjectsPage() {
   const closeAssignModal = () => {
     setSelectedProjectId(null)
     setIsAssignModalOpen(false)
+  }
+
+  const openModelEntryModal = (projectId: number) => {
+    setSelectedProjectId(projectId)
+    setIsModelEntryModalOpen(true)
+  }
+
+  const closeModelEntryModal = () => {
+    setSelectedProjectId(null)
+    setIsModelEntryModalOpen(false)
   }
 
   // Function to format date
@@ -130,17 +141,16 @@ export default function ProjectsPage() {
           <CardTitle>Search Projects</CardTitle>
         </CardHeader>
         <CardContent>
-        <form onSubmit={handleSearch} className="flex items-center space-x-2">
-  <Input
-    type="text"
-    placeholder="Search projects..."
-    value={searchQuery}
-    onChange={(e) => setSearchQuery(e.target.value)}
-    className="flex-1"
-  />
-  <Button type="submit">Search</Button>
-</form>
-
+          <form onSubmit={handleSearch} className="flex items-center space-x-2">
+            <Input
+              type="text"
+              placeholder="Search projects..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="flex-1"
+            />
+            <Button type="submit">Search</Button>
+          </form>
         </CardContent>
       </Card>
 
@@ -202,6 +212,10 @@ export default function ProjectsPage() {
                     <Button variant="outline" size="sm" onClick={() => openAssignModal(project.id)}>
                       Assign
                     </Button>
+                    <Button variant="outline" size="sm" onClick={() => openModelEntryModal(project.id)}>
+                      <HardDrive className="h-4 w-4 mr-2" />
+                      Model Entry
+                    </Button>
                   </TableCell>
                 </TableRow>
               ))
@@ -220,6 +234,12 @@ export default function ProjectsPage() {
         />
       )}
       <AddProjectModal isOpen={addModalOpen} onClose={() => setAddModalOpen(false)} onSuccess={fetchData} />
+      <ModelEntryModal
+        projectId={selectedProjectId || 0}
+        isOpen={isModelEntryModalOpen}
+        onClose={closeModelEntryModal}
+        onSuccess={fetchData}
+      />
     </div>
   )
 }

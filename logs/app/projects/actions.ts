@@ -189,3 +189,79 @@ export async function createProject(data: {
     throw new Error("Failed to create project")
   }
 }
+
+export async function createModelEntry(data: {
+    projectId: number
+    code: string
+    description: string
+    createBy: string
+  }) {
+    try {
+      const modelEntry = await db.modelEntry.create({
+        data: {
+          projectId: data.projectId,
+          code: data.code,
+          description: data.description,
+          createDate: new Date(),
+          createBy: data.createBy,
+        },
+      })
+  
+      revalidatePath("/projects")
+      return { success: true, modelEntryId: modelEntry.id }
+    } catch (error) {
+      console.error("Error creating model entry:", error)
+      throw new Error("Failed to create model entry")
+    }
+  }
+  
+  export async function getModelEntries(projectId: number) {
+    try {
+      const modelEntries = await db.modelEntry.findMany({
+        where: {
+          projectId: projectId,
+        },
+        orderBy: {
+          createDate: "desc",
+        },
+      })
+  
+      return modelEntries
+    } catch (error) {
+      console.error("Error fetching model entries:", error)
+      throw new Error("Failed to fetch model entries")
+    }
+  }
+  // Update a model entry
+export async function updateModelEntry(id: number, data: { code: string; description: string }) {
+    try {
+      const modelEntry = await db.modelEntry.update({
+        where: { id },
+        data: {
+          code: data.code,
+          description: data.description,
+          modifyDate: new Date(),
+          modifyBy: "Admin", // Replace with actual user
+        },
+      })
+      revalidatePath("/projects")
+      return { success: true, modelEntry }
+    } catch (error) {
+      console.error("Error updating model entry:", error)
+      throw new Error("Failed to update model entry")
+    }
+  }
+  
+  // Delete a model entry
+  export async function deleteModelEntry(id: number) {
+    try {
+      await db.modelEntry.delete({
+        where: { id },
+      })
+      revalidatePath("/projects")
+      return { success: true }
+    } catch (error) {
+      console.error("Error deleting model entry:", error)
+      throw new Error("Failed to delete model entry")
+    }
+  }
