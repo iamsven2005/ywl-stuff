@@ -298,13 +298,32 @@ export function ModelEntryModal({ projectId, isOpen, onClose, onSuccess }: Model
             </DialogFooter>
           </form>
         </Form>
-        <div className="space-y-2">
-  <label>Upload HTML File</label>
-  <Input type="file" accept=".html,text/html" onChange={handleFileUpload} />
-  <Button variant="secondary" onClick={handleImportFromHTML} disabled={!parsedHtml}>
-    Import Entries from File
-  </Button>
+        <div className="space-y-4">
+  <div>
+    <label>Upload HTML File</label>
+    <Input type="file" accept=".html,text/html" onChange={handleFileUpload} />
+  </div>
+
+  <div>
+    <label>Or paste HTML content</label>
+    <Textarea
+      placeholder="Paste raw HTML source here..."
+      className="min-h-[120px]"
+      onChange={(e) => {
+        const parser = new DOMParser()
+        const doc = parser.parseFromString(e.target.value, "text/html")
+        setParsedHtml(doc)
+      }}
+    />
+  </div>
+
+  <div>
+    <Button variant="secondary" onClick={handleImportFromHTML} disabled={!parsedHtml}>
+      Import Entries from HTML
+    </Button>
+  </div>
 </div>
+
 
         {/* Display existing model entries */}
         <div className="mt-6">
