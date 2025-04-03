@@ -18,17 +18,21 @@ import { ModelEntryModal } from "./model-entry-modal"
 import UploadProjects from "./upload-projects"
 
 interface Project {
-  id: number
-  businessCode: string
-  projectCode: string
-  name: string
-  createDate: Date
-  projectType?: {
     id: number
+    businessCode: string
+    projectCode: string
     name: string
-  } | null
-  assignments: ProjectAssignment[]
-}
+    createDate: Date
+    projectType?: {
+      id: number
+      name: string
+    } | null
+    assignments: ProjectAssignment[]
+    _count?: {
+      models: number
+    }
+  }
+  
 
 interface ProjectType {
   id: number
@@ -220,7 +224,7 @@ export default function ProjectsPage() {
                     </Button>
                     <Button variant="outline" size="sm" onClick={() => openModelEntryModal(project.id)}>
                       <HardDrive className="h-4 w-4 mr-2" />
-                      Model Entry
+                      Model Entry {project._count?.models ?? 0}
                     </Button>
                   </TableCell>
                 </TableRow>

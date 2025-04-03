@@ -16,6 +16,9 @@ export async function getAllProjects(search = "") {
     const projects = await db.project.findMany({
       where,
       include: {
+        _count: {
+            select: { models: true },
+          },
         projectType: {
           select: {
             id: true,
