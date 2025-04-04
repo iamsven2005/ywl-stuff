@@ -3,7 +3,7 @@ import json
 import requests
 import getpass
 
-API_ENDPOINT = "http://192.168.1.102/api/users"
+API_ENDPOINT = "http://192.168.1.26:3000/api/users/"
 
 def get_samba_users(sudo_password: str):
     try:
