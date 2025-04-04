@@ -36,7 +36,8 @@ export async function POST(req: NextRequest) {
         try {
           const ldapData = parseLdapData(userEntry)
           const user = await processAndSaveLdapUser(ldapData)
-          results.push(user)
+          // Convert BigInt values to strings before returning
+          results.push(serializeUser(user))
         } catch (error) {
           console.error("Error processing LDAP entry:", error)
           errors.push(error instanceof Error ? error.message : String(error))
@@ -62,7 +63,8 @@ export async function POST(req: NextRequest) {
       const ldapData = parseLdapData(ldapText)
       const user = await processAndSaveLdapUser(ldapData)
 
-      return NextResponse.json({ success: true, user })
+      // Convert BigInt values to strings before returning
+      return NextResponse.json({ success: true, user: serializeUser(user) })
     }
   } catch (error) {
     console.error("Error importing LDAP data:", error)
@@ -73,6 +75,17 @@ export async function POST(req: NextRequest) {
       },
       { status: 500 },
     )
+  }
+}
+
+// Helper function to serialize user object with BigInt values
+function serializeUser(user: any) {
+  return {
+    ...user,
+    pwdLastSet: user.pwdLastSet !== null ? user.pwdLastSet.toString() : null,
+    lastLogon: user.lastLogon !== null ? user.lastLogon.toString() : null,
+    lastLogonTimestamp: user.lastLogonTimestamp !== null ? user.lastLogonTimestamp.toString() : null,
+    accountExpires: user.accountExpires !== null ? user.accountExpires.toString() : null,
   }
 }
 
