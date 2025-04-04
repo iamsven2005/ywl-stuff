@@ -10,7 +10,6 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ success: false, error: "Missing ldapData as string" }, { status: 400 })
     }
 
-    // Parse the entries
     const userEntries = splitLdapEntries(data.ldapData)
     console.log(`Found ${userEntries.length} entries`)
 
@@ -23,7 +22,8 @@ export async function POST(req: NextRequest) {
         const user = await processAndSaveLdapUser(ldapData)
         results.push(serializeUser(user))
       } catch (error) {
-        console.error("Failed to process entry:", error)
+        console.error("Failed to process entry:", entry)
+        console.error("Error details:", error)
         errors.push(error instanceof Error ? error.message : String(error))
       }
     }
@@ -37,7 +37,10 @@ export async function POST(req: NextRequest) {
     })
   } catch (error) {
     console.error("Batch import error:", error)
-    return NextResponse.json({ success: false, error: "Server error" }, { status: 500 })
+    return NextResponse.json({
+      success: false,
+      error: error instanceof Error ? error.message : String(error),
+    }, { status: 500 })
   }
 }
 
