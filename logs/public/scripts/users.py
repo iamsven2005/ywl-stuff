@@ -1,65 +1,74 @@
 import subprocess
+import getpass
 import json
 import requests
-import getpass
 
-API_ENDPOINT = "http://192.168.1.26:3000/api/users/"
+API_ENDPOINT = "http://192.168.1.26:3000/api/users"
 
-def get_samba_users(sudo_password: str):
+def run_sudo_command(command: list, password: str):
     try:
-        # Run pdbedit with sudo, providing password via stdin
         result = subprocess.run(
-            ["sudo", "-S", "pdbedit", "-L", "-v"],
+            ["sudo", "-S"] + command,
+            input=password + "\n",
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
-            text=True,
-            input=sudo_password + "\n",
+            text=True
         )
-
         if result.returncode != 0:
-            print("[ERROR] Failed to run pdbedit:", result.stderr.strip())
-            return []
-
-        raw_output = result.stdout
-        users = []
-        user_block = {}
-
-        for line in raw_output.splitlines():
-            if not line.strip():
-                if user_block:
-                    users.append(user_block)
-                    user_block = {}
-                continue
-
-            if ':' in line:
-                key, value = line.split(':', 1)
-                user_block[key.strip()] = value.strip()
-
-        if user_block:
-            users.append(user_block)
-
-        return users
-
+            print(f"[ERROR] Command failed: {' '.join(command)}")
+            print(result.stderr.strip())
+            return None
+        return result.stdout
     except Exception as e:
-        print("[ERROR] Exception while getting users:", e)
+        print("[ERROR] Exception during command:", e)
+        return None
+
+def get_usernames(password: str):
+    output = run_sudo_command(["samba-tool", "user", "list"], password)
+    if not output:
         return []
+    return [line.strip() for line in output.strip().splitlines() if line.strip()]
+
+def get_user_info(username: str, password: str):
+    output = run_sudo_command(["samba-tool", "user", "show", username], password)
+    if not output:
+        return None
+
+    info = {}
+    for line in output.strip().splitlines():
+        if ":" in line:
+            key, value = line.split(":", 1)
+            info[key.strip()] = value.strip()
+    return info
 
 def send_users_to_api(users):
     try:
         response = requests.post(API_ENDPOINT, json={"users": users}, timeout=10)
         if response.status_code == 200:
-            print("[SUCCESS] Users sent successfully.")
+            print("[SUCCESS] Data sent successfully.")
         else:
-            print(f"[ERROR] Server responded with status {response.status_code}: {response.text}")
+            print(f"[ERROR] API responded with {response.status_code}: {response.text}")
     except Exception as e:
-        print("[ERROR] Failed to send users to API:", e)
+        print("[ERROR] Failed to send data to API:", e)
+
+def main():
+    password = getpass.getpass("Enter sudo password: ")
+    print("[INFO] Getting user list...")
+    usernames = get_usernames(password)
+
+    if not usernames:
+        print("[INFO] No Samba users found.")
+        return
+
+    all_user_data = []
+    for username in usernames:
+        print(f"[INFO] Fetching info for user: {username}")
+        info = get_user_info(username, password)
+        if info:
+            all_user_data.append(info)
+
+    print(f"[INFO] Retrieved {len(all_user_data)} users.")
+    send_users_to_api(all_user_data)
 
 if __name__ == "__main__":
-    sudo_pwd = getpass.getpass("Enter sudo password: ")
-
-    samba_users = get_samba_users(sudo_pwd)
-    if samba_users:
-        print(f"[INFO] Found {len(samba_users)} Samba users.")
-        send_users_to_api(samba_users)
-    else:
-        print("[INFO] No Samba users found or command failed.")
+    main()
