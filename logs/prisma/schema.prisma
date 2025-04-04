@@ -551,3 +551,33 @@ model location{
   createBy   String
   modifyDate DateTime? @default(now())
 }
+model LdapUser {
+  id                Int       @id @default(autoincrement())
+  distinguishedName String    @unique
+  objectGUID        String?   @unique
+  objectSid         String?
+  cn                String
+  sn                String?
+  givenName         String?
+  displayName       String?
+  sAMAccountName    String?
+  userPrincipalName String?
+  whenCreated       DateTime?
+  whenChanged       DateTime?
+  pwdLastSet        BigInt?
+  lastLogon         BigInt?
+  lastLogonTimestamp BigInt?
+  userAccountControl Int?
+  accountExpires    BigInt?
+  badPwdCount       Int?
+  logonCount        Int?
+  primaryGroupID    Int?
+  objectCategory    String?
+  importedAt        DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  
+  // Additional fields that might be useful
+  domain            String?
+  isActive          Boolean   @default(true)
+  notes             String?
+}
