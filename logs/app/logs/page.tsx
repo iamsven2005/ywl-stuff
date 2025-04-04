@@ -21,6 +21,7 @@ import UsersRolesTable from "../tables/user-roles"
 import { DatabaseStatusBar } from "@/components/database-status-bar"
 import DiskUsageChart from "../charts/disk-usage-chart"
 import PermissionsTable from "../tables/permissions-table"
+import LocationsTable from "../tables/locations-table"
 
 export default function LogsPage({userId}: any) {
   const [isBackingUp, setIsBackingUp] = useState(false)
@@ -174,6 +175,8 @@ export default function LogsPage({userId}: any) {
         <TabsContent value="users">
           <Suspense fallback={<LogsTableSkeleton />}>
           <UsersRolesTable/>
+          <LocationsTable/>
+
             <UsersTable />
           </Suspense>
         </TabsContent>

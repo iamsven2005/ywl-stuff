@@ -1,11 +1,9 @@
-"use client";
+"use client"
 
-import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Checkbox } from "@/components/ui/checkbox";
+import { useState, useEffect } from "react"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
 import {
   Dialog,
   DialogContent,
@@ -13,88 +11,90 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
-import { Label } from "@/components/ui/label";
-import { toast } from "sonner";
-import { Plus, Trash2, Edit } from "lucide-react";
+} from "@/components/ui/dialog"
+import { Label } from "@/components/ui/label"
+import { toast } from "sonner"
+import { Plus, Trash2, Edit } from "lucide-react"
 
-import { getRoles, addRole, updateRole, deleteRole } from "@/app/actions/role-actions";
+import { getRoles, addRole, updateRole, deleteRole } from "@/app/actions/role-actions"
 
 export default function UsersRolesTable() {
-  const [roles, setRoles] = useState<any[]>([]);
-  const [roleForm, setRoleForm] = useState({ name: "", description: "" });
-  const [selectedRole, setSelectedRole] = useState<any | null>(null);
-  const [roleModalOpen, setRoleModalOpen] = useState(false);
-  const [isEditing, setIsEditing] = useState(false);
+  const [roles, setRoles] = useState<any[]>([])
+  const [roleForm, setRoleForm] = useState({ name: "", description: "" })
+  const [selectedRole, setSelectedRole] = useState<any | null>(null)
+  const [roleModalOpen, setRoleModalOpen] = useState(false)
+  const [isEditing, setIsEditing] = useState(false)
+  const [searchTerm, setSearchTerm] = useState("")
 
+  // Fetch roles
   const fetchRoles = async () => {
     try {
-      const result = await getRoles();
-  
-      if (result) {
-        setRoles(result.roles || []); // If roles are null, set to an empty array
-      } else {
-        // Handle null response gracefully
-        setRoles([]);
-      }
+      const result = await getRoles()
+      setRoles(result.roles)
     } catch (error) {
-      toast.error("Failed to fetch roles");
-      setRoles([]);
+      toast.error("Failed to fetch roles")
     }
-  };
-  
+  }
+
+  const filteredRoles = roles.filter((role) => {
+    if (!searchTerm) return true
+    const search = searchTerm.toLowerCase()
+    return (
+      role.name.toLowerCase().includes(search) || (role.description && role.description.toLowerCase().includes(search))
+    )
+  })
 
   useEffect(() => {
-    fetchRoles();
-  }, []);
+    fetchRoles()
+  }, [])
 
   // Open role modal
   const openRoleModal = (role: any | null = null) => {
     if (role) {
-      setSelectedRole(role);
-      setRoleForm({ name: role.name, description: role.description });
-      setIsEditing(true);
+      setSelectedRole(role)
+      setRoleForm({ name: role.name, description: role.description })
+      setIsEditing(true)
     } else {
-      setSelectedRole(null);
-      setRoleForm({ name: "", description: "" });
-      setIsEditing(false);
+      setSelectedRole(null)
+      setRoleForm({ name: "", description: "" })
+      setIsEditing(false)
     }
-    setRoleModalOpen(true);
-  };
+    setRoleModalOpen(true)
+  }
 
   // Handle role form submission
   const handleRoleSubmit = async () => {
     if (!roleForm.name) {
-      toast.error("Role name is required");
-      return;
+      toast.error("Role name is required")
+      return
     }
 
     try {
       if (isEditing && selectedRole) {
-        await updateRole(selectedRole.id, roleForm);
-        toast.success("Role updated successfully");
+        await updateRole(selectedRole.id, roleForm)
+        toast.success("Role updated successfully")
       } else {
-        await addRole(roleForm);
-        toast.success("Role added successfully");
+        await addRole(roleForm)
+        toast.success("Role added successfully")
       }
-      fetchRoles();
-      setRoleModalOpen(false);
+      fetchRoles()
+      setRoleModalOpen(false)
     } catch (error) {
-        console.log(error)
-      toast.error("Failed to save role");
+      console.log(error)
+      toast.error("Failed to save role")
     }
-  };
+  }
 
   // Handle delete role
   const handleDeleteRole = async (roleId: number) => {
     try {
-      await deleteRole(roleId);
-      toast.success("Role deleted successfully");
-      fetchRoles();
+      await deleteRole(roleId)
+      toast.success("Role deleted successfully")
+      fetchRoles()
     } catch (error) {
-      toast.error("Failed to delete role");
+      toast.error("Failed to delete role")
     }
-  };
+  }
 
   return (
     <div className="flex gap-6">
@@ -106,6 +106,15 @@ export default function UsersRolesTable() {
             <Plus className="h-4 w-4" /> Add Role
           </Button>
         </div>
+        <div className="mb-4">
+          <Input
+            type="search"
+            placeholder="Search roles..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-full"
+          />
+        </div>
         <Table>
           <TableHeader>
             <TableRow>
@@ -116,14 +125,14 @@ export default function UsersRolesTable() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {roles.length === 0 ? (
+            {filteredRoles.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={4} className="h-24 text-center">
-                  No roles found.
+                  {searchTerm ? "No matching roles found." : "No roles found."}
                 </TableCell>
               </TableRow>
             ) : (
-              roles.map((role) => (
+              filteredRoles.map((role) => (
                 <TableRow key={role.id}>
                   <TableCell>{role.id}</TableCell>
                   <TableCell>{role.name}</TableCell>
@@ -190,5 +199,6 @@ export default function UsersRolesTable() {
         </DialogContent>
       </Dialog>
     </div>
-  );
+  )
 }
+

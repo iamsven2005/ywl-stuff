@@ -543,3 +543,11 @@ model SambaLog {
 
   @@index([timestamp])
 }
+model location{
+  id         Int      @id @default(autoincrement())
+  code       String
+  name       String
+  modifyBy   String?
+  createBy   String
+  modifyDate DateTime? @default(now())
+}
