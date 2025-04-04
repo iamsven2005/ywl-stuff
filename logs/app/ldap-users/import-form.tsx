@@ -6,54 +6,65 @@ import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
 import { useRouter } from "next/navigation"
+import { AlertCircle, Loader2 } from "lucide-react"
+import { Alert, AlertDescription } from "@/components/ui/alert"
 
 export default function LdapImportForm() {
   const [ldapData, setLdapData] = useState("")
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null)
+  const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const [success, setSuccess] = useState(false)
   const router = useRouter()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-
-    if (!ldapData.trim()) {
-      setMessage({ type: "error", text: "Please enter LDAP data" })
-      return
-    }
-
-    setIsSubmitting(true)
-    setMessage(null)
+    setIsLoading(true)
+    setError(null)
+    setSuccess(false)
 
     try {
-      const response = await fetch("/api/ldap-import", {
+      const response = await fetch("/api/users", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(ldapData),
+        body: JSON.stringify({ ldapData }),
       })
 
       const result = await response.json()
 
       if (result.success) {
-        setMessage({ type: "success", text: "LDAP user imported successfully" })
+        setSuccess(true)
         setLdapData("")
         router.refresh()
       } else {
-        setMessage({ type: "error", text: result.error || "Failed to import LDAP user" })
+        setError(result.error || "Failed to import LDAP data")
       }
-    } catch (error) {
-      setMessage({ type: "error", text: "An error occurred while importing LDAP user" })
-      console.error("Error importing LDAP user:", error)
+    } catch (err) {
+      setError("An error occurred while importing LDAP data")
+      console.error(err)
     } finally {
-      setIsSubmitting(false)
+      setIsLoading(false)
     }
   }
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
-      <div>
-        <label htmlFor="ldapData" className="block text-sm font-medium mb-1">
+      {error && (
+        <Alert variant="destructive">
+          <AlertCircle className="h-4 w-4" />
+          <AlertDescription>{error}</AlertDescription>
+        </Alert>
+      )}
+
+      {success && (
+        <Alert className="bg-green-50 text-green-800 border-green-200">
+          <AlertDescription>LDAP user imported successfully!</AlertDescription>
+        </Alert>
+      )}
+
+      <div className="space-y-2">
+        <label htmlFor="ldapData" className="text-sm font-medium">
           LDAP User Data
         </label>
         <Textarea
@@ -61,23 +72,16 @@ export default function LdapImportForm() {
           value={ldapData}
           onChange={(e) => setLdapData(e.target.value)}
           placeholder="Paste LDAP user data here..."
-          rows={10}
+          rows={15}
+          required
           className="font-mono text-sm"
         />
+        <p className="text-xs text-gray-500">Paste the raw LDAP user data in attribute: value format.</p>
       </div>
 
-      {message && (
-        <div
-          className={`p-3 rounded-md ${
-            message.type === "success" ? "bg-green-50 text-green-700" : "bg-red-50 text-red-700"
-          }`}
-        >
-          {message.text}
-        </div>
-      )}
-
-      <Button type="submit" disabled={isSubmitting}>
-        {isSubmitting ? "Importing..." : "Import LDAP User"}
+      <Button type="submit" disabled={isLoading || !ldapData.trim()}>
+        {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+        {isLoading ? "Importing..." : "Import LDAP User"}
       </Button>
     </form>
   )

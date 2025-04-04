@@ -7,107 +7,141 @@ export async function POST(req: NextRequest) {
     console.log("Received LDAP data:", data)
 
     // Parse the LDAP data
-    const ldapUser = parseLdapData(data)
+    const ldapData = parseLdapData(data.ldapData)
 
-    // Store in database using upsert to update if exists or create if new
-    const result = await db.ldapUser.upsert({
+    // Extract domain from distinguishedName
+    const domainMatch = ldapData.distinguishedName?.match(/DC=([^,]+)/g)
+    const domain = domainMatch ? domainMatch.map((dc) => dc.replace("DC=", "")).join(".") : null
+
+    // Convert string timestamps to Date objects
+    const whenCreated = ldapData.whenCreated ? parseLdapTimestamp(ldapData.whenCreated) : null
+
+    const whenChanged = ldapData.whenChanged ? parseLdapTimestamp(ldapData.whenChanged) : null
+
+    // Convert string values to appropriate types
+    const userAccountControl = ldapData.userAccountControl ? Number.parseInt(ldapData.userAccountControl, 10) : null
+
+    const badPwdCount = ldapData.badPwdCount ? Number.parseInt(ldapData.badPwdCount, 10) : null
+
+    const logonCount = ldapData.logonCount ? Number.parseInt(ldapData.logonCount, 10) : null
+
+    const primaryGroupID = ldapData.primaryGroupID ? Number.parseInt(ldapData.primaryGroupID, 10) : null
+
+    // Convert Windows file times to BigInt
+    const pwdLastSet = ldapData.pwdLastSet && ldapData.pwdLastSet !== "0" ? BigInt(ldapData.pwdLastSet) : null
+
+    const lastLogon = ldapData.lastLogon && ldapData.lastLogon !== "0" ? BigInt(ldapData.lastLogon) : null
+
+    const lastLogonTimestamp =
+      ldapData.lastLogonTimestamp && ldapData.lastLogonTimestamp !== "0" ? BigInt(ldapData.lastLogonTimestamp) : null
+
+    const accountExpires =
+      ldapData.accountExpires && ldapData.accountExpires !== "0" ? BigInt(ldapData.accountExpires) : null
+
+    // Create or update the LDAP user in the database
+    const ldapUser = await db.ldapUser.upsert({
       where: {
-        distinguishedName: ldapUser.distinguishedName,
+        distinguishedName: ldapData.distinguishedName || "",
       },
       update: {
-        ...ldapUser,
+        objectGUID: ldapData.objectGUID,
+        objectSid: ldapData.objectSid,
+        cn: ldapData.cn || "",
+        sn: ldapData.sn,
+        givenName: ldapData.givenName,
+        displayName: ldapData.displayName,
+        sAMAccountName: ldapData.sAMAccountName,
+        userPrincipalName: ldapData.userPrincipalName,
+        whenCreated,
+        whenChanged,
+        pwdLastSet,
+        lastLogon,
+        lastLogonTimestamp,
+        userAccountControl,
+        accountExpires,
+        badPwdCount,
+        logonCount,
+        primaryGroupID,
+        objectCategory: ldapData.objectCategory,
+        domain,
+        isActive: userAccountControl ? (userAccountControl & 0x0002) === 0 : true,
         updatedAt: new Date(),
       },
       create: {
-        ...ldapUser,
+        distinguishedName: ldapData.distinguishedName || "",
+        objectGUID: ldapData.objectGUID,
+        objectSid: ldapData.objectSid,
+        cn: ldapData.cn || "",
+        sn: ldapData.sn,
+        givenName: ldapData.givenName,
+        displayName: ldapData.displayName,
+        sAMAccountName: ldapData.sAMAccountName,
+        userPrincipalName: ldapData.userPrincipalName,
+        whenCreated,
+        whenChanged,
+        pwdLastSet,
+        lastLogon,
+        lastLogonTimestamp,
+        userAccountControl,
+        accountExpires,
+        badPwdCount,
+        logonCount,
+        primaryGroupID,
+        objectCategory: ldapData.objectCategory,
+        domain,
+        isActive: userAccountControl ? (userAccountControl & 0x0002) === 0 : true,
         importedAt: new Date(),
+        updatedAt: new Date(),
       },
     })
 
-    return NextResponse.json({ success: true, user: result })
+    return NextResponse.json({ success: true, user: ldapUser })
   } catch (error) {
-    console.error("Error processing LDAP data:", error)
-    return NextResponse.json({ success: false, error: "Failed to process LDAP data" }, { status: 500 })
+    console.error("Error importing LDAP data:", error)
+    return NextResponse.json({ success: false, error: "Failed to import LDAP data" }, { status: 500 })
   }
 }
 
-// Helper function to parse LDAP data format
-function parseLdapData(data: string | Record<string, any>) {
-  // If data is a string (raw LDAP format), parse it
-  if (typeof data === "string") {
-    const lines = data.split("\n")
-    const parsedData: Record<string, any> = {}
+// Helper function to parse LDAP data from text format
+function parseLdapData(ldapText: string) {
+  const lines = ldapText.split("\n")
+  const ldapData: Record<string, string> = {}
 
-    for (const line of lines) {
-      const match = line.match(/^([^:]+):\s*(.*)$/)
-      if (match) {
-        const [, key, value] = match
-        parsedData[key.trim()] = value.trim()
-      }
+  for (const line of lines) {
+    // Skip empty lines
+    if (!line.trim()) continue
+
+    // Parse attribute: value pairs
+    const colonIndex = line.indexOf(":")
+    if (colonIndex > 0) {
+      const attribute = line.substring(0, colonIndex).trim()
+      const value = line.substring(colonIndex + 1).trim()
+      ldapData[attribute] = value
     }
-
-    data = parsedData
   }
 
-  // Convert string timestamps to Date objects
-  const whenCreated = data.whenCreated ? parseTimestamp(data.whenCreated) : null
-
-  const whenChanged = data.whenChanged ? parseTimestamp(data.whenChanged) : null
-
-  return {
-    distinguishedName: data.distinguishedName || "",
-    objectGUID: data.objectGUID || null,
-    objectSid: data.objectSid || null,
-    cn: data.cn || "",
-    sn: data.sn || null,
-    givenName: data.givenName || null,
-    displayName: data.displayName || null,
-    sAMAccountName: data.sAMAccountName || null,
-    userPrincipalName: data.userPrincipalName || null,
-    whenCreated: whenCreated,
-    whenChanged: whenChanged,
-    pwdLastSet: data.pwdLastSet ? BigInt(data.pwdLastSet) : null,
-    lastLogon: data.lastLogon ? BigInt(data.lastLogon) : null,
-    lastLogonTimestamp: data.lastLogonTimestamp ? BigInt(data.lastLogonTimestamp) : null,
-    userAccountControl: data.userAccountControl ? Number.parseInt(data.userAccountControl) : null,
-    accountExpires: data.accountExpires ? BigInt(data.accountExpires) : null,
-    badPwdCount: data.badPwdCount ? Number.parseInt(data.badPwdCount) : null,
-    logonCount: data.logonCount ? Number.parseInt(data.logonCount) : null,
-    primaryGroupID: data.primaryGroupID ? Number.parseInt(data.primaryGroupID) : null,
-    objectCategory: data.objectCategory || null,
-    domain: extractDomain(data.distinguishedName || ""),
-  }
+  return ldapData
 }
 
-// Helper to extract domain from DN
-function extractDomain(dn: string): string | null {
-  const match = dn.match(/DC=([^,]+)/g)
-  if (match) {
-    return match.map((dc) => dc.replace("DC=", "")).join(".")
-  }
-  return null
-}
-
-// Helper to parse LDAP timestamps
-function parseTimestamp(timestamp: string): Date | null {
+// Helper function to parse LDAP timestamp format (YYYYMMDDhhmmss.fZ)
+function parseLdapTimestamp(timestamp: string): Date | null {
   try {
-    // Handle format like "20250325064947.0Z"
-    if (timestamp.includes(".")) {
-      const [datePart] = timestamp.split(".")
-      const year = Number.parseInt(datePart.substring(0, 4))
-      const month = Number.parseInt(datePart.substring(4, 6)) - 1 // JS months are 0-based
-      const day = Number.parseInt(datePart.substring(6, 8))
-      const hour = Number.parseInt(datePart.substring(8, 10))
-      const minute = Number.parseInt(datePart.substring(10, 12))
-      const second = Number.parseInt(datePart.substring(12, 14))
+    // Format: YYYYMMDDhhmmss.fZ
+    // Example: 20250325064947.0Z
+    const match = timestamp.match(/^(\d{4})(\d{2})(\d{2})(\d{2})(\d{2})(\d{2})\.(\d+)Z$/)
+    if (!match) return null
 
-      return new Date(Date.UTC(year, month, day, hour, minute, second))
-    }
-
-    // Try standard date parsing as fallback
-    return new Date(timestamp)
+    const [_, year, month, day, hour, minute, second] = match
+    return new Date(
+      Number.parseInt(year, 10),
+      Number.parseInt(month, 10) - 1, // JavaScript months are 0-indexed
+      Number.parseInt(day, 10),
+      Number.parseInt(hour, 10),
+      Number.parseInt(minute, 10),
+      Number.parseInt(second, 10),
+    )
   } catch (error) {
-    console.error("Error parsing timestamp:", timestamp, error)
+    console.error("Error parsing LDAP timestamp:", error)
     return null
   }
 }

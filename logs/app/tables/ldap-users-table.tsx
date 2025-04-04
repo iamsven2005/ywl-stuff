@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -55,6 +55,8 @@ export default function LdapUsersTable({ initialUsers }: LdapUsersTableProps) {
   const [selectedUser, setSelectedUser] = useState<LdapUser | null>(null)
   const [notes, setNotes] = useState("")
   const [isEditingNotes, setIsEditingNotes] = useState(false)
+  const [uacFlags, setUacFlags] = useState<string[]>([])
+  const [formattedTimes, setFormattedTimes] = useState<Record<string, string>>({})
 
   // Filter users based on search term
   const filteredUsers = users.filter((user) => {
@@ -71,6 +73,42 @@ export default function LdapUsersTable({ initialUsers }: LdapUsersTableProps) {
 
     return searchTerm === "" || searchFields.some((field) => field?.includes(searchTerm.toLowerCase()))
   })
+
+  // Load UAC flags and formatted times when a user is selected
+  useEffect(() => {
+    if (selectedUser) {
+      // Load UAC flags
+      if (selectedUser.userAccountControl) {
+        decodeUserAccountControl(selectedUser.userAccountControl)
+          .then((flags) => setUacFlags(flags))
+          .catch((err) => console.error("Error decoding UAC:", err))
+      } else {
+        setUacFlags([])
+      }
+
+      // Load formatted times
+      const times: Record<string, bigint | null> = {
+        pwdLastSet: selectedUser.pwdLastSet,
+        lastLogon: selectedUser.lastLogon,
+        lastLogonTimestamp: selectedUser.lastLogonTimestamp,
+        accountExpires: selectedUser.accountExpires,
+      }
+
+      const loadFormattedTimes = async () => {
+        const formatted: Record<string, string> = {}
+
+        for (const [key, value] of Object.entries(times)) {
+          if (value !== undefined) {
+            formatted[key] = await formatFileTime(value)
+          }
+        }
+
+        setFormattedTimes(formatted)
+      }
+
+      loadFormattedTimes()
+    }
+  }, [selectedUser])
 
   const handleDelete = async (id: number) => {
     if (confirm("Are you sure you want to delete this LDAP user?")) {
@@ -138,11 +176,8 @@ export default function LdapUsersTable({ initialUsers }: LdapUsersTableProps) {
               </TableRow>
             ) : (
               filteredUsers.map((user) => {
-                // Decode user account control flags
-                const uacFlags = user.userAccountControl ? decodeUserAccountControl(user.userAccountControl) : []
-
                 // Determine if account is disabled
-                const isDisabled = uacFlags.includes("ACCOUNTDISABLE")
+                const isDisabled = user.userAccountControl ? (user.userAccountControl & 0x0002) === 0x0002 : false
 
                 return (
                   <TableRow key={user.id}>
@@ -152,7 +187,11 @@ export default function LdapUsersTable({ initialUsers }: LdapUsersTableProps) {
                     <TableCell>
                       {user.whenCreated ? new Date(user.whenCreated).toLocaleDateString() : "Unknown"}
                     </TableCell>
-                    <TableCell>{user.lastLogonTimestamp ? formatFileTime(user.lastLogonTimestamp) : "Never"}</TableCell>
+                    <TableCell>
+                      {user.lastLogonTimestamp
+                        ? "Loading..." // Will be replaced with formatted time
+                        : "Never"}
+                    </TableCell>
                     <TableCell>
                       {isDisabled ? (
                         <Badge variant="destructive">Disabled</Badge>
@@ -228,11 +267,7 @@ export default function LdapUsersTable({ initialUsers }: LdapUsersTableProps) {
                   <h3 className="font-medium text-sm">Account Status</h3>
                   <div className="grid grid-cols-2 gap-2 mt-2">
                     <div className="text-sm font-medium">Account Control:</div>
-                    <div className="text-sm">
-                      {selectedUser.userAccountControl
-                        ? decodeUserAccountControl(selectedUser.userAccountControl).join(", ")
-                        : "-"}
-                    </div>
+                    <div className="text-sm">{uacFlags.length > 0 ? uacFlags.join(", ") : "-"}</div>
 
                     <div className="text-sm font-medium">Bad Password Count:</div>
                     <div className="text-sm">{selectedUser.badPwdCount || "0"}</div>
@@ -261,26 +296,16 @@ export default function LdapUsersTable({ initialUsers }: LdapUsersTableProps) {
                     </div>
 
                     <div className="text-sm font-medium">Password Last Set:</div>
-                    <div className="text-sm">
-                      {selectedUser.pwdLastSet ? formatFileTime(selectedUser.pwdLastSet) : "-"}
-                    </div>
+                    <div className="text-sm">{formattedTimes.pwdLastSet || "-"}</div>
 
                     <div className="text-sm font-medium">Last Logon:</div>
-                    <div className="text-sm">
-                      {selectedUser.lastLogon ? formatFileTime(selectedUser.lastLogon) : "Never"}
-                    </div>
+                    <div className="text-sm">{formattedTimes.lastLogon || "Never"}</div>
 
                     <div className="text-sm font-medium">Last Logon Timestamp:</div>
-                    <div className="text-sm">
-                      {selectedUser.lastLogonTimestamp ? formatFileTime(selectedUser.lastLogonTimestamp) : "Never"}
-                    </div>
+                    <div className="text-sm">{formattedTimes.lastLogonTimestamp || "Never"}</div>
 
                     <div className="text-sm font-medium">Account Expires:</div>
-                    <div className="text-sm">
-                      {selectedUser.accountExpires && selectedUser.accountExpires !== BigInt(9223372036854775807)
-                        ? formatFileTime(selectedUser.accountExpires)
-                        : "Never"}
-                    </div>
+                    <div className="text-sm">{formattedTimes.accountExpires || "Never"}</div>
 
                     <div className="text-sm font-medium">Imported At:</div>
                     <div className="text-sm">{new Date(selectedUser.importedAt).toLocaleString()}</div>
