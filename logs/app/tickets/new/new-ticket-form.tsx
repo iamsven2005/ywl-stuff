@@ -13,6 +13,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { toast } from "sonner"
 import { createTicket } from "@/app/actions/ticket-actions"
 import { FileUpload } from "../file-upload"
+import NotesTable from "@/app/tables/notes-table"
 
 export function NewTicketForm({
   deviceNames,
@@ -117,6 +118,7 @@ export function NewTicketForm({
   }
 
   return (
+    <div className="flex m-5 p-5 flex-wrap gap-5">
     <Card className="max-w-2xl mx-auto">
       <CardHeader>
         <CardTitle>New Support Ticket</CardTitle>
@@ -230,6 +232,8 @@ export function NewTicketForm({
         </CardFooter>
       </form>
     </Card>
+    <NotesTable isAdmin={isAdmin}/>
+    </div>
   )
 }
 

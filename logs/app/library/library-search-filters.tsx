@@ -109,8 +109,8 @@ export function LibrarySearchFilters({ onSearch }: LibrarySearchFiltersProps) {
             <SelectContent>
               <SelectItem value="all">All Categories</SelectItem>
               {categories.map((cat) => (
-                <SelectItem key={cat} value={cat}>
-                  {cat}
+                <SelectItem key={cat} value={cat || "new"}>
+                  {cat || "new"}
                 </SelectItem>
               ))}
             </SelectContent>

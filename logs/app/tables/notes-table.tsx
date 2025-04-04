@@ -23,6 +23,7 @@ import { Search, RefreshCw, Trash2, Edit, Plus, FileText, Download } from "lucid
 import { getNotes, deleteMultipleNotes } from "../actions/note-actions"
 import { exportToExcel } from "../export-utils"
 import { NoteEditor } from "../note-editor"
+import Link from "next/link"
 
 // Debounce function to limit how often a function can run
 function debounce<T extends (...args: any[]) => any>(func: T, wait: number): (...args: Parameters<T>) => void {
@@ -36,8 +37,10 @@ function debounce<T extends (...args: any[]) => any>(func: T, wait: number): (..
 
 // Page size options
 const pageSizeOptions = [10, 25, 50, 100]
-
-export default function NotesTable() {
+interface Props{
+  isAdmin? : boolean
+}
+export default function NotesTable({isAdmin}: Props) {
   const router = useRouter()
   const [searchQuery, setSearchQuery] = useState("")
   const [debouncedSearchQuery, setDebouncedSearchQuery] = useState("")
@@ -286,25 +289,27 @@ export default function NotesTable() {
             <span className="sr-only">Refresh</span>
           </Button>
         </div>
-
+        {isAdmin && (
         <div className="flex gap-2">
-          <Button onClick={openCreateModal} className="gap-2">
-            <Plus className="h-4 w-4" />
-            New Note
-          </Button>
+        <Button onClick={openCreateModal} className="gap-2">
+          <Plus className="h-4 w-4" />
+          New Note
+        </Button>
 
-          <Button variant="outline" onClick={handleExport} className="gap-2">
-            <Download className="h-4 w-4" />
-            Export
-          </Button>
+        <Button variant="outline" onClick={handleExport} className="gap-2">
+          <Download className="h-4 w-4" />
+          Export
+        </Button>
 
-          {selectedNotes.length > 0 && (
-            <Button variant="destructive" onClick={handleDeleteSelected} className="gap-2">
-              <Trash2 className="h-4 w-4" />
-              Delete ({selectedNotes.length})
-            </Button>
-          )}
-        </div>
+        {selectedNotes.length > 0 && (
+          <Button variant="destructive" onClick={handleDeleteSelected} className="gap-2">
+            <Trash2 className="h-4 w-4" />
+            Delete ({selectedNotes.length})
+          </Button>
+        )}
+      </div>
+        )}
+
       </div>
 
       <div className="rounded-md border">
@@ -312,10 +317,13 @@ export default function NotesTable() {
           <TableHeader>
             <TableRow>
               <TableHead className="w-[50px]">
+                {isAdmin &&(
                 <Checkbox
-                  checked={notes.length > 0 && selectedNotes.length === notes.length}
-                  onCheckedChange={handleSelectAll}
-                />
+                checked={notes.length > 0 && selectedNotes.length === notes.length}
+                onCheckedChange={handleSelectAll}
+              />
+                )}
+
               </TableHead>
               <TableHead className="w-[60px]">ID</TableHead>
               <TableHead className="w-[250px]">Title</TableHead>
@@ -335,43 +343,50 @@ export default function NotesTable() {
               notes.map((note) => (
                 <TableRow key={note.id}>
                   <TableCell>
+                    {isAdmin && (
                     <Checkbox
-                      checked={selectedNotes.includes(note.id)}
-                      onCheckedChange={() => handleSelectNote(note.id)}
-                    />
+                    checked={selectedNotes.includes(note.id)}
+                    onCheckedChange={() => handleSelectNote(note.id)}
+                  />
+                    )}
+
                   </TableCell>
+
                   <TableCell>{note.id}</TableCell>
                   <TableCell>
                     <div className="flex items-center gap-2">
                       <FileText className="h-4 w-4 text-blue-500" />
-                      <span className="font-medium">{note.title}</span>
-                    </div>
+                      <TableCell><Link href={`/help/${note.id}`}>{note.title}</Link></TableCell>
+                      </div>
                   </TableCell>
                   <TableCell>{formatDate(note.time)}</TableCell>
                   <TableCell>
                     <div className="max-w-[400px] truncate">{truncateText(note.description, 100)}</div>
                   </TableCell>
+                  {isAdmin && (
                   <TableCell>
-                    <div className="flex gap-2">
-                      <Button variant="ghost" size="icon" onClick={() => openEditModal(note)} title="Edit Note">
-                        <Edit className="h-4 w-4" />
-                        <span className="sr-only">Edit</span>
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => {
-                          setSelectedNotes([note.id])
-                          handleDeleteSelected()
-                        }}
-                        title="Delete Note"
-                        className="text-red-500 hover:text-red-600"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                        <span className="sr-only">Delete</span>
-                      </Button>
-                    </div>
-                  </TableCell>
+                  <div className="flex gap-2">
+                    <Button variant="ghost" size="icon" onClick={() => openEditModal(note)} title="Edit Note">
+                      <Edit className="h-4 w-4" />
+                      <span className="sr-only">Edit</span>
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => {
+                        setSelectedNotes([note.id])
+                        handleDeleteSelected()
+                      }}
+                      title="Delete Note"
+                      className="text-red-500 hover:text-red-600"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                      <span className="sr-only">Delete</span>
+                    </Button>
+                  </div>
+                </TableCell>
+                  )}
+
                 </TableRow>
               ))
             )}

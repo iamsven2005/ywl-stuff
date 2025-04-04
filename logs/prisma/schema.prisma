@@ -527,3 +527,19 @@ model ProjectAssignment {
 
   @@unique([userId, projectId])
 }
+
+model SambaLog {
+  id         Int      @id @default(autoincrement())
+  timestamp  DateTime @default(now())
+  component  String   
+  level      String  
+  message    String   @db.Text
+  zone       String? 
+  name       String?
+  errorCode  Int?     
+  errorName  String? 
+  hostname   String?  
+  createdAt  DateTime @default(now())
+
+  @@index([timestamp])
+}

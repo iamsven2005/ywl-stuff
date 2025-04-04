@@ -190,7 +190,7 @@ export default function LogsPage({userId}: any) {
         </TabsContent>
         <TabsContent value="notes">
           <Suspense fallback={<LogsTableSkeleton />}>
-            <NotesTable />
+            <NotesTable isAdmin={true} />
           </Suspense>
         </TabsContent>
         <TabsContent value="activity-logs" className="space-y-4">
