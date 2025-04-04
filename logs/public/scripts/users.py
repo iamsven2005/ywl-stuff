@@ -55,7 +55,7 @@ def send_to_api(data):
 def main():
     usernames = get_usernames()
     if not usernames:
-        print("[INFO] No users found.")
+        print("[INFO] No usersdd found.")
         return
 
     results = []
