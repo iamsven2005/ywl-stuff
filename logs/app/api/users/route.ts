@@ -4,10 +4,27 @@ import { type NextRequest, NextResponse } from "next/server"
 export async function POST(req: NextRequest) {
   try {
     const data = await req.json()
-    console.log("Received LDAP data:", data)
+    console.log("Received data:", data)
+
+    // Check if we have valid data
+    if (!data || (typeof data === "object" && !data.ldapData)) {
+      console.error("Invalid data format received:", data)
+      return NextResponse.json(
+        { success: false, error: "Invalid data format. Expected {ldapData: string}" },
+        { status: 400 },
+      )
+    }
+
+    // Get the LDAP data string
+    const ldapText = typeof data === "string" ? data : data.ldapData
+
+    if (!ldapText || typeof ldapText !== "string") {
+      console.error("LDAP data is not a string:", ldapText)
+      return NextResponse.json({ success: false, error: "LDAP data must be a string" }, { status: 400 })
+    }
 
     // Parse the LDAP data
-    const ldapData = parseLdapData(data.ldapData)
+    const ldapData = parseLdapData(ldapText)
 
     // Extract domain from distinguishedName
     const domainMatch = ldapData.distinguishedName?.match(/DC=([^,]+)/g)
@@ -98,12 +115,22 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ success: true, user: ldapUser })
   } catch (error) {
     console.error("Error importing LDAP data:", error)
-    return NextResponse.json({ success: false, error: "Failed to import LDAP data" }, { status: 500 })
+    return NextResponse.json(
+      {
+        success: false,
+        error: "Failed to import LDAP data: " + (error instanceof Error ? error.message : String(error)),
+      },
+      { status: 500 },
+    )
   }
 }
 
 // Helper function to parse LDAP data from text format
 function parseLdapData(ldapText: string) {
+  if (!ldapText) {
+    throw new Error("LDAP data is empty")
+  }
+
   const lines = ldapText.split("\n")
   const ldapData: Record<string, string> = {}
 

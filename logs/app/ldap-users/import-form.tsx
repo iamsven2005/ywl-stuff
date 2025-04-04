@@ -18,11 +18,19 @@ export default function LdapImportForm() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+
+    if (!ldapData.trim()) {
+      setError("Please enter LDAP data")
+      return
+    }
+
     setIsLoading(true)
     setError(null)
     setSuccess(false)
 
     try {
+      console.log("Sending LDAP data:", { ldapData })
+
       const response = await fetch("/api/users", {
         method: "POST",
         headers: {
