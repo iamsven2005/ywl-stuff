@@ -554,18 +554,18 @@ model ldapuser {
   name                   String
   objectGUID             String
   userAccountControl     Int
-  badPwdCount            Int
+  badPwdCount            Int?
   codePage               Int
   countryCode            Int
-  badPasswordTime        BigInt
-  lastLogoff             BigInt
-  lastLogon              BigInt
+  badPasswordTime        BigInt?
+  lastLogoff             BigInt?
+  lastLogon              BigInt?
   pwdLastSet             BigInt
   primaryGroupID         Int
   objectSid              String
   adminCount             Int?
   accountExpires         BigInt
-  logonCount             Int
+  logonCount             Int?
   sAMAccountName         String
   sAMAccountType         Int
   servicePrincipalName   String?
