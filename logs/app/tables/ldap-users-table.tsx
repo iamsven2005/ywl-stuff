@@ -4,10 +4,11 @@ import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { getLdapUsers, formatLdapTimestamp } from "@/app/actions/ldap-actions"
+import { getLdapUsers } from "@/app/actions/ldap-actions"
 import { exportToExcel, prepareLdapUsersForExport } from "@/app/export-utils"
 import { Download, Search } from "lucide-react"
 import type { JSX } from "react/jsx-runtime"
+import { formatLdapTimestamp } from "@/lib/ldap-utils"
 
 export function LdapUsersTable() {
   const [users, setUsers] = useState<any[]>([])
