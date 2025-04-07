@@ -92,7 +92,7 @@ model DeviceUser {
   deviceId Int
   role     String // Example: "admin", "viewer", "operator"
   
-  user     User   @relation(fields: [userId], references: [id])
+  user     User   @relation(fields: [userId], references: [id], onDelete: Cascade)
   device   devices @relation(fields: [deviceId], references: [id])
 
   @@unique([userId, deviceId]) // Ensure a user-device pair is unique
@@ -170,7 +170,7 @@ model ActivityLog {
   details    String?  // Optional additional details
   timestamp  DateTime @default(now())
 
-  user       User     @relation(fields: [userId], references: [id])
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
 }
@@ -199,7 +199,8 @@ model User {
   username    String   @unique
   password    String
   email       String?  @unique
-  role        String[]   @default(["admin"]) // e.g., "admin", "viewer", "operator"
+  role        String[]
+  location    String[]
   Mobile      Int?
   PrimaryContact  String?
   MobileContact   Int?
@@ -262,7 +263,7 @@ model Group {
 
 model GroupMember {
   id        Int   @id @default(autoincrement())
-  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user      User @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId    Int
   group     Group    @relation(fields: [groupId], references: [id])
   groupId   Int
@@ -457,7 +458,7 @@ model FeedbackRecipient {
 
   // Relations
   feedback   Feedback  @relation(fields: [feedbackId], references: [id], onDelete: Cascade)
-  user       User      @relation("FeedbackRecipient", fields: [userId], references: [id])
+  user   User @relation("FeedbackRecipient", fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([feedbackId, userId])
 }
@@ -484,7 +485,7 @@ model UserPermission {
   id               Int      @id @default(autoincrement())
   userId           Int
   pagePermissionId Int
-  user             User            @relation(fields: [userId], references: [id])
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
   pagePermission   PagePermission @relation(fields: [pagePermissionId], references: [id])
 
   @@unique([userId, pagePermissionId])
@@ -533,7 +534,7 @@ model ProjectAssignment {
   projectId Int
   role      String // e.g., "admin", "viewer", "member"
 
-  user      User    @relation(fields: [userId], references: [id])
+  user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
   project   Project @relation(fields: [projectId], references: [id])
 
   @@unique([userId, projectId])
@@ -648,7 +649,7 @@ model DriveFilePermission {
   grantedAt DateTime @default(now())
 
   file      DriveFile @relation(fields: [fileId], references: [id])
-  user      User      @relation("receivedPermissions", fields: [userId], references: [id])
+  user      User      @relation("receivedPermissions", fields: [userId], references: [id], onDelete: Cascade)
   granter   User      @relation("GrantedBy", fields: [grantedBy], references: [id])
 
   @@unique([fileId, userId])
