@@ -22,17 +22,34 @@ export async function addRole(roleData: { name: string; description?: string }) 
   }
 
   try {
+    // Check if the role already exists (case-insensitive)
+    const existingRole = await db.roles.findFirst({
+      where: {
+        name: {
+          equals: name,
+          mode: "insensitive",
+        },
+      },
+    });
+
+    if (existingRole) {
+      return existingRole; // Role already exists — return it
+    }
+
+    // Create new role if not found
     const newRole = await db.roles.create({
       data: { name, description },
     });
-    revalidatePath("/logs")
-    
+
+    revalidatePath("/logs");
     return newRole;
+
   } catch (error) {
     console.error("Error creating role:", error);
     throw new Error("Failed to create role");
   }
 }
+
 
 // Update a role
 export async function updateRole(id: number, roleData: { name: string; description?: string }) {

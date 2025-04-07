@@ -12,8 +12,8 @@ import { Label } from "@/components/ui/label"
 import { Trash2, Edit, Plus } from "lucide-react"
 import { toast } from "sonner"
 import { getRoles, addRole, updateRole, deleteRole } from "@/app/actions/role-actions"
+import { Textarea } from "@/components/ui/textarea"
 
-const pageSizeOptions = [5, 10, 20]
 
 export default function UsersRolesTable() {
   const [roles, setRoles] = useState<any[]>([])
@@ -22,10 +22,45 @@ export default function UsersRolesTable() {
   const [roleModalOpen, setRoleModalOpen] = useState(false)
   const [isEditing, setIsEditing] = useState(false)
   const [searchTerm, setSearchTerm] = useState("")
-  const [currentPage, setCurrentPage] = useState(1)
-  const [pageSize, setPageSize] = useState(pageSizeOptions[0])
-  const [totalPages, setTotalPages] = useState(1)
-
+  const [bulkRoleInput, setBulkRoleInput] = useState("")
+  const [isBulkImporting, setIsBulkImporting] = useState(false)
+  const handleBulkImport = async () => {
+    const lines = bulkRoleInput
+      .split("\n")
+      .map(line => line.trim().replace(/^\d+\.\s*/, "")) // removes leading numbers like "1. " and trims
+      .filter(Boolean)
+  
+    if (lines.length === 0) {
+      toast.error("No roles to import")
+      return
+    }
+  
+    setIsBulkImporting(true)
+  
+    const created: string[] = []
+    const failed: string[] = []
+  
+    for (const name of lines) {
+      try {
+        // Avoid duplicates (case-insensitive)
+        const exists = roles.some(r => r.name.toLowerCase() === name.toLowerCase())
+        if (!exists) {
+          await addRole({ name, description: "" })
+          created.push(name)
+        }
+      } catch (err) {
+        failed.push(name)
+      }
+    }
+  
+    setIsBulkImporting(false)
+    setBulkRoleInput("")
+    fetchRoles()
+  
+    if (created.length) toast.success(`Added ${created.length} new roles`)
+    if (failed.length) toast.error(`Failed to import ${failed.length} roles`)
+  }
+  
   // Fetch roles
   const fetchRoles = async () => {
     try {
@@ -105,6 +140,20 @@ export default function UsersRolesTable() {
           <Plus className="h-4 w-4" /> Add Role
         </Button>
       </div>
+      <div className="space-y-2 mb-6">
+  <Label htmlFor="bulk-role-input">Mass Import Roles</Label>
+  <Textarea
+    id="bulk-role-input"
+    placeholder="Enter roles, one per line..."
+    rows={8}
+    value={bulkRoleInput}
+    onChange={(e) => setBulkRoleInput(e.target.value)}
+  />
+  <Button onClick={handleBulkImport} disabled={isBulkImporting}>
+    {isBulkImporting ? "Importing..." : "Import Roles"}
+  </Button>
+</div>
+
       <span className="text-sm text-muted-foreground">
             Showing {filteredRoles.length}
           </span>
