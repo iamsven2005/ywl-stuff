@@ -238,6 +238,17 @@ model User {
   UserPermission UserPermission[]
 
   ProjectAssignment ProjectAssignment[]
+
+
+  DriveFile DriveFile[]
+
+
+  DriveFolder DriveFolder[]
+  grantedPermissions DriveFilePermission[] @relation("GrantedBy") // permissions the user granted
+  receivedPermissions DriveFilePermission[] // permissions the user received
+
+
+  DriveFilePermission DriveFilePermission[] @relation("receivedPermissions")
 }
 model Group {
   id          Int         @id @default(autoincrement())
@@ -528,6 +539,21 @@ model ProjectAssignment {
   @@unique([userId, projectId])
 }
 
+model SambaLog {
+  id         Int      @id @default(autoincrement())
+  timestamp  DateTime @default(now())
+  component  String   
+  level      String  
+  message    String   @db.Text
+  zone       String? 
+  name       String?
+  errorCode  Int?     
+  errorName  String? 
+  hostname   String?  
+  createdAt  DateTime @default(now())
+
+  @@index([timestamp])
+}
 model location{
   id         Int      @id @default(autoincrement())
   code       String
@@ -536,7 +562,6 @@ model location{
   createBy   String
   modifyDate DateTime? @default(now())
 }
-// schema.prisma
 model ldapuser {
   id                     Int      @id @default(autoincrement())
   dn                     String
@@ -578,4 +603,54 @@ model ldapuser {
 
   createdAt              DateTime @default(now())
   updatedAt              DateTime @updatedAt
+}
+model DriveFolder {
+  id           Int          @id @default(autoincrement())
+  name         String
+  parentId     Int?         // null = root
+  parent       DriveFolder? @relation("FolderParent", fields: [parentId], references: [id])
+  children     DriveFolder[] @relation("FolderParent")
+  files        DriveFile[]
+  ownerId      Int
+  owner        User          @relation(fields: [ownerId], references: [id])
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+
+  @@index([parentId])
+}
+
+model DriveFile {
+  id           Int          @id @default(autoincrement())
+  name         String
+  type         String       // e.g., "doc", "pdf", "jpg", etc.
+  size         Int
+  order        Int          @default(0) // for ordering in UI
+  folderId     Int
+  folder       DriveFolder  @relation(fields: [folderId], references: [id])
+  ownerId      Int
+  owner        User         @relation(fields: [ownerId], references: [id])
+  url          String       // file storage location
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+  permissions  DriveFilePermission[]
+
+  @@index([folderId])
+  @@index([type])
+  @@index([order])
+}
+
+model DriveFilePermission {
+  id        Int      @id @default(autoincrement())
+  fileId    Int
+  userId    Int
+  access    String   // e.g., "read", "write", "comment"
+  grantedBy Int      // admin or file owner
+  grantedAt DateTime @default(now())
+
+  file      DriveFile @relation(fields: [fileId], references: [id])
+  user      User      @relation("receivedPermissions", fields: [userId], references: [id])
+  granter   User      @relation("GrantedBy", fields: [grantedBy], references: [id])
+
+  @@unique([fileId, userId])
+  User User[]
 }
