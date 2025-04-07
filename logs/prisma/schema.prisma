@@ -551,37 +551,42 @@ model location{
   createBy   String
   modifyDate DateTime? @default(now())
 }
-model LdapUser {
-  id                Int       @id @default(autoincrement())
-  distinguishedName String    @unique
-  objectGUID        String?   @unique
-  objectSid         String?
-  cn                String
-  sn                String?
-  givenName         String?
-  displayName       String?
-  sAMAccountName    String?
-  userPrincipalName String?
-  whenCreated       DateTime?
-  whenChanged       DateTime?
-  pwdLastSet        BigInt?
-  lastLogon         BigInt?
-  lastLogonTimestamp BigInt?
-  userAccountControl Int?
-  accountExpires    BigInt?
-  badPwdCount       Int?
-  logonCount        Int?
-  primaryGroupID    Int?
-  objectCategory    String?
-  importedAt        DateTime  @default(now())
-  updatedAt         DateTime  @updatedAt
-  
-  // Additional fields that might be useful
-  domain            String?
-  isActive          Boolean   @default(true)
-  notes             String?
-}
-model Temp{
-  id                Int       @id @default(autoincrement())
-  Text  Json
+// schema.prisma
+
+model ldapuser {
+  id                   Int      @id @default(autoincrement())
+  dn                   String
+  objectClass          String[] // stores multiple objectClass entries
+  cn                   String
+  sn                   String
+  givenName            String
+  instanceType         Int
+  whenCreated          BigInt
+  displayName          String
+  uSNCreated           Int
+  name                 String
+  objectGUID           String
+  badPwdCount          Int
+  codePage             Int
+  countryCode          Int
+  badPasswordTime      BigInt
+  lastLogoff           BigInt
+  lastLogon            BigInt
+  primaryGroupID       Int
+  objectSid            String
+  accountExpires       BigInt
+  logonCount           Int
+  sAMAccountName       String
+  sAMAccountType       Int
+  userPrincipalName    String
+  objectCategory       String
+  pwdLastSet           BigInt
+  userAccountControl   Int
+  whenChanged          BigInt
+  uSNChanged           Int
+  lastLogonTimestamp   BigInt
+  distinguishedName    String
+
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
 }
