@@ -625,8 +625,8 @@ model DriveFile {
   type         String       // e.g., "doc", "pdf", "jpg", etc.
   size         Int
   order        Int          @default(0) // for ordering in UI
-  folderId     Int
-  folder       DriveFolder  @relation(fields: [folderId], references: [id])
+  folderId     Int?
+  folder       DriveFolder? @relation(fields: [folderId], references: [id]) // <--- nullable relation
   ownerId      Int
   owner        User         @relation(fields: [ownerId], references: [id])
   url          String       // file storage location
