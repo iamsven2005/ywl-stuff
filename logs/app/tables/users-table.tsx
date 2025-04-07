@@ -56,6 +56,7 @@ import { getDevices } from "../actions/device-actions"
 import { exportToExcel, prepareUsersForExport, generateUserImportTemplate } from "../export-utils"
 import * as XLSX from "xlsx"
 import { MultiCombobox } from "@/components/multi-combobox"
+import ScrollableRoles from "@/components/roles"
 
 // Debounce function to limit how often a function can run
 function debounce<T extends (...args: any[]) => any>(func: T, wait: number): (...args: Parameters<T>) => void {
@@ -694,20 +695,14 @@ export default function UsersTable() {
                     )}
                   </TableCell>
                   <TableCell>
-                    <div className="flex flex-wrap gap-1">
-                      {Array.isArray(user.role) && user.role.length > 0 ? (
-                        user.role.map((role: string) => (
-                          <Badge key={role} variant="secondary" className="capitalize">
-                            {role.toLowerCase()}
-                          </Badge>
-                        ))
-                      ) : (
-                        <Badge variant="secondary" className="capitalize">
-                          {typeof user.role === "string" ? user.role.toLowerCase() : "User"}
-                        </Badge>
-                      )}
-                    </div>
-                  </TableCell>
+  {Array.isArray(user.role) && user.role.length > 0 ? (
+    <ScrollableRoles roles={user.role} />
+  ) : (
+    <span className="text-muted-foreground">No roles</span>
+  )}
+</TableCell>
+
+
                   <TableCell>{formatDate(user.createdAt)}</TableCell>
                   <TableCell>{formatDate(user.updatedAt)}</TableCell>
                   <TableCell>
