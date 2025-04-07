@@ -528,21 +528,6 @@ model ProjectAssignment {
   @@unique([userId, projectId])
 }
 
-model SambaLog {
-  id         Int      @id @default(autoincrement())
-  timestamp  DateTime @default(now())
-  component  String   
-  level      String  
-  message    String   @db.Text
-  zone       String? 
-  name       String?
-  errorCode  Int?     
-  errorName  String? 
-  hostname   String?  
-  createdAt  DateTime @default(now())
-
-  @@index([timestamp])
-}
 model location{
   id         Int      @id @default(autoincrement())
   code       String
@@ -552,41 +537,45 @@ model location{
   modifyDate DateTime? @default(now())
 }
 // schema.prisma
-
 model ldapuser {
-  id                   Int      @id @default(autoincrement())
-  dn                   String
-  objectClass          String[] // stores multiple objectClass entries
-  cn                   String
-  sn                   String
-  givenName            String
-  instanceType         Int
-  whenCreated          BigInt
-  displayName          String
-  uSNCreated           Int
-  name                 String
-  objectGUID           String
-  badPwdCount          Int
-  codePage             Int
-  countryCode          Int
-  badPasswordTime      BigInt
-  lastLogoff           BigInt
-  lastLogon            BigInt
-  primaryGroupID       Int
-  objectSid            String
-  accountExpires       BigInt
-  logonCount           Int
-  sAMAccountName       String
-  sAMAccountType       Int
-  userPrincipalName    String
-  objectCategory       String
-  pwdLastSet           BigInt
-  userAccountControl   Int
-  whenChanged          BigInt
-  uSNChanged           Int
-  lastLogonTimestamp   BigInt
-  distinguishedName    String
+  id                     Int      @id @default(autoincrement())
+  dn                     String
+  objectClass            String[]
+  cn                     String
+  sn                     String?     // optional
+  givenName              String?     // optional
+  description            String?     // optional
+  instanceType           Int
+  whenCreated            BigInt
+  whenChanged            BigInt
+  uSNCreated             Int
+  uSNChanged             Int
+  showInAdvancedViewOnly Boolean?
+  name                   String
+  objectGUID             String
+  userAccountControl     Int
+  badPwdCount            Int
+  codePage               Int
+  countryCode            Int
+  badPasswordTime        BigInt
+  lastLogoff             BigInt
+  lastLogon              BigInt
+  pwdLastSet             BigInt
+  primaryGroupID         Int
+  objectSid              String
+  adminCount             Int?
+  accountExpires         BigInt
+  logonCount             Int
+  sAMAccountName         String
+  sAMAccountType         Int
+  servicePrincipalName   String?
+  objectCategory         String
+  isCriticalSystemObject Boolean?
+  memberOf               String?
+  userPrincipalName      String?     // optional
+  displayName            String?     // optional
+  distinguishedName      String
 
-  createdAt            DateTime @default(now())
-  updatedAt            DateTime @updatedAt
+  createdAt              DateTime @default(now())
+  updatedAt              DateTime @updatedAt
 }
