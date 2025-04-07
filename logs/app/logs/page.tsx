@@ -22,6 +22,7 @@ import { DatabaseStatusBar } from "@/components/database-status-bar"
 import DiskUsageChart from "../charts/disk-usage-chart"
 import PermissionsTable from "../tables/permissions-table"
 import LocationsTable from "../tables/locations-table"
+import { LdapUsersTable } from "../tables/ldap-users-table"
 
 export default function LogsPage({userId}: any) {
   const [isBackingUp, setIsBackingUp] = useState(false)
@@ -145,6 +146,7 @@ export default function LogsPage({userId}: any) {
           <TabsTrigger value="email">Email Template</TabsTrigger>
           <TabsTrigger value="notes">Notes</TabsTrigger>
           <TabsTrigger value="permissions">Perms</TabsTrigger>
+          <TabsTrigger value="samba">Samba</TabsTrigger>
 
         </TabsList>
 
@@ -210,6 +212,11 @@ export default function LogsPage({userId}: any) {
           <TabsContent value="permissions">
           <Suspense fallback={<LogsTableSkeleton />}>
             <PermissionsTable />
+          </Suspense>
+        </TabsContent>
+        <TabsContent value="samba">
+          <Suspense fallback={<LogsTableSkeleton />}>
+            <LdapUsersTable />
           </Suspense>
         </TabsContent>
       </Tabs>

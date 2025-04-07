@@ -242,3 +242,42 @@ export function generateUserImportTemplate() {
   XLSX.writeFile(workbook, "user-import-template.xlsx")
 }
 
+export function prepareLdapUsersForExport(users: any[]) {
+  return users.map((user) => {
+    // Convert Windows FileTime to JavaScript Date if needed
+    const lastLogon = user.lastLogon
+      ? new Date(Number(user.lastLogon) / 10000 - 11644473600000).toLocaleString()
+      : "Never"
+    const whenCreated = user.whenCreated
+      ? new Date(Number(user.whenCreated) / 10000 - 11644473600000).toLocaleString()
+      : "Unknown"
+    const pwdLastSet = user.pwdLastSet
+      ? new Date(Number(user.pwdLastSet) / 10000 - 11644473600000).toLocaleString()
+      : "Unknown"
+
+    // Determine account status
+    let accountStatus = "Active"
+    if (user.userAccountControl & 0x0002) accountStatus = "Disabled"
+    else if (user.userAccountControl & 0x0010) accountStatus = "Locked Out"
+    else if (user.userAccountControl & 0x800000) accountStatus = "Password Expired"
+
+    return {
+      ID: user.id,
+      Username: user.sAMAccountName || "",
+      "Display Name": user.displayName || user.cn || "",
+      "Common Name": user.cn || "",
+      "Given Name": user.givenName || "",
+      Surname: user.sn || "",
+      Email: user.userPrincipalName || "",
+      Description: user.description || "",
+      "Account Status": accountStatus,
+      "Last Logon": lastLogon,
+      "Created Date": whenCreated,
+      "Password Last Set": pwdLastSet,
+      "Logon Count": user.logonCount || 0,
+      "Bad Password Count": user.badPwdCount || 0,
+      "Distinguished Name": user.distinguishedName || "",
+      "Member Of": user.memberOf || "",
+    }
+  })
+}
