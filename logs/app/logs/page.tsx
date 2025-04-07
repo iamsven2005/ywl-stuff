@@ -142,6 +142,7 @@ export default function LogsPage({userId}: any) {
           <TabsTrigger value="activity">Activity Logs</TabsTrigger>
           <TabsTrigger value="devices">Devices</TabsTrigger>
           <TabsTrigger value="users">Users</TabsTrigger>
+          <TabsTrigger value="roles">Roles</TabsTrigger>
           <TabsTrigger value="rules">Rules</TabsTrigger>
           <TabsTrigger value="email">Email Template</TabsTrigger>
           <TabsTrigger value="notes">Notes</TabsTrigger>
@@ -176,10 +177,15 @@ export default function LogsPage({userId}: any) {
 
         <TabsContent value="users">
           <Suspense fallback={<LogsTableSkeleton />}>
-          <UsersRolesTable/>
           <LocationsTable/>
 
             <UsersTable />
+          </Suspense>
+        </TabsContent>
+        <TabsContent value="roles">
+          <Suspense fallback={<LogsTableSkeleton />}>
+          <UsersRolesTable/>
+
           </Suspense>
         </TabsContent>
 

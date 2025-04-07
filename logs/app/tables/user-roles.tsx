@@ -1,22 +1,19 @@
 "use client"
 
+import { DialogFooter } from "@/components/ui/dialog"
+
 import { useState, useEffect } from "react"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog"
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Label } from "@/components/ui/label"
-import { toast } from "sonner"
-import { Plus, Trash2, Edit } from "lucide-react"
 
+import { Trash2, Edit, Plus } from "lucide-react"
+import { toast } from "sonner"
 import { getRoles, addRole, updateRole, deleteRole } from "@/app/actions/role-actions"
+
+const pageSizeOptions = [5, 10, 20]
 
 export default function UsersRolesTable() {
   const [roles, setRoles] = useState<any[]>([])
@@ -25,6 +22,9 @@ export default function UsersRolesTable() {
   const [roleModalOpen, setRoleModalOpen] = useState(false)
   const [isEditing, setIsEditing] = useState(false)
   const [searchTerm, setSearchTerm] = useState("")
+  const [currentPage, setCurrentPage] = useState(1)
+  const [pageSize, setPageSize] = useState(pageSizeOptions[0])
+  const [totalPages, setTotalPages] = useState(1)
 
   // Fetch roles
   const fetchRoles = async () => {
@@ -96,25 +96,29 @@ export default function UsersRolesTable() {
     }
   }
 
+
   return (
-    <div className="flex gap-6">
-      {/* Roles Table */}
-      <div className="w-1/3 border rounded-md p-4">
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-lg font-semibold">Roles</h2>
-          <Button onClick={() => openRoleModal()} className="gap-2">
-            <Plus className="h-4 w-4" /> Add Role
-          </Button>
-        </div>
-        <div className="mb-4">
-          <Input
-            type="search"
-            placeholder="Search roles..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full"
-          />
-        </div>
+    <div className="space-y-4">
+      <div className="flex justify-between items-center mb-4">
+        <h2 className="text-lg font-semibold">Roles</h2>
+        <Button onClick={() => openRoleModal()} className="gap-2">
+          <Plus className="h-4 w-4" /> Add Role
+        </Button>
+      </div>
+      <span className="text-sm text-muted-foreground">
+            Showing {filteredRoles.length}
+          </span>
+
+      <div className="mb-4">
+        <Input
+          type="search"
+          placeholder="Search roles..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="w-full"
+        />
+      </div>
+      <div className="rounded-md border">
         <Table>
           <TableHeader>
             <TableRow>
@@ -159,6 +163,8 @@ export default function UsersRolesTable() {
         </Table>
       </div>
 
+
+
       {/* Role Modal */}
       <Dialog open={roleModalOpen} onOpenChange={setRoleModalOpen}>
         <DialogContent className="sm:max-w-[500px]">
@@ -201,5 +207,4 @@ export default function UsersRolesTable() {
     </div>
   )
 }
-
 

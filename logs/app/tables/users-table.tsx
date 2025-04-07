@@ -2,7 +2,7 @@
 
 import type React from "react"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, use } from "react"
 import { useRouter } from "next/navigation"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Button } from "@/components/ui/button"
@@ -56,6 +56,7 @@ import { getDevices } from "../actions/device-actions"
 import { exportToExcel, prepareUsersForExport, generateUserImportTemplate } from "../export-utils"
 import * as XLSX from "xlsx"
 import { MultiCombobox } from "@/components/multi-combobox"
+import { Textarea } from "@/components/ui/textarea"
 
 // Debounce function to limit how often a function can run
 function debounce<T extends (...args: any[]) => any>(func: T, wait: number): (...args: Parameters<T>) => void {
@@ -78,6 +79,12 @@ interface UserRow {
   email?: string
   Password?: string
   password?: string
+  Remarks?: string
+  remarks?: string
+  Role?: []
+  role?: []
+  Location?: []
+  location?: []
 }
 
 // Form type for adding/editing users
@@ -85,8 +92,10 @@ interface UserForm {
   username: string
   email: string
   password: string
-  role: string[] // Changed from "ADMIN" | "USER" | "DRAFTER" to string[]
+  role: string[]
   devices: number[]
+  location: string[]
+  Remarks: string
 }
 
 export default function UsersTable() {
@@ -114,8 +123,10 @@ export default function UsersTable() {
     username: "",
     email: "",
     password: "",
-    role: ["USER"], // Changed from "USER" to ["USER"]
+    role: [], // Changed from "USER" to ["USER"]
     devices: [],
+    location: [],
+    Remarks: "",
   })
 
   // Pagination state
@@ -126,6 +137,7 @@ export default function UsersTable() {
 
   // Add a new state for roles
   const [roles, setRoles] = useState<any[]>([])
+  const [locations, setLocations] = useState<any[]>([])
 
   // Add a function to fetch roles
   const fetchRoles = async () => {
@@ -135,6 +147,16 @@ export default function UsersTable() {
       setRoles(data.roles)
     } catch (error) {
       toast.error("Failed to fetch roles")
+    }
+  }
+  // Add a function to fetch roles
+  const fetchLocations = async () => {
+    try {
+      const response = await fetch("/api/locations")
+      const data = await response.json()
+      setLocations(data.roles)
+    } catch (error) {
+      toast.error("Failed to fetch locations")
     }
   }
 
@@ -161,7 +183,7 @@ export default function UsersTable() {
         page: currentPage,
         pageSize: pageSize,
       })
-
+      console.log(result.users)
       setUsers(result.users)
       setTotalPages(result.pageCount)
       setTotalItems(result.totalCount)
@@ -194,6 +216,7 @@ export default function UsersTable() {
     fetchUsers()
     fetchDevices()
     fetchRoles() // Add this line
+    fetchLocations() // Add this line
   }, [])
 
   // Handle user selection
@@ -231,8 +254,10 @@ export default function UsersTable() {
       username: "",
       email: "",
       password: "",
-      role: ["USER"], // Changed from "USER" to ["USER"]
+      role: [], // Changed from "USER" to ["USER"]
       devices: [],
+      location: [],
+      Remarks: ""
     })
     setAddModalOpen(true)
   }
@@ -248,9 +273,11 @@ export default function UsersTable() {
       setUserForm({
         username: user.username,
         email: user.email || "",
-        password: "",
-        role: Array.isArray(user.role) ? user.role : [user.role || "USER"], // Handle both array and string
+        password: user.password || "",
+        role: Array.isArray(user.role) ? user.role : [user.role], // Handle both array and string
+        location: Array.isArray(user.location) ? user.location : [user.location], // Handle both array and string
         devices: userDevices.map((d: any) => d.deviceId),
+        Remarks: user.Remarks || ""
       })
 
       setEditModalOpen(true)
@@ -308,6 +335,9 @@ export default function UsersTable() {
         username: userForm.username,
         email: userForm.email || null,
         password: userForm.password,
+        Remarks: userForm.Remarks || null,
+        role: userForm.role,
+        location: userForm.location
       })
 
       // Assign devices if any are selected
@@ -342,7 +372,9 @@ export default function UsersTable() {
         username: userForm.username,
         email: userForm.email || null,
         password: userForm.password || undefined,
-        role: userForm.role as ("ADMIN" | "USER" | "DRAFTER")[], // 👈 Cast here
+        role: userForm.role,
+        location: userForm.location,
+        Remarks: userForm.Remarks || null
       })
       
 
@@ -541,6 +573,9 @@ export default function UsersTable() {
                 username: row.Username || row.username || "",
                 email: row.Email || row.email || null,
                 password: row.Password || row.password || "",
+                Remarks: row.Remarks || row.remarks || "",
+                role: row.Role || row.role || [],
+                location: row.Location || row.location || []
               }
 
               if (!userData.username || !userData.password) {
@@ -656,7 +691,10 @@ export default function UsersTable() {
               <TableHead className="w-[150px]">Roles</TableHead>
               <TableHead className="w-[150px]">Created</TableHead>
               <TableHead className="w-[150px]">Updated</TableHead>
+              <TableHead className="w-[150px]">Location</TableHead>
+              <TableHead className="w-[150px]">Remarks</TableHead>
               <TableHead>Devices</TableHead>
+              
               <TableHead className="w-[100px]">Actions</TableHead>
             </TableRow>
           </TableHeader>
@@ -710,6 +748,9 @@ export default function UsersTable() {
                   </TableCell>
                   <TableCell>{formatDate(user.createdAt)}</TableCell>
                   <TableCell>{formatDate(user.updatedAt)}</TableCell>
+                  <TableCell className="max-w-[200px] whitespace-normal break-words">{user.Remarks}</TableCell>
+                  <TableCell className="max-w-[200px] whitespace-normal break-words">{user.location}</TableCell>
+
                   <TableCell>
                     <div className="flex flex-wrap gap-1">
                       {user.devices && user.devices.length > 0 ? (
@@ -836,13 +877,7 @@ export default function UsersTable() {
               <div className="col-span-3">
                 <MultiCombobox
                   options={
-                    roles.length > 0
-                      ? roles.map((role) => ({ label: role.name, value: role.name }))
-                      : [
-                          { label: "User", value: "USER" },
-                          { label: "Admin", value: "ADMIN" },
-                          { label: "Drafter", value: "DRAFTER" },
-                        ]
+                       roles.map((role) => ({ label: role.name, value: role.name }))
                   }
                   selected={userForm.role}
                   onChange={(selectedRoles) => {
@@ -855,7 +890,26 @@ export default function UsersTable() {
                 />
               </div>
             </div>
-
+            <div className="grid grid-cols-4 items-start gap-4">
+              <Label htmlFor="role" className="text-right pt-2">
+                Locations
+              </Label>
+              <div className="col-span-3">
+                <MultiCombobox
+                  options={
+                       locations.map((role) => ({ label: role.name, value: role.name }))
+                  }
+                  selected={userForm.location}
+                  onChange={(selectedRoles) => {
+                    setUserForm((prev) => ({
+                      ...prev,
+                      location: selectedRoles,
+                    }))
+                  }}
+                  placeholder="Select locations..."
+                />
+              </div>
+            </div>
             <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="password" className="text-right">
                 Password <span className="text-red-500">*</span>
@@ -895,6 +949,20 @@ export default function UsersTable() {
                   selected={userForm.devices.map((id) => id.toString())}
                   onChange={handleDeviceChange}
                   placeholder="Select devices..."
+                />
+              </div>
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="Remarks" className="text-right">
+                Remarks
+              </Label>
+              <div className="col-span-3 flex items-center gap-2">
+                <Input
+                  id="Remarks"
+                  name="Remarks"
+                  value={userForm.Remarks}
+                  onChange={handleFormChange}
+                  className="flex-1"
                 />
               </div>
             </div>
@@ -947,22 +1015,14 @@ export default function UsersTable() {
                   className="flex-1"
                 />
               </div>
-            </div>
+              </div>
             <div className="grid grid-cols-4 items-start gap-4">
               <Label htmlFor="edit-role" className="text-right pt-2">
                 Roles
               </Label>
               <div className="col-span-3">
                 <MultiCombobox
-                  options={
-                    roles.length > 0
-                      ? roles.map((role) => ({ label: role.name, value: role.name }))
-                      : [
-                          { label: "User", value: "USER" },
-                          { label: "Admin", value: "ADMIN" },
-                          { label: "Drafter", value: "DRAFTER" },
-                        ]
-                  }
+                  options={ roles.map((role) => ({ label: role.name, value: role.name }))}
                   selected={userForm.role}
                   onChange={(selectedRoles) => {
                     setUserForm((prev) => ({
@@ -971,6 +1031,25 @@ export default function UsersTable() {
                     }))
                   }}
                   placeholder="Select roles..."
+                />
+              </div>
+            </div>
+            </div>
+            <div className="grid grid-cols-4 items-start gap-4">
+              <Label htmlFor="edit-role" className="text-right pt-2">
+                Location
+              </Label>
+              <div className="col-span-3">
+                <MultiCombobox
+                  options={ locations.map((role) => ({ label: role.name, value: role.name }))}
+                  selected={userForm.location}
+                  onChange={(selectedLocations) => {
+                    setUserForm((prev) => ({
+                      ...prev,
+                      location: selectedLocations,
+                    }))
+                  }}
+                  placeholder="Select locations..."
                 />
               </div>
             </div>
@@ -1017,7 +1096,20 @@ export default function UsersTable() {
                 />
               </div>
             </div>
-          </div>
+            <div className="grid grid-cols-4 items-start gap-4">
+              <Label htmlFor="Remarks" className="text-right pt-2">
+                Remarks
+              </Label>
+              <div className="col-span-3">
+              <Input
+                  id="Remarks"
+                  name="Remarks"
+                  value={userForm.Remarks}
+                  onChange={handleFormChange}
+                  className="flex-1"
+                />
+              </div>
+            </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setEditModalOpen(false)}>
               Cancel

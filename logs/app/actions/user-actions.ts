@@ -14,7 +14,7 @@ export async function getUsers({
   search?: string
   page?: number
   pageSize?: number
-  role?: "ADMIN" | "USER" | "DRAFTER" | ""
+  role?: string
 }) {
   const skip = (page - 1) * pageSize
 
@@ -49,7 +49,7 @@ export async function getUsers({
     skip,
     take: pageSize,
   })
-
+  console.log(users)
   return {
     users,
     totalCount,
@@ -80,12 +80,16 @@ export async function addUser({
   username,
   email,
   password,
-  role = ["USER"], // default as string array
+  role, 
+  location, 
+  Remarks,
 }: {
   username: string
   email: string | null
   password: string
-  role?: ("ADMIN" | "USER" | "DRAFTER")[]
+  role: string[]
+  location: string[]
+  Remarks: string | null
 }) {
   const user = await db.user.create({
     data: {
@@ -93,6 +97,8 @@ export async function addUser({
       email,
       password,
       role, // ✅ this is now a string[]
+      location,
+      Remarks
     },
   })
 
@@ -115,29 +121,34 @@ export async function updateUser({
   email,
   password,
   role,
+  location,
+  Remarks,
 }: {
   id: number
   username: string
   email: string | null
   password?: string
-  role?: ("ADMIN" | "USER" | "DRAFTER")[]
+  role: string[]
+  location: string[]
+  Remarks: string | null
 }) {
   const data: Partial<{
     username: string
     email: string | null
     password: string
-    role: ("ADMIN" | "USER" | "DRAFTER")[]
+    role: string[]
+    location: string[]
+    Remarks: string | null
   }> = {
     username,
     email,
+    Remarks,
+    role,
+    location,
   }
   
   if (password) {
     data.password = password // ⚠️ Hashing is recommended before saving
-  }
-
-  if (role) {
-    data.role = role
   }
 
   const user = await db.user.update({

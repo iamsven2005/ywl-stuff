@@ -1,5 +1,6 @@
 "use server"
 import { db } from "@/lib/db";
+import { revalidatePath } from "next/cache";
 
 // Get all roles
 export async function getRoles() {
@@ -24,6 +25,8 @@ export async function addRole(roleData: { name: string; description?: string }) 
     const newRole = await db.roles.create({
       data: { name, description },
     });
+    revalidatePath("/logs")
+    
     return newRole;
   } catch (error) {
     console.error("Error creating role:", error);
