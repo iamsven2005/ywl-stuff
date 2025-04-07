@@ -37,7 +37,7 @@ def log_to_db(log_entry):
         cursor = conn.cursor()
 
         cursor.execute("""
-            INSERT INTO logs (name, ipAddress, command, action, host)
+            INSERT INTO logs.SambaLog (name, ipAddress, command, action, host)
             VALUES (%s, %s, %s, %s, %s,)
         """, (
             "samba",                         # name
