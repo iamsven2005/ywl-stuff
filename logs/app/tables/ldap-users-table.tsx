@@ -9,9 +9,11 @@ import { exportToExcel, prepareLdapUsersForExport } from "@/app/export-utils"
 import { Download, Search } from "lucide-react"
 import type { JSX } from "react/jsx-runtime"
 import { formatLdapTimestamp } from "@/lib/ldap-utils"
+import { ldapuser } from "@prisma/client"
+import { formatDate } from "@/lib/utils"
 
 export function LdapUsersTable() {
-  const [users, setUsers] = useState<any[]>([])
+  const [users, setUsers] = useState<ldapuser[]>([])
   const [loading, setLoading] = useState(true)
   const [searchTerm, setSearchTerm] = useState("")
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("")
@@ -88,11 +90,7 @@ export function LdapUsersTable() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Username</TableHead>
-                  <TableHead>Display Name</TableHead>
-                  <TableHead>Email</TableHead>
-                  <TableHead>Last Logon</TableHead>
-                  <TableHead>Account Status</TableHead>
+                  <TableHead>logs</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -105,9 +103,45 @@ export function LdapUsersTable() {
                 ) : (
                   users.map((user) => (
                     <TableRow key={user.id}>
-                      <TableCell className="font-medium">{user.sAMAccountName}</TableCell>
-                      <TableCell>{user.displayName || user.cn}</TableCell>
-                      <TableCell>{user.userPrincipalName || "-"}</TableCell>
+                      <TableCell>{user.id}</TableCell>
+                      <TableCell>{user.name}</TableCell>
+                      <TableCell>{user.dn}</TableCell>
+                      <TableCell>{user.objectClass}</TableCell>
+                      <TableCell>{user.cn}</TableCell>
+                      <TableCell>{user.sn}</TableCell>
+                      <TableCell>{user.givenName}</TableCell>
+                      <TableCell>{user.description}</TableCell>
+                      <TableCell>{user.instanceType}</TableCell>
+                      <TableCell>{user.accountExpires}</TableCell>
+                      <TableCell>{user.adminCount}</TableCell>
+                      <TableCell>{user.badPasswordTime}</TableCell>
+                      <TableCell>{user.badPwdCount}</TableCell>
+                      <TableCell>{user.codePage}</TableCell>
+                      <TableCell>{user.countryCode}</TableCell>
+                      <TableCell>{formatDate(user.createdAt)}</TableCell>
+                      <TableCell>{user.displayName}</TableCell>
+                      <TableCell>{user.distinguishedName}</TableCell>
+                      <TableCell>{user.isCriticalSystemObject}</TableCell>
+                      <TableCell>{user.lastLogoff}</TableCell>
+                      <TableCell>{user.logonCount}</TableCell>
+                      <TableCell>{user.memberOf}</TableCell>
+                      <TableCell>{user.objectCategory}</TableCell>
+                      <TableCell>{user.objectClass}</TableCell>
+                      <TableCell>{user.objectGUID}</TableCell>
+                      <TableCell>{user.objectSid}</TableCell>
+                      <TableCell>{user.primaryGroupID}</TableCell>
+                      <TableCell>{user.pwdLastSet}</TableCell>
+                      <TableCell>{user.sAMAccountName}</TableCell>
+                      <TableCell>{user.sAMAccountType}</TableCell>
+                      <TableCell>{user.showInAdvancedViewOnly}</TableCell>
+                      <TableCell>{user.sn}</TableCell>
+                      <TableCell>{user.uSNChanged}</TableCell>
+                      <TableCell>{user.uSNCreated}</TableCell>
+                      <TableCell>{formatDate(user.updatedAt)}</TableCell>
+                      <TableCell>{user.whenChanged}</TableCell>
+                      <TableCell>{user.whenCreated}</TableCell>
+
+                      <TableCell>{user.userPrincipalName}</TableCell>
                       <TableCell>{formatLdapTimestamp(user.lastLogon)}</TableCell>
                       <TableCell>{getAccountStatus(user.userAccountControl)}</TableCell>
                     </TableRow>
