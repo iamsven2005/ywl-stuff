@@ -661,3 +661,15 @@ model DriveFilePermission {
   @@unique([fileId, userId])
   User User[]
 }
+
+model JobTitle {
+  id                   Int      @id @default(autoincrement())
+  sn                   String
+  jobTitle             String
+  abbreviation         String
+  grade                String
+  seniorityLevel       String
+  selectableInStaffCV  String
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+}
