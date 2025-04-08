@@ -108,7 +108,8 @@ export default function UsersTable() {
   const [devices, setDevices] = useState<any[]>([])
   const [isLoading, setIsLoading] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
-
+  const [file, setFile] = useState<File | null>(null)
+  const [status, setStatus] = useState<string>("")
   // Modal states
   const [addModalOpen, setAddModalOpen] = useState(false)
   const [editModalOpen, setEditModalOpen] = useState(false)
@@ -630,7 +631,37 @@ export default function UsersTable() {
       role: selectedRoles,
     }))
   }
+  const handleUpload = async (e: React.FormEvent) => {
+    e.preventDefault()
 
+    if (!file) {
+      setStatus("Please select a file.")
+      return
+    }
+
+    const formData = new FormData()
+    formData.append("file", file)
+
+    setStatus("Uploading...")
+
+    try {
+      const res = await fetch("/api/user-upload", {
+        method: "POST",
+        body: formData,
+      })
+
+      const result = await res.json()
+
+      if (res.ok) {
+        setStatus(`✅ ${result.message}`)
+      } else {
+        setStatus(`❌ Error: ${result.error || "Upload failed"}`)
+      }
+    } catch (err) {
+      console.error(err)
+      setStatus("❌ Upload error occurred.")
+    }
+  }
   return (
     <div className="space-y-4">
       <div className="flex flex-col sm:flex-row gap-4 justify-between">
@@ -656,10 +687,17 @@ export default function UsersTable() {
             <Plus className="h-4 w-4" />
             Add User
           </Button>
-<form action="/api/user-upload" method="post" encType="multipart/form-data">
-  <Input type="file" name="file" accept=".html" required />
-  <Button type="submit">Upload</Button>
-</form>
+    <form onSubmit={handleUpload} className="space-y-4">
+      <input
+        type="file"
+        accept=".html"
+        onChange={(e) => setFile(e.target.files?.[0] || null)}
+      />
+      <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded">
+        Upload HTML
+      </button>
+      {status && <div className="text-sm text-gray-700">{status}</div>}
+    </form>
 
           <Button variant="outline" onClick={handleExport} className="gap-2">
             <Download className="h-4 w-4" />

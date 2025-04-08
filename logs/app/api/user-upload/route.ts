@@ -45,7 +45,6 @@ export async function POST(req: NextRequest) {
       Remarks: remarks,
       role: groups
       .split("\n")
-      .slice(0, 5)
       .map(r => r.trim().replace(/^[0-9]+\.?\s*/, ""))
       .filter(Boolean),
       location: location // ✅ flat array

@@ -1,1610 +1,191 @@
-<html>
-    <div id="__systemScreenshotDiv">
-        <head>
-            <title>YWL Engineering Portal - WCI</title>
-            <link type='text/css' rel='stylesheet' href='/static/wci1/css/bootstrap.min.css?1744078692327=1744078692327'/>
-            <link type='text/css' rel='stylesheet' href='/static/wci1/css/style_en.css'/>
-            <link type='text/css' rel='stylesheet' href='/static/wci1/css/modal-message.css'/>
-            <script type='text/javascript' src='/static/wci1/script/jquery.min.js'></script>
-            <script type="text/javascript">
-                function __sys_getRedirectUrl() {
-                    return "http://192.168.1.71:8000/wciapi/";
-                }
-            </script>
-            <script type="text/javascript">
-                function __sys_getStaticFilePath() {
-                    return "/static/wci1/";
-                }
-            </script>
-            <script type="text/javascript">
-                function __sys_getPyiToken() {
-                    return "kf49uztib3xxop7proyiog8urut3chgs";
-                }
-            </script>
-            <script type="text/javascript">
-                function __sys_isPyiRequest() {
-                    return true;
-                }
-            </script>
-            <script type="text/javascript">
-                JQ = $;
-            </script>
-            <script type='text/javascript' src='/static/wci1/script/modal-message-v2.js'></script>
-            <script type='text/javascript' src='/static/wci1/script/prototype.js'></script>
-            <script type='text/javascript' src='/static/wci1/script/jsencrypt.min.js'></script>
-            <script language='JavaScript'>
-                var __REQUEST_ID = "SU8bB7dTFYvH53N";
-                var __SSI = "ZdLcSJEUjLrJJ3WxtR7J";
-            </script>
-            <script type='text/javascript' src='/static/wci1/script/sys-1.35.js?20250331=20250331'></script>
-            <script type='text/javascript' src='/static/wci1/script/cookie.js'></script>
-            <link type='text/css' rel='stylesheet' href='/static/wci1/css/wci/usermanagement2-v1.css'/>
-            <link type='text/css' rel='stylesheet' href='/static/wci1/css/dhtmlwindow.css'/>
-            <script type='text/javascript' src='/static/wci1/script/dhtmlwindow.js'></script>
-            <link rel="shortcut icon" href="image/favicon.ico">
-            <meta name="keywords" content="wci">
-            <link type='text/css' rel='stylesheet' href='/static/wci1/css/menu-v3.css'/>
-            <script type='text/javascript' src='/static/wci1/script/menu-v15.js'></script>
-            <script type='text/javascript' src='/static/wci1/script/bootstrap.min.js'></script>
-            <script type='text/javascript' src='/static/wci1/script/html2canvas.js'></script>
-            <script type='text/javascript' src='/static/wci1/script/feedback-v5.js'></script>
-            <link type='text/css' rel='stylesheet' href='/static/wci1/css/viewer.css'/>
-            <script type='text/javascript' src='/static/wci1/script/viewer.js'></script>
-            <script type='text/javascript' src='/static/wci1/script/popper.js'></script>
-            <script type='text/javascript' src='/static/wci1/script/tippy-bundle.iife.js'></script>
-            <link type='text/css' rel='stylesheet' href='/static/wci1/css/toastr-v1.css'/>
-            <script type='text/javascript' src='/static/wci1/script/toastr.min.js'></script>
-            <script type='text/javascript' src='/static/wci1/script/wci/WebSocket-v10.js'></script>
-            <link type='text/css' rel='stylesheet' href='/static/wci1/css/style-v4.css'/>
-            <script type="text/javascript">
-                var menuData = [{
-                    "title": "Home",
-                    "action": "612"
-                }, {
-                    "title": "System",
-                    "action": "1",
-                    "subMenu": [{
-                        "title": "User&nbsp;Management",
-                        "subMenu": [{
-                            "title": "IOCorrect&nbsp;External&nbsp;Users",
-                            "action": "293"
-                        }, {
-                            "title": "Users",
-                            "action": "510"
-                        }]
-                    }, {
-                        "title": "User&nbsp;Group&nbsp;Management",
-                        "action": "3"
-                    }, {
-                        "title": "User&nbsp;Group&nbsp;Management&nbsp;2",
-                        "action": "672"
-                    }, {
-                        "title": "In-house&nbsp;Software&nbsp;Category&nbsp;Management",
-                        "action": "185"
-                    }, {
-                        "title": "In-house&nbsp;Software&nbsp;Manager&nbsp;Management",
-                        "action": "188"
-                    }, {
-                        "title": "In-house&nbsp;Software&nbsp;Access&nbsp;Right&nbsp;Management",
-                        "action": "187"
-                    }, {
-                        "title": "Permission&nbsp;Control",
-                        "action": "352"
-                    }, {
-                        "title": "Teams",
-                        "action": "243"
-                    }, {
-                        "title": "Job&nbsp;Title",
-                        "action": "244"
-                    }, {
-                        "title": "Online&nbsp;Users",
-                        "action": "257"
-                    }, {
-                        "title": "IOCorrect&nbsp;and&nbsp;IHS&nbsp;Management",
-                        "action": "230"
-                    }, {
-                        "title": "IOCorrect&nbsp;Protected&nbsp;Manager&nbsp;(Obsolete)",
-                        "action": "416"
-                    }, {
-                        "title": "Currency",
-                        "action": "418"
-                    }, {
-                        "title": "Product&nbsp;License&nbsp;Manager",
-                        "action": "417"
-                    }, {
-                        "title": "Office",
-                        "action": "419"
-                    }, {
-                        "title": "Logs",
-                        "subMenu": [{
-                            "title": "Command&nbsp;Logs&nbsp;(IOCorrect)",
-                            "action": "229"
-                        }, {
-                            "title": "Engine",
-                            "action": "190"
-                        }]
-                    }, {
-                        "title": "My&nbsp;Request&nbsp;Queue",
-                        "action": "289"
-                    }, {
-                        "title": "T001&nbsp;-&nbsp;Convert&nbsp;PDF&nbsp;to&nbsp;Drawing",
-                        "action": "395"
-                    }, {
-                        "title": "System&nbsp;Setting",
-                        "action": "615"
-                    }]
-                }, {
-                    "title": "Engineering",
-                    "action": "184",
-                    "subMenu": [{
-                        "title": "Design&nbsp;Tools",
-                        "subMenu": [{
-                            "title": "In-house&nbsp;Design&nbsp;Spreadsheet",
-                            "subMenu": [{
-                                "title": "Category&nbsp;Management",
-                                "action": "685"
-                            }, {
-                                "title": "Download",
-                                "action": "686"
-                            }]
-                        }]
-                    }]
-                }, {
-                    "title": "Admin&nbsp;&amp;&nbsp;Support",
-                    "action": "840",
-                    "subMenu": [{
-                        "title": "E-Noticeboard",
-                        "subMenu": [{
-                            "title": "E-Noticeboard",
-                            "action": "714"
-                        }]
-                    }, {
-                        "title": "IT&nbsp;Support",
-                        "action": "644"
-                    }, {
-                        "title": "Admin&nbsp;Support",
-                        "action": "655"
-                    }, {
-                        "title": "License&nbsp;Status",
-                        "subMenu": [{
-                            "title": "Autodesk&nbsp;License&nbsp;Usage",
-                            "action": "1057"
-                        }, {
-                            "title": "Oasys&nbsp;AdSec&nbsp;License&nbsp;Usage",
-                            "action": "1060"
-                        }, {
-                            "title": "Midas&nbsp;Civil&nbsp;License&nbsp;Usage",
-                            "action": "1061"
-                        }]
-                    }, {
-                        "title": "Employee&nbsp;Interactive&nbsp;Feedback&nbsp;Form",
-                        "action": "1066"
-                    }]
-                }, {
-                    "title": "Document",
-                    "action": "258",
-                    "subMenu": [{
-                        "title": "Library",
-                        "subMenu": [{
-                            "title": "Library&nbsp;List",
-                            "action": "502"
-                        }]
-                    }]
-                }, {
-                    "title": "Template",
-                    "action": "841",
-                    "subMenu": [{
-                        "title": "GEOMPRO",
-                        "subMenu": [{
-                            "title": "Training",
-                            "action": "700"
-                        }, {
-                            "title": "MAN&nbsp;&amp;&nbsp;MS",
-                            "action": "701"
-                        }, {
-                            "title": "Checklist",
-                            "action": "702"
-                        }]
-                    }]
-                }, {
-                    "title": "Project&nbsp;Management",
-                    "action": "245",
-                    "subMenu": [{
-                        "title": "Project&nbsp;Contact&nbsp;List",
-                        "action": "255"
-                    }]
-                }, {
-                    "title": "HR",
-                    "action": "478",
-                    "subMenu": [{
-                        "title": "Timesheet",
-                        "subMenu": [{
-                            "title": "Timesheet&nbsp;Input",
-                            "action": "248"
-                        }, {
-                            "title": "Monthly&nbsp;Summary&nbsp;Report",
-                            "action": "282"
-                        }, {
-                            "title": "Yearly&nbsp;Summary&nbsp;Report",
-                            "action": "281"
-                        }, {
-                            "title": "User&nbsp;Monthly&nbsp;Summary&nbsp;Report",
-                            "action": "618"
-                        }, {
-                            "title": "User&nbsp;Yearly&nbsp;Summary&nbsp;Report",
-                            "action": "622"
-                        }]
-                    }, {
-                        "title": "E-Leave&nbsp;(EL)",
-                        "subMenu": [{
-                            "title": "EL001&nbsp;-&nbsp;My&nbsp;Status",
-                            "action": "570"
-                        }, {
-                            "title": "EL002&nbsp;-&nbsp;Leave&nbsp;Application",
-                            "action": "571"
-                        }, {
-                            "title": "EL009&nbsp;-&nbsp;Leave&nbsp;Calendar",
-                            "action": "591"
-                        }]
-                    }, {
-                        "title": "Training&nbsp;Record&nbsp;(TR)",
-                        "subMenu": [{
-                            "title": "TR003&nbsp;-&nbsp;Training&nbsp;Request",
-                            "action": "503"
-                        }, {
-                            "title": "TR004&nbsp;-&nbsp;Trainee&nbsp;Feedback",
-                            "action": "483"
-                        }, {
-                            "title": "TR005&nbsp;-&nbsp;Department&nbsp;Head&nbsp;Evaluation",
-                            "action": "484"
-                        }, {
-                            "title": "TR006&nbsp;-&nbsp;Trainee&nbsp;Training&nbsp;History",
-                            "action": "485"
-                        }]
-                    }, {
-                        "title": "Staff&nbsp;Contact&nbsp;List",
-                        "action": "706"
-                    }, {
-                        "title": "Staff&nbsp;Survey",
-                        "subMenu": [{
-                            "title": "Area&nbsp;of&nbsp;Interest",
-                            "action": "493"
-                        }, {
-                            "title": "COVID-19&nbsp;Vaccination&nbsp;Status",
-                            "action": "694"
-                        }]
-                    }, {
-                        "title": "Non-Disclosure&nbsp;Agreement",
-                        "action": "803"
-                    }]
-                }, {
-                    "title": "Management",
-                    "action": "703",
-                    "subMenu": [{
-                        "title": "Insurance&nbsp;&amp;&nbsp;Licence&nbsp;(Admin)",
-                        "action": "704"
-                    }, {
-                        "title": "Insurance",
-                        "action": "705"
-                    }]
-                }, {
-                    "title": "WCI&nbsp;2",
-                    "action": "927",
-                    "subMenu": [{
-                        "title": "Expense&nbsp;System&nbsp;(ES)",
-                        "subMenu": [{
-                            "title": "IB000&nbsp;-&nbsp;Inbox",
-                            "action": "887"
-                        }]
-                    }, {
-                        "title": "Admin&nbsp;&amp;&nbsp;Support&nbsp;2",
-                        "subMenu": [{
-                            "title": "E-Noticeboard",
-                            "subMenu": [{
-                                "title": "NoticeBoard001&nbsp;-&nbsp;E-Noticeboard",
-                                "action": "963"
-                            }]
-                        }, {
-                            "title": "License&nbsp;Status",
-                            "subMenu": [{
-                                "title": "Autodesk&nbsp;License&nbsp;Usage",
-                                "action": "1039"
-                            }, {
-                                "title": "Oasys&nbsp;AdSec&nbsp;License&nbsp;Usage",
-                                "action": "1059"
-                            }, {
-                                "title": "Midas&nbsp;Civil&nbsp;License&nbsp;Usage",
-                                "action": "1045"
-                            }]
-                        }, {
-                            "title": "Employee&nbsp;Interactive&nbsp;Feedback&nbsp;Form",
-                            "action": "1047"
-                        }]
-                    }, {
-                        "title": "Engineering",
-                        "action": "1005",
-                        "subMenu": [{
-                            "title": "Bridge&nbsp;Setting&nbsp;Out",
-                            "action": "1007"
-                        }, {
-                            "title": "Drawing&nbsp;Management",
-                            "action": "1076"
-                        }]
-                    }]
-                }, {
-                    "title": "Logout",
-                    "action": "Logout"
-                }];
-            </script>
-        </head>
-        <body>
-            <div id="FRAME_BODY_HEAD"></div>
-            <div class='main_screen'>
-                <table class="screen_title_layout">
-                    <tr>
-                        <td class="screen_title_left">User maintenance - New</td>
-                        <td class="screen_title_center"></td>
-                        <td class="screen_title_right">
-                            sven.tan 2025-04-08 10:13:42 
-                            <A href="" onclick="javascript: _showHelp('Help',{'masterRequestID':'SU8bB7dTFYvH53N'}); return false;">
-                                <img border=0 align="absmiddle" src="/static/wci1/image/help.gif">
-                            </a>
-                            <A id="__system_screen_title_right_home_button" href="javascript:_doSubmit('index.jsp?__REQUEST_ID=SU8bB7dTFYvH53N',{'__SSI':'ZdLcSJEUjLrJJ3WxtR7J','__REQUEST_ID':'SU8bB7dTFYvH53N','__CMD':'612'});">
-                                <img border=0 align="absmiddle" src="/static/wci1/image/base.gif">
-                            </a>
-                        </td>
-                    </tr>
-                </table>
-                <table>
-                    <tr>
-                        <td align=left valign=top class="layout_default_td">
-                            <FORM name="schFg" id="schFg" method="POST">
-                                <table class="search_layout">
-                                    <tr>
-                                        <td valign=top class="layout_default_td">
-                                            <table class="property_field">
-                                                <tr>
-                                                    <th class="property_key">Enable Users</th>
-                                                    <td class="property_value">
-                                                        <input type="checkbox" name="schEnb" id="schEnb" value="true" checked="checked" datatype="6" datatypename="boolean" required="false"/>
-                                                    </td>
-                                                    <th class="property_key">Disable Users</th>
-                                                    <td class="property_value">
-                                                        <input type="checkbox" name="schDsb" id="schDsb" value="true" datatype="6" datatypename="boolean" required="false"/>
-                                                    </td>
-                                                    <th class="property_key">External IOCorrect Users</th>
-                                                    <td class="property_value">
-                                                        <input type="checkbox" name="iocorrectUsrField" id="iocorrectUsrField" value="true" datatype="6" datatypename="boolean" required="false"/>
-                                                    </td>
-                                                    <th class="property_key">Search Keys (ID, name, groups, remarks)</th>
-                                                    <td class="property_value">
-                                                        <INPUT type="Textbox" name="schKey" id="schKey" value="" datatype="0" datatypename="string" required="false"/>
-                                                    </td>
-                                                </tr>
-                                            </table>
-                                        </td>
-                                    </tr>
-                                </table>
-                            </FORM>
-                            <div id="schToolbar" class="bar_layout">
-                                &nbsp;
-                                <A name="bttSch" href="javascript:_doSubmit('index.jsp?__REQUEST_ID=SU8bB7dTFYvH53N',{'__SSI':'ZdLcSJEUjLrJJ3WxtR7J','__REQUEST_ID':'SU8bB7dTFYvH53N','__CMD':'Search','FORM_NAME_HIDDEN':'schFg','ACTION_NAME_HIDDEN':'ACTION_TO_VALIDATE'});">
-                                    <img border=0 align="absmiddle" src="/static/wci1/image/search_button.gif">
-                                </a>
-                                &nbsp;Search &nbsp;&nbsp;
-                                <A name="bttAddUser1" href="javascript:_doSubmit('index.jsp?__REQUEST_ID=SU8bB7dTFYvH53N',{'__SSI':'ZdLcSJEUjLrJJ3WxtR7J','__REQUEST_ID':'SU8bB7dTFYvH53N','__CMD':'AddUser'});">
-                                    <img border=0 align="absmiddle" src="/static/wci1/image/new_button.gif">
-                                </a>
-                                &nbsp;Add &nbsp;New &nbsp;User &nbsp;
-                            </div>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td align=left valign=top>
-                            <table border=0 width="100%">
-                                <tr>
-                                    <td align=left valign=top class="layout_default_td">
-                                        <FORM name="usrListFg" id="usrListFg" method="POST">
-                                            <label class="fieldgroup_caption">Total &nbsp;168 &nbsp;Users</label>
-                                            <table class="navigator_layout">
-                                                <tr>
-                                                    <td valign=top class="layout_default_td">
-                                                        <A href="javascript:_doSubmit('index.jsp?__REQUEST_ID=SU8bB7dTFYvH53N',{'__SSI':'ZdLcSJEUjLrJJ3WxtR7J','__REQUEST_ID':'SU8bB7dTFYvH53N','__CMD':'GotoFirstPage','FIELDGRP_NAME':'usrListFg'});">
-                                                            <img border=0 align="absmiddle" src="/static/wci1/image/first_button.gif">
-                                                        </a>
-                                                    </td>
-                                                    <td valign=top class="layout_default_td">
-                                                        <A href="javascript:_doSubmit('index.jsp?__REQUEST_ID=SU8bB7dTFYvH53N',{'__SSI':'ZdLcSJEUjLrJJ3WxtR7J','__REQUEST_ID':'SU8bB7dTFYvH53N','__CMD':'GotoPreviousPage','FIELDGRP_NAME':'usrListFg'});">
-                                                            <img border=0 align="absmiddle" src="/static/wci1/image/previous_button.gif">
-                                                        </a>
-                                                    </td>
-                                                    <td valign=top class="layout_default_td">
-                                                        <A href="javascript:_doSubmit('index.jsp?__REQUEST_ID=SU8bB7dTFYvH53N',{'__SSI':'ZdLcSJEUjLrJJ3WxtR7J','__REQUEST_ID':'SU8bB7dTFYvH53N','__CMD':'GotoNextPage','FIELDGRP_NAME':'usrListFg'});">
-                                                            <img border=0 align="absmiddle" src="/static/wci1/image/next_button.gif">
-                                                        </a>
-                                                    </td>
-                                                    <td valign=top class="layout_default_td">
-                                                        <A href="javascript:_doSubmit('index.jsp?__REQUEST_ID=SU8bB7dTFYvH53N',{'__SSI':'ZdLcSJEUjLrJJ3WxtR7J','__REQUEST_ID':'SU8bB7dTFYvH53N','__CMD':'GotoLastPage','FIELDGRP_NAME':'usrListFg'});">
-                                                            <img border=0 align="absmiddle" src="/static/wci1/image/last_button.gif">
-                                                        </a>
-                                                    </td>
-                                                    <td valign=top class="layout_default_td">
-                                                        <SELECT name="PageNO" id="ID_51694" size="1" datatype="0" datatypename="string" required="true">
-                                                            <OPTION value="1">1</OPTION>
-                                                            <OPTION value="2">2</OPTION>
-                                                            <OPTION value="3">3</OPTION>
-                                                            <OPTION value="4" selected="selected">4</OPTION>
-                                                            <OPTION value="5">5</OPTION>
-                                                            <OPTION value="6">6</OPTION>
-                                                            <OPTION value="7">7</OPTION>
-                                                            <OPTION value="8">8</OPTION>
-                                                            <OPTION value="9">9</OPTION>
-                                                            <OPTION value="10">10</OPTION>
-                                                            <OPTION value="11">11</OPTION>
-                                                            <OPTION value="12">12</OPTION>
-                                                            <OPTION value="13">13</OPTION>
-                                                            <OPTION value="14">14</OPTION>
-                                                            <OPTION value="15">15</OPTION>
-                                                            <OPTION value="16">16</OPTION>
-                                                            <OPTION value="17">17</OPTION>
-                                                        </SELECT>
-                                                    </td>
-                                                    <td valign=top class="layout_default_td">
-                                                        <A href="javascript:{usrListFg_NavigatorGotoPage();}">
-                                                            <img border=0 align="absmiddle" src="/static/wci1/image/refresh_button.gif">
-                                                        </a>
-                                                    </td>
-                                                </tr>
-                                            </table>
-                                            <SCRIPT language=javascript>
-                                                function usrListFg_NavigatorGotoPage() {
-                                                    _doSubmit('index.jsp?__REQUEST_ID=SU8bB7dTFYvH53N', {
-                                                        '__SSI': 'ZdLcSJEUjLrJJ3WxtR7J',
-                                                        '__REQUEST_ID': 'SU8bB7dTFYvH53N',
-                                                        '__CMD': 'GotoPage',
-                                                        'FIELDGRP_NAME': 'usrListFg'
-                                                    }, {
-                                                        'PageNO': 'document.getElementById("ID_51694").value'
-                                                    });
-                                                }
-                                            </SCRIPT>
-                                            <table class="table_layout">
-                                                <THEAD>
-                                                    <tr>
-                                                        <TH></TH>
-                                                        <TH>#</TH>
-                                                        <TH>WCI ID</TH>
-                                                        <TH>Company</TH>
-                                                        <TH>Location</TH>
-                                                        <TH>Enable</TH>
-                                                        <TH>Join Date</TH>
-                                                        <TH>Last Date</TH>
-                                                        <TH>Groups</TH>
-                                                        <TH>Remark</TH>
-                                                    </tr>
-                                                </THEAD>
-                                                <TBODY>
-                                                    <tr>
-                                                        <TD>
-                                                            <A href="javascript:_doSubmit('index.jsp?__REQUEST_ID=SU8bB7dTFYvH53N',{'__SSI':'ZdLcSJEUjLrJJ3WxtR7J','__REQUEST_ID':'SU8bB7dTFYvH53N','__CMD':'usrListFg_Edit','EditIndexField':'1073'});">
-                                                                <img border=0 align="absmiddle" src="/static/wci1/image/expand_sbutton.gif">
-                                                            </a>
-                                                        </TD>
-                                                        <TD>31</TD>
-                                                        <TD>cuiyue</TD>
-                                                        <TD>1. YWL Engineering Pte Ltd</TD>
-                                                        <TD>SG</TD>
-                                                        <TD>Y</TD>
-                                                        <TD>2014-08-04</TD>
-                                                        <TD></TD>
-                                                        <TD>
-                                                            1. Autodesk License - Users
-<br>
-                                                            2. Design Section 1 - Team Members
-<br>
-                                                            3. Drawing Management - Normal
-<br>
-                                                            4. FC101
-<br>
-                                                            5. FC201D
-<br>
-                                                            6. Geompro-ALL
-<br>
-                                                            7. GP011A - External Tendon Specification
-<br>
-                                                            8. GP011B
-<br>
-                                                            9. GP011D
-<br>
-                                                            10. GP011E
-<br>
-                                                            11. GP020
-<br>
-                                                            12. HR - TR - Users
-<br>
-                                                            13. In-house Spreadsheet2
-<br>
-                                                            14. In-house Spreadsheet 2 - Download
-<br>
-                                                            15. Non-Disclosure Agreement (NDA)
-<br>
-                                                            16. R012
-<br>
-                                                            17. R013
-<br>
-                                                            18. R106A
-<br>
-                                                            19. R108
-<br>
-                                                            20. R110
-<br>
-                                                            21. Revit - All functions
-<br>
-                                                            22. Revit - R007
-<br>
-                                                            23. Revit - R109
-<br>
-                                                            24. SC001A
-<br>
-                                                            25. SC001B
-<br>
-                                                            26. SC001-DB2-UPDATE-RIGHTS
-<br>
-                                                            27. TC001 - Singapore Statutory Circulars - Users
-<br>
-                                                            28. Timesheet Users
-<br>
-                                                            29. Training Record (TR) - user
-<br>
-                                                            30. wci-GP001-delete-input-data
-<br>
-                                                            31. wci-GP003A-delete-input-data
-<br>32. wci-GP011E-delete-input-data
-                                                        </TD>
-                                                        <TD>
-                                                            2012-05-21,2013-02-01 ~ 2013-08-07,
-<br>Renew: 2014-08-04
-                                                        </TD>
-                                                    </tr>
-                                                    <tr>
-                                                        <TD>
-                                                            <A href="javascript:_doSubmit('index.jsp?__REQUEST_ID=SU8bB7dTFYvH53N',{'__SSI':'ZdLcSJEUjLrJJ3WxtR7J','__REQUEST_ID':'SU8bB7dTFYvH53N','__CMD':'usrListFg_Edit','EditIndexField':'1070'});">
-                                                                <img border=0 align="absmiddle" src="/static/wci1/image/expand_sbutton.gif">
-                                                            </a>
-                                                        </TD>
-                                                        <TD>32</TD>
-                                                        <TD>CWB</TD>
-                                                        <TD></TD>
-                                                        <TD></TD>
-                                                        <TD>Y</TD>
-                                                        <TD></TD>
-                                                        <TD></TD>
-                                                        <TD>1. wci_cmd_IOCorrect External</TD>
-                                                        <TD>Project 12103-CWB (Casting yard servcie):  anyao, bbcw13</TD>
-                                                    </tr>
-                                                    <tr>
-                                                        <TD>
-                                                            <A href="javascript:_doSubmit('index.jsp?__REQUEST_ID=SU8bB7dTFYvH53N',{'__SSI':'ZdLcSJEUjLrJJ3WxtR7J','__REQUEST_ID':'SU8bB7dTFYvH53N','__CMD':'usrListFg_Edit','EditIndexField':'1375'});">
-                                                                <img border=0 align="absmiddle" src="/static/wci1/image/expand_sbutton.gif">
-                                                            </a>
-                                                        </TD>
-                                                        <TD>33</TD>
-                                                        <TD>daniel.thian</TD>
-                                                        <TD>1. YWL Engineering (M) Sdn Bhd – KC</TD>
-                                                        <TD>KC</TD>
-                                                        <TD>Y</TD>
-                                                        <TD>2022-12-12</TD>
-                                                        <TD></TD>
-                                                        <TD>
-                                                            1. Autodesk License - Users
-<br>
-                                                            2. daniel.thian GP access
-<br>
-                                                            3. FC201B - 20210415
-<br>
-                                                            4. FC201C
-<br>
-                                                            5. GP016B
-<br>
-                                                            6. HR - TR - Users
-<br>
-                                                            7. In-house Spreadsheet 2 - Download
-<br>
-                                                            8. Library for MY
-<br>
-                                                            9. Malaysia (MY) engineers
-<br>
-                                                            10. R012B - 20210415
-<br>11. Timesheet Users
-                                                        </TD>
-                                                        <TD></TD>
-                                                    </tr>
-                                                    <tr>
-                                                        <TD>
-                                                            <A href="javascript:_doSubmit('index.jsp?__REQUEST_ID=SU8bB7dTFYvH53N',{'__SSI':'ZdLcSJEUjLrJJ3WxtR7J','__REQUEST_ID':'SU8bB7dTFYvH53N','__CMD':'usrListFg_Edit','EditIndexField':'1010'});">
-                                                                <img border=0 align="absmiddle" src="/static/wci1/image/expand_sbutton.gif">
-                                                            </a>
-                                                        </TD>
-                                                        <TD>34</TD>
-                                                        <TD>david</TD>
-                                                        <TD>1. YWL Engineering Limited</TD>
-                                                        <TD>HK</TD>
-                                                        <TD>Y</TD>
-                                                        <TD>2012-06-01</TD>
-                                                        <TD></TD>
-                                                        <TD>
-                                                            1. Administration
-<br>
-                                                            2. administrators
-<br>
-                                                            3. Admin Tools
-<br>
-                                                            4. Calculation Pad
-<br>
-                                                            5. DDG Drawing List
-<br>
-                                                            6. Document - ISO - Manager
-<br>
-                                                            7. Document Template - Admin
-<br>
-                                                            8. Drawing Management System - admin
-<br>
-                                                            9. DVC006
-<br>
-                                                            10. DVC - Device Management - Admin
-<br>
-                                                            11. EGC-All
-<br>
-                                                            12. EL001
-<br>
-                                                            13. EL002
-<br>
-                                                            14. EL003
-<br>
-                                                            15. EL004A
-<br>
-                                                            16. EL004B
-<br>
-                                                            17. EL004C
-<br>
-                                                            18. EL005
-<br>
-                                                            19. EL006
-<br>
-                                                            20. EL007
-<br>
-                                                            21. EL008 - Admin
-<br>
-                                                            22. Employee Feedback
-<br>
-                                                            23. ES Admin
-<br>
-                                                            24. ES - wci2 - UAT
-<br>
-                                                            25. ET001 - Users
-<br>
-                                                            26. FreeCAD
-<br>
-                                                            27. FST001A1
-<br>
-                                                            28. FST001A2
-<br>
-                                                            29. FST001B2
-<br>
-                                                            30. FTP Admin
-<br>
-                                                            31. GEO-003
-<br>
-                                                            32. GEO-021
-<br>
-                                                            33. GEO-022
-<br>
-                                                            34. GEOM-002
-<br>
-                                                            35. GEOM-003
-<br>
-                                                            36. Geompro-ALL
-<br>
-                                                            37. Geotechnical Design - All
-<br>
-                                                            38. GP001B
-<br>
-                                                            39. GP007B - GC Drawing (old)
-<br>
-                                                            40. GP008B
-<br>
-                                                            41. GP010
-<br>
-                                                            42. GP010A
-<br>
-                                                            43. GP011A - External Tendon Specification
-<br>
-                                                            44. GP011B
-<br>
-                                                            45. GP011C
-<br>
-                                                            46. GP016A
-<br>
-                                                            47. GP016B
-<br>
-                                                            48. GP016E
-<br>
-                                                            49. GP017
-<br>
-                                                            50. GP018 Users
-<br>
-                                                            51. GP019
-<br>
-                                                            52. GP020
-<br>
-                                                            53. GP021
-<br>
-                                                            54. HR001
-<br>
-                                                            55. HR001A
-<br>
-                                                            56. HR-&gt;Survey on the Area of Interest
-<br>
-                                                            57. H &amp;S Committee Meeting
-<br>
-                                                            58. IHS-Admin
-<br>
-                                                            59. IHS-Geometry-Managers
-<br>
-                                                            60. IHS-Geompro-New Box Centerlien
-<br>
-                                                            61. IHS-Geompro-Pier and pile position
-<br>
-                                                            62. IHS-Geotechnical-Managers
-<br>
-                                                            63. IHS-Ground Model
-<br>
-                                                            64. IHS-Logs
-<br>
-                                                            65. IHS-RC006
-<br>
-                                                            66. In-Hourse Software 2
-<br>
-                                                            67. In-house Softwares - All
-<br>
-                                                            68. In-house Software Testing
-<br>
-                                                            69. In-house Spreadsheet 2 (pyi)
-<br>
-                                                            70. IOCorrect Data File Tools
-<br>
-                                                            71. IOCorrect Protected Manager
-<br>
-                                                            72. IPA Users
-<br>
-                                                            73. ISO101
-<br>
-                                                            74. ISO102
-<br>
-                                                            75. ISO103
-<br>
-                                                            76. IT (For Testing)
-<br>
-                                                            77. IT (HK Office) - Team Leaders
-<br>
-                                                            78. Managers
-<br>
-                                                            79. Modeling IT
-<br>
-                                                            80. MT001
-<br>
-                                                            81. OH &amp;S001
-<br>
-                                                            82. OH &amp;S002
-<br>
-                                                            83. PD001 - admin
-<br>
-                                                            84. PDT
-<br>
-                                                            85. Pier bearing dimension
-<br>
-                                                            86. Pier Head Top Level
-<br>
-                                                            87. PM101 - 3-Month Resource Forecast
-<br>
-                                                            88. PO
-<br>
-                                                            89. PPE
-<br>
-                                                            90. Product License Management
-<br>
-                                                            91. Project Management - Monthly Resource Plan
-<br>
-                                                            92. Project Settings
-<br>
-                                                            93. PYIDemo
-<br>
-                                                            94. Pyi HR2 Menu
-<br>
-                                                            95. R011
-<br>
-                                                            96. R012
-<br>
-                                                            97. R012C
-<br>
-                                                            98. R013
-<br>
-                                                            99. R106A
-<br>
-                                                            100. R108
-<br>
-                                                            101. R110
-<br>
-                                                            102. R111
-<br>
-                                                            103. R203
-<br>
-                                                            104. RC-004
-<br>
-                                                            105. RC-005
-<br>
-                                                            106. Request Queue Admin
-<br>
-                                                            107. Revit - All functions
-<br>
-                                                            108. Revit - Midas Interface
-<br>
-                                                            109. Revit - R007
-<br>
-                                                            110. Revit - R109
-<br>
-                                                            111. Risk Assessment Form
-<br>
-                                                            112. Safe Work Procedure
-<br>
-                                                            113. SC001A
-<br>
-                                                            114. SC001B
-<br>
-                                                            115. SC001C
-<br>
-                                                            116. SectionHead - Team Members
-<br>
-                                                            117. Segment Length Drawing
-<br>
-                                                            118. Segment Tendon Drawing
-<br>
-                                                            119. Segment Transformation
-<br>
-                                                            120. SM-001
-<br>
-                                                            121. SM - Software Management - Admin
-<br>
-                                                            122. ST-001
-<br>
-                                                            123. ST-002
-<br>
-                                                            124. ST-003
-<br>
-                                                            125. ST-004
-<br>
-                                                            126. ST-005
-<br>
-                                                            127. ST-006
-<br>
-                                                            128. ST-007
-<br>
-                                                            129. ST-008
-<br>
-                                                            130. strand no, deck and pier design
-<br>
-                                                            131. SZ Office - Team Leaders
-<br>
-                                                            132. Task Management
-<br>
-                                                            133. TC001-Admin
-<br>
-                                                            134. Team Leader Admin
-<br>
-                                                            135. Team Report
-<br>
-                                                            136. Tendon Layout
-<br>
-                                                            137. Timesheet &amp;Task Management
-<br>
-                                                            138. TR004A
-<br>
-                                                            139. Training Record (TR) - admin
-<br>
-                                                            140. TR HK Users
-<br>
-                                                            141. User Management - new
-<br>
-                                                            142. Vaccination Report
-<br>
-                                                            143. Vendor001
-<br>
-                                                            144. Voting for RC committee - admin
-<br>
-                                                            145. wci_cmd_All
-<br>
-                                                            146. wci_cmd_YWL-IHS-GEOM-003
-<br>
-                                                            147. wci_cmd_YWL-IHS-GEOM-BoxC
-<br>
-                                                            148. WCI ID &amp;Email
-<br>
-                                                            149. WCI Site Map
-<br>
-                                                            150. Wiki-In-house Softwares
-<br>
-                                                            151. Wiki-Management
-<br>152. Wiki-Projects
-                                                        </TD>
-                                                        <TD>joint date is incorrect</TD>
-                                                    </tr>
-                                                    <tr>
-                                                        <TD>
-                                                            <A href="javascript:_doSubmit('index.jsp?__REQUEST_ID=SU8bB7dTFYvH53N',{'__SSI':'ZdLcSJEUjLrJJ3WxtR7J','__REQUEST_ID':'SU8bB7dTFYvH53N','__CMD':'usrListFg_Edit','EditIndexField':'1013'});">
-                                                                <img border=0 align="absmiddle" src="/static/wci1/image/expand_sbutton.gif">
-                                                            </a>
-                                                        </TD>
-                                                        <TD>35</TD>
-                                                        <TD>dexiang</TD>
-                                                        <TD>1. 武汉耀华桥梁工程技术有限公司深圳分公司</TD>
-                                                        <TD>SZ</TD>
-                                                        <TD>Y</TD>
-                                                        <TD>2009-06-01</TD>
-                                                        <TD></TD>
-                                                        <TD>
-                                                            1. Administration
-<br>
-                                                            2. administrators
-<br>
-                                                            3. Admin &amp;Support - YWL Drive - Folder Access
-<br>
-                                                            4. Admin Tools
-<br>
-                                                            5. AT001
-<br>
-                                                            6. Attendance List
-<br>
-                                                            7. AutoCAD License Management
-<br>
-                                                            8. Calculation Pad
-<br>
-                                                            9. Calculation Pad - Earth Retaining
-<br>
-                                                            10. Calculation Pad - Examples
-<br>
-                                                            11. Calculation Pad - Geometry
-<br>
-                                                            12. Calculation Pad - Geompro
-<br>
-                                                            13. Calculation Pad - Geotechnical
-<br>
-                                                            14. Calculation Pad - IOCorrect
-<br>
-                                                            15. Calculation Pad - Others
-<br>
-                                                            16. Calculation Pad - Prestressing
-<br>
-                                                            17. Calculation Pad - Reinforcement
-<br>
-                                                            18. Calculation Pad - Segment Mould Drawing
-<br>
-                                                            19. Calculation Pad - SegMould
-<br>
-                                                            20. Calculation Pad - Steel
-<br>
-                                                            21. DDG Drawing List
-<br>
-                                                            22. Developer
-<br>
-                                                            23. Dev-Test
-<br>
-                                                            24. Document - ISO - Manager
-<br>
-                                                            25. Document - Library - Admin
-<br>
-                                                            26. Document - Library - User
-<br>
-                                                            27. Document Manager - All
-<br>
-                                                            28. Document Manager - User - Design Tool
-<br>
-                                                            29. Document Template - Admin
-<br>
-                                                            30. Drawing Management System - admin
-<br>
-                                                            31. DVC006
-<br>
-                                                            32. DVC - Device Management - Admin
-<br>
-                                                            33. EGC-All
-<br>
-                                                            34. EL001
-<br>
-                                                            35. EL002
-<br>
-                                                            36. EL003
-<br>
-                                                            37. EL004A
-<br>
-                                                            38. EL004B
-<br>
-                                                            39. EL004C
-<br>
-                                                            40. EL005
-<br>
-                                                            41. EL006
-<br>
-                                                            42. EL007
-<br>
-                                                            43. EL008 - Admin
-<br>
-                                                            44. EL008B
-<br>
-                                                            45. EL009
-<br>
-                                                            46. Employee Feedback
-<br>
-                                                            47. ES Admin
-<br>
-                                                            48. ES - wci2 - UAT
-<br>
-                                                            49. ET001 - Admin
-<br>
-                                                            50. FC201D
-<br>
-                                                            51. Form-OH &amp;S Action Users
-<br>
-                                                            52. FreeCAD
-<br>
-                                                            53. FST001A1
-<br>
-                                                            54. FST001A2
-<br>
-                                                            55. FST001A3
-<br>
-                                                            56. FST001A-Dev
-<br>
-                                                            57. FST001B
-<br>
-                                                            58. FST001B2
-<br>
-                                                            59. FTP Admin
-<br>
-                                                            60. GEO-003
-<br>
-                                                            61. GEO-021
-<br>
-                                                            62. GEO-022
-<br>
-                                                            63. Geom-001
-<br>
-                                                            64. GEOM-002
-<br>
-                                                            65. GEOM-003
-<br>
-                                                            66. Geompro
-<br>
-                                                            67. Geompro-ALL
-<br>
-                                                            68. Geotechnical Design - All
-<br>
-                                                            69. GP001B
-<br>
-                                                            70. GP007B - GC Drawing (old)
-<br>
-                                                            71. GP008B
-<br>
-                                                            72. GP010
-<br>
-                                                            73. GP010A
-<br>
-                                                            74. GP011A - External Tendon Specification
-<br>
-                                                            75. GP011B
-<br>
-                                                            76. GP011C
-<br>
-                                                            77. GP012 - New Tendon Drawing
-<br>
-                                                            78. GP016A
-<br>
-                                                            79. GP016B
-<br>
-                                                            80. GP016C
-<br>
-                                                            81. GP016D
-<br>
-                                                            82. GP016E
-<br>
-                                                            83. GP017
-<br>
-                                                            84. GP017A,GP017B - Shimming
-<br>
-                                                            85. GP018 Users
-<br>
-                                                            86. GP019
-<br>
-                                                            87. GP020
-<br>
-                                                            88. GP021
-<br>
-                                                            89. HR001
-<br>
-                                                            90. HR001A
-<br>
-                                                            91. HR-&gt;Survey on the Area of Interest
-<br>
-                                                            92. H &amp;S Committee Meeting
-<br>
-                                                            93. IHS-Admin
-<br>
-                                                            94. IHS-Geompro-New Box Centerlien
-<br>
-                                                            95. IHS-Geompro-Pier and pile position
-<br>
-                                                            96. IHS-Ground Model
-<br>
-                                                            97. IHS-Logs
-<br>
-                                                            98. IHS-RC006
-<br>
-                                                            99. In-Hourse Software 2
-<br>
-                                                            100. In-house Softwares - All
-<br>
-                                                            101. In-house Software Testing
-<br>
-                                                            102. In-house Spreadsheet 2 (pyi)
-<br>
-                                                            103. IOCorrect Protected Manager
-<br>
-                                                            104. IPA Users
-<br>
-                                                            105. ISO101
-<br>
-                                                            106. ISO102
-<br>
-                                                            107. ISO103
-<br>
-                                                            108. IT (For Testing)
-<br>
-                                                            109. IT (For Testing) - Team Members
-<br>
-                                                            110. IT Supports
-<br>
-                                                            111. jinlong.ding access
-<br>
-                                                            112. lan.yang
-<br>
-                                                            113. Library List 2
-<br>
-                                                            114. Managers
-<br>
-                                                            115. Midas License Management
-<br>
-                                                            116. Modeling IT
-<br>
-                                                            117. MT001
-<br>
-                                                            118. Obsolete
-<br>
-                                                            119. OH &amp;S001
-<br>
-                                                            120. OH &amp;S002
-<br>
-                                                            121. PD001 - admin
-<br>
-                                                            122. PDT
-<br>
-                                                            123. Pier bearing dimension
-<br>
-                                                            124. Pier Head Top Level
-<br>
-                                                            125. PM101 - 3-Month Resource Forecast
-<br>
-                                                            126. PM101A - 3-Month Recource Forecast Yearly Report
-<br>
-                                                            127. PO
-<br>
-                                                            128. PPE
-<br>
-                                                            129. Product License Management
-<br>
-                                                            130. Project list - 100, 400 series
-<br>
-                                                            131. Project list - 200, 500 series
-<br>
-                                                            132. Project list - 300, 600 series
-<br>
-                                                            133. Project list - 700, 800 series
-<br>
-                                                            134. Project List History
-<br>
-                                                            135. Project PAS
-<br>
-                                                            136. Project Settings
-<br>
-                                                            137. Project Timesheet Report
-<br>
-                                                            138. PYIDemo
-<br>
-                                                            139. Pyi HR2 Menu
-<br>
-                                                            140. R011
-<br>
-                                                            141. R012
-<br>
-                                                            142. R012C
-<br>
-                                                            143. R013
-<br>
-                                                            144. R106A
-<br>
-                                                            145. R108
-<br>
-                                                            146. R110
-<br>
-                                                            147. R111
-<br>
-                                                            148. R202
-<br>
-                                                            149. R203
-<br>
-                                                            150. RC-004
-<br>
-                                                            151. RC-005
-<br>
-                                                            152. Request Queue Admin
-<br>
-                                                            153. Revit - All functions
-<br>
-                                                            154. Revit Developer
-<br>
-                                                            155. Revit - Midas Interface
-<br>
-                                                            156. Revit - obsolete
-<br>
-                                                            157. Revit - R007
-<br>
-                                                            158. Revit - R109
-<br>
-                                                            159. Risk Assessment Form
-<br>
-                                                            160. Safe Work Procedure
-<br>
-                                                            161. SC001A
-<br>
-                                                            162. SC001B
-<br>
-                                                            163. SC001C
-<br>
-                                                            164. Segment Length Drawing
-<br>
-                                                            165. Segment Tendon Drawing
-<br>
-                                                            166. Segment Transformation
-<br>
-                                                            167. SM-001
-<br>
-                                                            168. SM - Software Management - Admin
-<br>
-                                                            169. Spark Messenger
-<br>
-                                                            170. ST-001
-<br>
-                                                            171. ST-002
-<br>
-                                                            172. ST-003
-<br>
-                                                            173. ST-004
-<br>
-                                                            174. ST-005
-<br>
-                                                            175. ST-006
-<br>
-                                                            176. ST-007
-<br>
-                                                            177. ST-008
-<br>
-                                                            178. strand no, deck and pier design
-<br>
-                                                            179. SZ Office - Team Members
-<br>
-                                                            180. Task Management
-<br>
-                                                            181. TC001-Admin
-<br>
-                                                            182. Team Report
-<br>
-                                                            183. Teams
-<br>
-                                                            184. Team screen show left user tables
-<br>
-                                                            185. Tendon Layout
-<br>
-                                                            186. Timesheet &amp;Task Management
-<br>
-                                                            187. Timesheet Users
-<br>
-                                                            188. TR000
-<br>
-                                                            189. TR004A
-<br>
-                                                            190. Training Record (TR) - admin
-<br>
-                                                            191. User Management - new
-<br>
-                                                            192. Vendor001
-<br>
-                                                            193. Vendor002
-<br>
-                                                            194. Voting for RC committee - admin
-<br>
-                                                            195. WCI2 - New Functions
-<br>
-                                                            196. WCI2 - Task - UAT
-<br>
-                                                            197. WCI Admin
-<br>
-                                                            198. wci_cmd_All
-<br>
-                                                            199. wci_cmd_iocorrect - excel r8
-<br>
-                                                            200. wci_cmd_Test
-<br>
-                                                            201. wci_cmd_YWL-IHS-GEOM-Span
-<br>
-                                                            202. wci_cmd_YWL-IHS-SM-002-W1.0.0
-<br>
-                                                            203. wci dev
-<br>
-                                                            204. wci-GP001-delete-input-data
-<br>
-                                                            205. WCI ID &amp;Email
-<br>
-                                                            206. WCI Site Map
-<br>
-                                                            207. Wiki-In-house Softwares
-<br>
-                                                            208. Wiki-Management
-<br>
-                                                            209. Wiki-Projects
-<br>
-                                                            210. YWL Drive - Test Users
-<br>211. YW's Book Admin
-                                                        </TD>
-                                                        <TD></TD>
-                                                    </tr>
-                                                    <tr>
-                                                        <TD>
-                                                            <A href="javascript:_doSubmit('index.jsp?__REQUEST_ID=SU8bB7dTFYvH53N',{'__SSI':'ZdLcSJEUjLrJJ3WxtR7J','__REQUEST_ID':'SU8bB7dTFYvH53N','__CMD':'usrListFg_Edit','EditIndexField':'1034'});">
-                                                                <img border=0 align="absmiddle" src="/static/wci1/image/expand_sbutton.gif">
-                                                            </a>
-                                                        </TD>
-                                                        <TD>36</TD>
-                                                        <TD>dolly</TD>
-                                                        <TD>1. YWL Engineering Pte Ltd</TD>
-                                                        <TD>SG</TD>
-                                                        <TD>Y</TD>
-                                                        <TD>2002-06-12</TD>
-                                                        <TD></TD>
-                                                        <TD>
-                                                            1. Attendance List
-<br>
-                                                            2. Document - Library - Admin
-<br>
-                                                            3. Dolly
-<br>
-                                                            4. EL001
-<br>
-                                                            5. EL002
-<br>
-                                                            6. EL003
-<br>
-                                                            7. EL004A
-<br>
-                                                            8. EL004B
-<br>
-                                                            9. EL004C
-<br>
-                                                            10. EL005
-<br>
-                                                            11. EL006
-<br>
-                                                            12. EL007
-<br>
-                                                            13. EL008 - Admin
-<br>
-                                                            14. EL009
-<br>
-                                                            15. ISO101
-<br>
-                                                            16. ISO102
-<br>
-                                                            17. ISO103
-<br>
-                                                            18. Monthly Productivity Report - Team Leader
-<br>
-                                                            19. New Staff Orientation
-<br>
-                                                            20. New Staff Orientation - Admin
-<br>
-                                                            21. Non-Disclosure Agreement (NDA)
-<br>
-                                                            22. PPE
-<br>
-                                                            23. SectionHead - Team Members
-<br>
-                                                            24. SH001
-<br>
-                                                            25. Staff Clearance Form
-<br>
-                                                            26. Staff Clearance Form - Admin
-<br>
-                                                            27. TC001-Admin
-<br>
-                                                            28. TC001 - Singapore Statutory Circulars - Users
-<br>
-                                                            29. Timesheet Management Group
-<br>
-                                                            30. Timesheet Users
-<br>
-                                                            31. WCI ID &amp;Email
-<br>
-                                                            32. Wiki-Projects
-<br>33. YW's Book Admin
-                                                        </TD>
-                                                        <TD></TD>
-                                                    </tr>
-                                                    <tr>
-                                                        <TD>
-                                                            <A href="javascript:_doSubmit('index.jsp?__REQUEST_ID=SU8bB7dTFYvH53N',{'__SSI':'ZdLcSJEUjLrJJ3WxtR7J','__REQUEST_ID':'SU8bB7dTFYvH53N','__CMD':'usrListFg_Edit','EditIndexField':'1456'});">
-                                                                <img border=0 align="absmiddle" src="/static/wci1/image/expand_sbutton.gif">
-                                                            </a>
-                                                        </TD>
-                                                        <TD>37</TD>
-                                                        <TD>donald.chan</TD>
-                                                        <TD>1. YWL Engineering Pte Ltd</TD>
-                                                        <TD>SG</TD>
-                                                        <TD>Y</TD>
-                                                        <TD>2024-12-23</TD>
-                                                        <TD></TD>
-                                                        <TD>1. Timesheet Users</TD>
-                                                        <TD></TD>
-                                                    </tr>
-                                                    <tr>
-                                                        <TD>
-                                                            <A href="javascript:_doSubmit('index.jsp?__REQUEST_ID=SU8bB7dTFYvH53N',{'__SSI':'ZdLcSJEUjLrJJ3WxtR7J','__REQUEST_ID':'SU8bB7dTFYvH53N','__CMD':'usrListFg_Edit','EditIndexField':'1449'});">
-                                                                <img border=0 align="absmiddle" src="/static/wci1/image/expand_sbutton.gif">
-                                                            </a>
-                                                        </TD>
-                                                        <TD>38</TD>
-                                                        <TD>donald.tse</TD>
-                                                        <TD>1. YWL Engineering Limited</TD>
-                                                        <TD>HK</TD>
-                                                        <TD>Y</TD>
-                                                        <TD>2024-11-01</TD>
-                                                        <TD></TD>
-                                                        <TD>
-                                                            1. E-Leave for HK Office Applicants
-<br>
-                                                            2. ES Users
-<br>3. Timesheet Users
-                                                        </TD>
-                                                        <TD></TD>
-                                                    </tr>
-                                                    <tr>
-                                                        <TD>
-                                                            <A href="javascript:_doSubmit('index.jsp?__REQUEST_ID=SU8bB7dTFYvH53N',{'__SSI':'ZdLcSJEUjLrJJ3WxtR7J','__REQUEST_ID':'SU8bB7dTFYvH53N','__CMD':'usrListFg_Edit','EditIndexField':'1380'});">
-                                                                <img border=0 align="absmiddle" src="/static/wci1/image/expand_sbutton.gif">
-                                                            </a>
-                                                        </TD>
-                                                        <TD>39</TD>
-                                                        <TD>edmond.kwok</TD>
-                                                        <TD>1. YWL Engineering Limited</TD>
-                                                        <TD>HK</TD>
-                                                        <TD>Y</TD>
-                                                        <TD>2023-05-16</TD>
-                                                        <TD></TD>
-                                                        <TD>
-                                                            1. E-Leave for HK Office Applicants
-<br>
-                                                            2. ES Users
-<br>3. Timesheet Users
-                                                        </TD>
-                                                        <TD></TD>
-                                                    </tr>
-                                                    <tr>
-                                                        <TD>
-                                                            <A href="javascript:_doSubmit('index.jsp?__REQUEST_ID=SU8bB7dTFYvH53N',{'__SSI':'ZdLcSJEUjLrJJ3WxtR7J','__REQUEST_ID':'SU8bB7dTFYvH53N','__CMD':'usrListFg_Edit','EditIndexField':'1212'});">
-                                                                <img border=0 align="absmiddle" src="/static/wci1/image/expand_sbutton.gif">
-                                                            </a>
-                                                        </TD>
-                                                        <TD>40</TD>
-                                                        <TD>eric.cheung</TD>
-                                                        <TD>1. YWL Engineering Limited</TD>
-                                                        <TD>HK</TD>
-                                                        <TD>Y</TD>
-                                                        <TD>2018-02-23</TD>
-                                                        <TD></TD>
-                                                        <TD>
-                                                            1. ES006 - Expense Enquiry
-<br>2. ES101-Expense Report
-                                                        </TD>
-                                                        <TD>
-                                                            external accountant
-<br>Joint date: before 2018-02-23
-                                                        </TD>
-                                                    </tr>
-                                                </TBODY>
-                                            </TABLE>
-                                        </FORM>
-                                        <div id="mainFootToolbar" class="bar_layout">
-                                            &nbsp;
-                                            <A name="bttAddUser2" href="javascript:_doSubmit('index.jsp?__REQUEST_ID=SU8bB7dTFYvH53N',{'__SSI':'ZdLcSJEUjLrJJ3WxtR7J','__REQUEST_ID':'SU8bB7dTFYvH53N','__CMD':'AddUser'});">
-                                                <img border=0 align="absmiddle" src="/static/wci1/image/new_button.gif">
-                                            </a>
-                                            &nbsp;Add &nbsp;New &nbsp;User &nbsp;
-                                        </div>
-                                    </td>
-                                    <td align=left valign=top class="layout_default_td"></td>
-                                    <td align=left valign=top class="layout_default_td"></td>
-                                </tr>
-                            </table>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td align=left valign=top class="layout_default_td"></td>
-                    </tr>
-                </table>
-                <style type='text/css'>
-                    .grp_nm {
-                        width: 100px;
-                    }
-                </style>
-            </div>
-            <!-- add image preview view by YL, 2021-02-24 -->
-            <div id='imageContainer' style='display: none;'></div>
-            <input type='hidden' id='parentMenuIDSet' value=null>
-        </body>
-        <script type="text/javascript">
-            jQuery(function() {
-                var c = new Cookie();
-                c.erase("___doSubmit_unique_flag");
-                // YL, 2021-07-15 check system notification - start
-                new Ajax.Request(_getAjaxUrl("com.ywlgroup.wci.action.AT001Action", {
-                    "__REQUEST_ID": _requestID(),
-                    "__SSI": _SSI()
-                }, true),{
-                    method: "GET",
-                    onComplete: function(transport) {
-                        var rr = new ResponseResult();
-                        rr.init(transport.responseText);
-                        if (rr.isSuccess() && rr.getText() != "") {
-                            _showSysMsg(rr.getText(), 300, 120);
-                        }
-                    }
-                });
-                // YL, 2021-07-15 - end
-                sendContentHeightToPyi();
-                // send wci's height to PYI
-            });
-            jQuery(window).load(function() {
-                // alert("All resources have been loaded!");
-                sendContentHeightToPyi();
-                // send wci's height to PYI
-            });
-            // YL, 2023-09-08 set PYI's height auto adaptive WCI content - start
-            // send message(wci's height) to PYI
-            function sendContentHeightToPyi() {
-                const contentDiv = document.getElementById('__systemScreenshotDiv');
-                const height = contentDiv.scrollHeight;
-                window.parent.postMessage({
-                    type: 'wciContentHeight',
-                    height
-                }, window.location.ancestorOrigins[0]// 这里替换为父页面的域名，确保域名匹配
-                );
-            }
-            // YL, 2023-07-27 - start
-        </script>
-</body></html>
+<html><div id="contents"></div><head><style data-tippy-stylesheet="">.tippy-tooltip[data-animation=fade][data-state=hidden]{opacity:0}.tippy-iOS{cursor:pointer!important;-webkit-tap-highlight-color:transparent}.tippy-popper{pointer-events:none;max-width:calc(100vw - 10px);transition-timing-function:cubic-bezier(.165,.84,.44,1);transition-property:transform}.tippy-tooltip{position:relative;color:#fff;border-radius:4px;font-size:14px;line-height:1.4;background-color:#333;transition-property:visibility,opacity,transform;outline:0}.tippy-tooltip[data-placement^=top]>.tippy-arrow{border-width:8px 8px 0;border-top-color:#333;margin:0 3px;transform-origin:50% 0;bottom:-7px}.tippy-tooltip[data-placement^=bottom]>.tippy-arrow{border-width:0 8px 8px;border-bottom-color:#333;margin:0 3px;transform-origin:50% 7px;top:-7px}.tippy-tooltip[data-placement^=left]>.tippy-arrow{border-width:8px 0 8px 8px;border-left-color:#333;margin:3px 0;transform-origin:0 50%;right:-7px}.tippy-tooltip[data-placement^=right]>.tippy-arrow{border-width:8px 8px 8px 0;border-right-color:#333;margin:3px 0;transform-origin:7px 50%;left:-7px}.tippy-tooltip[data-interactive][data-state=visible]{pointer-events:auto}.tippy-tooltip[data-inertia][data-state=visible]{transition-timing-function:cubic-bezier(.54,1.5,.38,1.11)}.tippy-arrow{position:absolute;border-color:transparent;border-style:solid}.tippy-content{padding:5px 9px}</style><style type="text/css">#__backToMenuPage {width: 18px; cursor: pointer; margin-right: 5px;}</style><style type="text/css">.input-group-addon, .input-sm, .btn btn-primary, #__submitSystemFeedbackCancelBtn, #__submitSystemFeedbackSubmitBtn  {font-size: 10pt;}#__systemFeedbackFormSubject {	width: 308px;	height: 25px; 	margin-left: 8px;}#__systemFeedbackFormSubjectSpan {	font-size: 10pt;	color: red; 	margin-left: 5px; 	margin-top: 5px; 	display: none;}#__systemFeedbackFormType {	width: 308px;	height: 25px; 	margin-left: 23px;}#__systemFeedbackFormTypeSpan {	font-size: 10pt;	color: red; 	margin-left: 5px; 	margin-top: 5px; 	display: none;}#__systemFeedbackFormContent {margin-left: 5px;}#__systemFeedbackFormContentSpan {	font-size: 10pt;	color: red; 	margin-left: 5px; 	margin-top: 30px; 	display: none;}#__systemFeedbackFormSubject, #__systemFeedbackFormContent {padding:5px;}#__systemFeedbackProgressBar{display: none; margin-right: 280px;}#__submitSystemFeedbackCancelBtn{margin-right: 10px;}#__systemFeedbackFormAttachment {margin-right: 120px;}#__systemFeedbackDialog button {cursor: pointer;}#__systemFeedbackIcon {width: 18px; cursor: pointer;}</style></head><body data-new-gr-c-s-check-loaded="14.1229.0" data-gr-ext-installed=""><div id="__systemScreenshotDiv">
+<title>YWL Engineering Portal - WCI</title><link type="text/css" rel="stylesheet" href="/static/wci1/css/bootstrap.min.css?1744081517818=1744081517818"><link type="text/css" rel="stylesheet" href="/static/wci1/css/style_en.css"><link type="text/css" rel="stylesheet" href="/static/wci1/css/modal-message.css"><script type="text/javascript" src="/static/wci1/script/jquery.min.js"></script><script type="text/javascript">function __sys_getRedirectUrl(){return "http://192.168.1.71:8000/wciapi/";}</script><script type="text/javascript">function __sys_getStaticFilePath(){return "/static/wci1/";}</script><script type="text/javascript">function __sys_getPyiToken(){return "kf49uztib3xxop7proyiog8urut3chgs";}</script><script type="text/javascript">function __sys_isPyiRequest(){return true;}</script><script type="text/javascript">JQ=$;</script><script type="text/javascript" src="/static/wci1/script/modal-message-v2.js"></script><script type="text/javascript" src="/static/wci1/script/prototype.js"></script><script type="text/javascript" src="/static/wci1/script/jsencrypt.min.js"></script><script language="JavaScript">var __REQUEST_ID="SU8bB7dTFYvH53N";var __SSI="HwQJz4rDXsgM45kB7aZE";</script><script type="text/javascript" src="/static/wci1/script/sys-1.35.js?20250331=20250331"></script><script type="text/javascript" src="/static/wci1/script/cookie.js"></script><link type="text/css" rel="stylesheet" href="/static/wci1/css/wci/usermanagement2-v1.css"><link type="text/css" rel="stylesheet" href="/static/wci1/css/dhtmlwindow.css"><script type="text/javascript" src="/static/wci1/script/dhtmlwindow.js"></script><div id="dhtmlwindowholder"><span style="display:none"> </span></div><link rel="shortcut icon" href="image/favicon.ico"><meta name="keywords" content="wci"><link type="text/css" rel="stylesheet" href="/static/wci1/css/menu-v3.css"><script type="text/javascript" src="/static/wci1/script/menu-v15.js"></script><script type="text/javascript" src="/static/wci1/script/bootstrap.min.js"></script><script type="text/javascript" src="/static/wci1/script/html2canvas.js"></script><script type="text/javascript" src="/static/wci1/script/feedback-v5.js"></script><link type="text/css" rel="stylesheet" href="/static/wci1/css/viewer.css"><script type="text/javascript" src="/static/wci1/script/viewer.js"></script><script type="text/javascript" src="/static/wci1/script/popper.js"></script><script type="text/javascript" src="/static/wci1/script/tippy-bundle.iife.js"></script><link type="text/css" rel="stylesheet" href="/static/wci1/css/toastr-v1.css"><script type="text/javascript" src="/static/wci1/script/toastr.min.js"></script><script type="text/javascript" src="/static/wci1/script/wci/WebSocket-v10.js"></script><link type="text/css" rel="stylesheet" href="/static/wci1/css/style-v4.css"><script type="text/javascript">var menuData=[{"title":"Home","action":"612"},{"title":"System","action":"1","subMenu":[{"title":"User&nbsp;Management","subMenu":[{"title":"IOCorrect&nbsp;External&nbsp;Users","action":"293"},{"title":"Users","action":"510"}]},{"title":"User&nbsp;Group&nbsp;Management","action":"3"},{"title":"User&nbsp;Group&nbsp;Management&nbsp;2","action":"672"},{"title":"In-house&nbsp;Software&nbsp;Category&nbsp;Management","action":"185"},{"title":"In-house&nbsp;Software&nbsp;Manager&nbsp;Management","action":"188"},{"title":"In-house&nbsp;Software&nbsp;Access&nbsp;Right&nbsp;Management","action":"187"},{"title":"Permission&nbsp;Control","action":"352"},{"title":"Teams","action":"243"},{"title":"Job&nbsp;Title","action":"244"},{"title":"Online&nbsp;Users","action":"257"},{"title":"IOCorrect&nbsp;and&nbsp;IHS&nbsp;Management","action":"230"},{"title":"IOCorrect&nbsp;Protected&nbsp;Manager&nbsp;(Obsolete)","action":"416"},{"title":"Currency","action":"418"},{"title":"Product&nbsp;License&nbsp;Manager","action":"417"},{"title":"Office","action":"419"},{"title":"Logs","subMenu":[{"title":"Command&nbsp;Logs&nbsp;(IOCorrect)","action":"229"},{"title":"Engine","action":"190"}]},{"title":"My&nbsp;Request&nbsp;Queue","action":"289"},{"title":"T001&nbsp;-&nbsp;Convert&nbsp;PDF&nbsp;to&nbsp;Drawing","action":"395"},{"title":"System&nbsp;Setting","action":"615"}]},{"title":"Engineering","action":"184","subMenu":[{"title":"Design&nbsp;Tools","subMenu":[{"title":"In-house&nbsp;Design&nbsp;Spreadsheet","subMenu":[{"title":"Category&nbsp;Management","action":"685"},{"title":"Download","action":"686"}]}]}]},{"title":"Admin&nbsp;&amp;&nbsp;Support","action":"840","subMenu":[{"title":"E-Noticeboard","subMenu":[{"title":"E-Noticeboard","action":"714"}]},{"title":"IT&nbsp;Support","action":"644"},{"title":"Admin&nbsp;Support","action":"655"},{"title":"License&nbsp;Status","subMenu":[{"title":"Autodesk&nbsp;License&nbsp;Usage","action":"1057"},{"title":"Oasys&nbsp;AdSec&nbsp;License&nbsp;Usage","action":"1060"},{"title":"Midas&nbsp;Civil&nbsp;License&nbsp;Usage","action":"1061"}]},{"title":"Employee&nbsp;Interactive&nbsp;Feedback&nbsp;Form","action":"1066"}]},{"title":"Document","action":"258","subMenu":[{"title":"Library","subMenu":[{"title":"Library&nbsp;List","action":"502"}]}]},{"title":"Template","action":"841","subMenu":[{"title":"GEOMPRO","subMenu":[{"title":"Training","action":"700"},{"title":"MAN&nbsp;&amp;&nbsp;MS","action":"701"},{"title":"Checklist","action":"702"}]}]},{"title":"Project&nbsp;Management","action":"245","subMenu":[{"title":"Project&nbsp;Contact&nbsp;List","action":"255"}]},{"title":"HR","action":"478","subMenu":[{"title":"Timesheet","subMenu":[{"title":"Timesheet&nbsp;Input","action":"248"},{"title":"Monthly&nbsp;Summary&nbsp;Report","action":"282"},{"title":"Yearly&nbsp;Summary&nbsp;Report","action":"281"},{"title":"User&nbsp;Monthly&nbsp;Summary&nbsp;Report","action":"618"},{"title":"User&nbsp;Yearly&nbsp;Summary&nbsp;Report","action":"622"}]},{"title":"E-Leave&nbsp;(EL)","subMenu":[{"title":"EL001&nbsp;-&nbsp;My&nbsp;Status","action":"570"},{"title":"EL002&nbsp;-&nbsp;Leave&nbsp;Application","action":"571"},{"title":"EL009&nbsp;-&nbsp;Leave&nbsp;Calendar","action":"591"}]},{"title":"Training&nbsp;Record&nbsp;(TR)","subMenu":[{"title":"TR003&nbsp;-&nbsp;Training&nbsp;Request","action":"503"},{"title":"TR004&nbsp;-&nbsp;Trainee&nbsp;Feedback","action":"483"},{"title":"TR005&nbsp;-&nbsp;Department&nbsp;Head&nbsp;Evaluation","action":"484"},{"title":"TR006&nbsp;-&nbsp;Trainee&nbsp;Training&nbsp;History","action":"485"}]},{"title":"Staff&nbsp;Contact&nbsp;List","action":"706"},{"title":"Staff&nbsp;Survey","subMenu":[{"title":"Area&nbsp;of&nbsp;Interest","action":"493"},{"title":"COVID-19&nbsp;Vaccination&nbsp;Status","action":"694"}]},{"title":"Non-Disclosure&nbsp;Agreement","action":"803"}]},{"title":"Management","action":"703","subMenu":[{"title":"Insurance&nbsp;&amp;&nbsp;Licence&nbsp;(Admin)","action":"704"},{"title":"Insurance","action":"705"}]},{"title":"WCI&nbsp;2","action":"927","subMenu":[{"title":"Expense&nbsp;System&nbsp;(ES)","subMenu":[{"title":"IB000&nbsp;-&nbsp;Inbox","action":"887"}]},{"title":"Admin&nbsp;&amp;&nbsp;Support&nbsp;2","subMenu":[{"title":"E-Noticeboard","subMenu":[{"title":"NoticeBoard001&nbsp;-&nbsp;E-Noticeboard","action":"963"}]},{"title":"License&nbsp;Status","subMenu":[{"title":"Autodesk&nbsp;License&nbsp;Usage","action":"1039"},{"title":"Oasys&nbsp;AdSec&nbsp;License&nbsp;Usage","action":"1059"},{"title":"Midas&nbsp;Civil&nbsp;License&nbsp;Usage","action":"1045"}]},{"title":"Employee&nbsp;Interactive&nbsp;Feedback&nbsp;Form","action":"1047"}]},{"title":"Engineering","action":"1005","subMenu":[{"title":"Bridge&nbsp;Setting&nbsp;Out","action":"1007"},{"title":"Drawing&nbsp;Management","action":"1076"}]}]},{"title":"Logout","action":"Logout"}];</script><div id="FRAME_BODY_HEAD"></div><div class="main_screen"><table class="screen_title_layout"><tbody><tr><td class="screen_title_left">User maintenance - New</td><td class="screen_title_center"></td><td class="screen_title_right">sven.tan 2025-04-08 10:33:39 <a href="" onclick="javascript: _showHelp('Help',{'masterRequestID':'SU8bB7dTFYvH53N'}); return false;"><img border="0" align="absmiddle" src="/static/wci1/image/help.gif"></a><a id="__system_screen_title_right_home_button" href="javascript:_doSubmit('index.jsp?__REQUEST_ID=SU8bB7dTFYvH53N',{'__SSI':'HwQJz4rDXsgM45kB7aZE','__REQUEST_ID':'SU8bB7dTFYvH53N','__CMD':'612'});"><img border="0" align="absmiddle" src="/static/wci1/image/base.gif"><img id="__noticeBoardIcon" src="/static/wci1/image/notice_board.png" style="padding-right: 3px; opacity: 0;" title="1 unread message."></a><img id="__systemFeedbackIcon" src="/static/wci1/image/feedback_50x54_2.png" title="Feedback"></td></tr></tbody></table><table><tbody><tr><td align="left" valign="top" class="layout_default_td"><form name="schFg" id="schFg" method="POST"><table class="search_layout"><tbody><tr><td valign="top" class="layout_default_td"><table class="property_field"><tbody><tr><th class="property_key">Enable Users</th><td class="property_value"><input type="checkbox" name="schEnb" id="schEnb" value="true" checked="checked" datatype="6" datatypename="boolean" required="false"></td><th class="property_key">Disable Users</th><td class="property_value"><input type="checkbox" name="schDsb" id="schDsb" value="true" datatype="6" datatypename="boolean" required="false"></td><th class="property_key">External IOCorrect Users</th><td class="property_value"><input type="checkbox" name="iocorrectUsrField" id="iocorrectUsrField" value="true" datatype="6" datatypename="boolean" required="false"></td><th class="property_key">Search Keys (ID, name, groups, remarks)</th><td class="property_value"><input type="Textbox" name="schKey" id="schKey" value="" datatype="0" datatypename="string" required="false"></td></tr></tbody></table></td></tr></tbody></table></form><div id="schToolbar" class="bar_layout">&nbsp;<a name="bttSch" href="javascript:_doSubmit('index.jsp?__REQUEST_ID=SU8bB7dTFYvH53N',{'__SSI':'HwQJz4rDXsgM45kB7aZE','__REQUEST_ID':'SU8bB7dTFYvH53N','__CMD':'Search','FORM_NAME_HIDDEN':'schFg','ACTION_NAME_HIDDEN':'ACTION_TO_VALIDATE'});"><img border="0" align="absmiddle" src="/static/wci1/image/search_button.gif"></a>&nbsp;Search&nbsp;&nbsp;<a name="bttAddUser1" href="javascript:_doSubmit('index.jsp?__REQUEST_ID=SU8bB7dTFYvH53N',{'__SSI':'HwQJz4rDXsgM45kB7aZE','__REQUEST_ID':'SU8bB7dTFYvH53N','__CMD':'AddUser'});"><img border="0" align="absmiddle" src="/static/wci1/image/new_button.gif"></a>&nbsp;Add&nbsp;New&nbsp;User&nbsp;</div></td></tr><tr><td align="left" valign="top"><table border="0" width="100%"><tbody><tr><td align="left" valign="top" class="layout_default_td"><form name="usrListFg" id="usrListFg" method="POST"><label class="fieldgroup_caption">Total&nbsp;167&nbsp;Users</label><table class="navigator_layout"><tbody><tr><td valign="top" class="layout_default_td"><a href="javascript:_doSubmit('index.jsp?__REQUEST_ID=SU8bB7dTFYvH53N',{'__SSI':'HwQJz4rDXsgM45kB7aZE','__REQUEST_ID':'SU8bB7dTFYvH53N','__CMD':'GotoFirstPage','FIELDGRP_NAME':'usrListFg'});"><img border="0" align="absmiddle" src="/static/wci1/image/first_button.gif"></a></td><td valign="top" class="layout_default_td"><a href="javascript:_doSubmit('index.jsp?__REQUEST_ID=SU8bB7dTFYvH53N',{'__SSI':'HwQJz4rDXsgM45kB7aZE','__REQUEST_ID':'SU8bB7dTFYvH53N','__CMD':'GotoPreviousPage','FIELDGRP_NAME':'usrListFg'});"><img border="0" align="absmiddle" src="/static/wci1/image/previous_button.gif"></a></td><td valign="top" class="layout_default_td"><select name="PageNO" id="ID_53569" size="1" datatype="0" datatypename="string" required="true"><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option><option value="7">7</option><option value="8">8</option><option value="9">9</option><option value="10">10</option><option value="11">11</option><option value="12">12</option><option value="13">13</option><option value="14">14</option><option value="15">15</option><option value="16">16</option><option value="17" selected="selected">17</option></select></td><td valign="top" class="layout_default_td"><a href="javascript:{usrListFg_NavigatorGotoPage();}"><img border="0" align="absmiddle" src="/static/wci1/image/refresh_button.gif"></a></td></tr></tbody></table><script language="javascript">function usrListFg_NavigatorGotoPage(){_doSubmit('index.jsp?__REQUEST_ID=SU8bB7dTFYvH53N',{'__SSI':'HwQJz4rDXsgM45kB7aZE','__REQUEST_ID':'SU8bB7dTFYvH53N','__CMD':'GotoPage','FIELDGRP_NAME':'usrListFg'},{'PageNO':'document.getElementById("ID_53569").value'});}</script><table class="table_layout"><thead><tr><th></th><th>#</th><th>WCI ID</th><th>Company</th><th>Location</th><th>Enable</th><th>Join Date</th><th>Last Date</th><th>Groups</th><th>Remark</th></tr></thead><tbody><tr><td><a href="javascript:_doSubmit('index.jsp?__REQUEST_ID=SU8bB7dTFYvH53N',{'__SSI':'HwQJz4rDXsgM45kB7aZE','__REQUEST_ID':'SU8bB7dTFYvH53N','__CMD':'usrListFg_Edit','EditIndexField':'1347'});"><img border="0" align="absmiddle" src="/static/wci1/image/expand_sbutton.gif"></a></td><td>161</td><td>yun.xu</td><td>1. 武汉耀华桥梁工程技术有限公司深圳分公司</td><td>SZ</td><td>Y</td><td>2020-12-07</td><td></td><td>1. EL001
+<br>2. EL002
+<br>3. EL003
+<br>4. EL009
+<br>5. ES Users
+<br>6. In-house Spreadsheet 2 - Download
+<br>7. Timesheet Users</td><td></td></tr><tr><td><a href="javascript:_doSubmit('index.jsp?__REQUEST_ID=SU8bB7dTFYvH53N',{'__SSI':'HwQJz4rDXsgM45kB7aZE','__REQUEST_ID':'SU8bB7dTFYvH53N','__CMD':'usrListFg_Edit','EditIndexField':'1441'});"><img border="0" align="absmiddle" src="/static/wci1/image/expand_sbutton.gif"></a></td><td>162</td><td>yushing.cheng</td><td>1. YWL Engineering Limited</td><td>HK</td><td>Y</td><td>2024-07-22</td><td></td><td>1. E-Leave for HK Office Applicants
+<br>2. ES Users
+<br>3. PD001 - users
+<br>4. Timesheet Users</td><td></td></tr><tr><td><a href="javascript:_doSubmit('index.jsp?__REQUEST_ID=SU8bB7dTFYvH53N',{'__SSI':'HwQJz4rDXsgM45kB7aZE','__REQUEST_ID':'SU8bB7dTFYvH53N','__CMD':'usrListFg_Edit','EditIndexField':'1005'});"><img border="0" align="absmiddle" src="/static/wci1/image/expand_sbutton.gif"></a></td><td>163</td><td>yw</td><td>1. YWL Engineering Pte Ltd</td><td>SG</td><td>Y</td><td></td><td></td><td>1. Administration
+<br>2. Admin &amp; Support - YWL Drive - Folder Access
+<br>3. Calculation Pad
+<br>4. DDG Drawing List
+<br>5. Document - ISO - Manager
+<br>6. Document - Library - Admin
+<br>7. Document Template - Admin
+<br>8. Drawing Management System - admin
+<br>9. DVC - Device Management - Admin
+<br>10. EGC-All
+<br>11. E-Leave for Section Heads &amp; Management
+<br>12. ES Admin
+<br>13. ES - Management
+<br>14. ES Users
+<br>15. ET001 - Users
+<br>16. FreeCAD
+<br>17. FST001A1
+<br>18. FST001A2
+<br>19. FTP Admin
+<br>20. GEO-003
+<br>21. GEO-021
+<br>22. GEO-022
+<br>23. GEOM-002
+<br>24. GEOM-003
+<br>25. Geompro-ALL
+<br>26. Geotechnical Design - All
+<br>27. GP001B
+<br>28. GP007B - GC Drawing (old)
+<br>29. GP008B
+<br>30. GP010
+<br>31. GP011A - External Tendon Specification
+<br>32. GP011B
+<br>33. GP011C
+<br>34. GP016A
+<br>35. GP016B
+<br>36. GP017
+<br>37. GP018 Users
+<br>38. GP019
+<br>39. GP020
+<br>40. GP021
+<br>41. HK Government Technical Circulars
+<br>42. HR-&gt;Survey on the Area of Interest
+<br>43. HR - TR - Users
+<br>44. H&amp;S Committee Meeting
+<br>45. IHS-Admin
+<br>46. IHS-Geompro-New Box Centerlien
+<br>47. IHS-Geompro-Pier and pile position
+<br>48. IHS-Ground Model
+<br>49. IHS-RC006
+<br>50. In-house Softwares - All
+<br>51. In-house Spreadsheet 2 - Download
+<br>52. Insurance and Licence
+<br>53. IOCorrect Data File Tools
+<br>54. IOCorrect Protected Manager
+<br>55. IPA Admin
+<br>56. ISO101
+<br>57. ISO102
+<br>58. ISO103
+<br>59. Management sections - Users
+<br>60. Management sections - YW, LL
+<br>61. Management - Team Members
+<br>62. Manday Breakdown Report Per Month - Team Leader
+<br>63. Modeling IT
+<br>64. Non-Disclosure Agreement (NDA)
+<br>65. PD001 - admin
+<br>66. Pier bearing dimension
+<br>67. Pier Head Top Level
+<br>68. PM101 - 3-Month Resource Forecast
+<br>69. PM101A - 3-Month Recource Forecast Yearly Report
+<br>70. PO
+<br>71. PPE
+<br>72. Product License Management
+<br>73. Project list - 100, 400 series
+<br>74. Project list - 200, 500 series
+<br>75. Project list - 300, 600 series
+<br>76. Project list - 700, 800 series
+<br>77. Project Settings
+<br>78. R011
+<br>79. R012
+<br>80. R012C
+<br>81. R013
+<br>82. R106A
+<br>83. R110
+<br>84. R111
+<br>85. R203
+<br>86. RC-004
+<br>87. RC-005
+<br>88. Revit - All functions
+<br>89. Risk Assessment Form
+<br>90. Safe Work Procedure
+<br>91. SC001A
+<br>92. SC001B
+<br>93. SC001C
+<br>94. Segment Length Drawing
+<br>95. Segment Tendon Drawing
+<br>96. Segment Transformation
+<br>97. SH001
+<br>98. SM-001
+<br>99. SM - Software Management - Admin
+<br>100. SM-User
+<br>101. ST-001
+<br>102. ST-002
+<br>103. ST-003
+<br>104. ST-004
+<br>105. ST-005
+<br>106. ST-006
+<br>107. ST-007
+<br>108. ST-008
+<br>109. ST-ALL
+<br>110. strand no, deck and pier design
+<br>111. TC001-Admin
+<br>112. TC001 - Singapore Statutory Circulars - Users
+<br>113. Team Leader Admin
+<br>114. Team Report
+<br>115. Tendon Layout
+<br>116. Timesheet Users
+<br>117. Training Record (TR) - admin
+<br>118. User Management - new
+<br>119. Vaccination Report
+<br>120. Vendor001
+<br>121. Vendor approval
+<br>122. wci_cmd_All
+<br>123. wci_cmd_YWL-IHS-SM-002-W1.0.0
+<br>124. WCI ID &amp; Email
+<br>125. WCI Site Map
+<br>126. Wiki-In-house Softwares
+<br>127. Wiki-Management
+<br>128. Wiki-Projects
+<br>129. YWL Drive - Test Users
+<br>130. YW, LL - Staff Hanbook
+<br>131. YW's Book Admin</td><td></td></tr><tr><td><a href="javascript:_doSubmit('index.jsp?__REQUEST_ID=SU8bB7dTFYvH53N',{'__SSI':'HwQJz4rDXsgM45kB7aZE','__REQUEST_ID':'SU8bB7dTFYvH53N','__CMD':'usrListFg_Edit','EditIndexField':'1415'});"><img border="0" align="absmiddle" src="/static/wci1/image/expand_sbutton.gif"></a></td><td>164</td><td>zhenshan.gan</td><td>1. YWL Engineering (M) Sdn Bhd – PJ</td><td>PJ</td><td>Y</td><td>2024-02-19</td><td></td><td>1. Autodesk License - Users
+<br>2. In-house Spreadsheet 2 - Download
+<br>3. Library for MY
+<br>4. Timesheet Users</td><td></td></tr><tr><td><a href="javascript:_doSubmit('index.jsp?__REQUEST_ID=SU8bB7dTFYvH53N',{'__SSI':'HwQJz4rDXsgM45kB7aZE','__REQUEST_ID':'SU8bB7dTFYvH53N','__CMD':'usrListFg_Edit','EditIndexField':'1414'});"><img border="0" align="absmiddle" src="/static/wci1/image/expand_sbutton.gif"></a></td><td>165</td><td>zhuoyan.ma</td><td>1. 武汉耀华桥梁工程技术有限公司深圳分公司</td><td>SZ</td><td>Y</td><td>2024-02-01</td><td></td><td>1. E-Leave for Shenzhen Office Applicants
+<br>2. ES Users
+<br>3. Timesheet Users</td><td></td></tr><tr><td><a href="javascript:_doSubmit('index.jsp?__REQUEST_ID=SU8bB7dTFYvH53N',{'__SSI':'HwQJz4rDXsgM45kB7aZE','__REQUEST_ID':'SU8bB7dTFYvH53N','__CMD':'usrListFg_Edit','EditIndexField':'1407'});"><img border="0" align="absmiddle" src="/static/wci1/image/expand_sbutton.gif"></a></td><td>166</td><td>zifeng.liu</td><td>1. 武汉耀华桥梁工程技术有限公司</td><td>WH</td><td>Y</td><td>2023-11-08</td><td></td><td>1. Autodesk License - Users
+<br>2. Library for WH
+<br>3. Timesheet Users</td><td></td></tr><tr><td><a href="javascript:_doSubmit('index.jsp?__REQUEST_ID=SU8bB7dTFYvH53N',{'__SSI':'HwQJz4rDXsgM45kB7aZE','__REQUEST_ID':'SU8bB7dTFYvH53N','__CMD':'usrListFg_Edit','EditIndexField':'1146'});"><img border="0" align="absmiddle" src="/static/wci1/image/expand_sbutton.gif"></a></td><td>167</td><td>ZT3BGD</td><td></td><td></td><td>Y</td><td></td><td></td><td>1. wci_cmd_IOCorrect External</td><td> for project 14103 </td></tr></tbody></table></form><div id="mainFootToolbar" class="bar_layout">&nbsp;<a name="bttAddUser2" href="javascript:_doSubmit('index.jsp?__REQUEST_ID=SU8bB7dTFYvH53N',{'__SSI':'HwQJz4rDXsgM45kB7aZE','__REQUEST_ID':'SU8bB7dTFYvH53N','__CMD':'AddUser'});"><img border="0" align="absmiddle" src="/static/wci1/image/new_button.gif"></a>&nbsp;Add&nbsp;New&nbsp;User&nbsp;</div></td><td align="left" valign="top" class="layout_default_td"></td><td align="left" valign="top" class="layout_default_td"></td></tr></tbody></table></td></tr><tr><td align="left" valign="top" class="layout_default_td"></td></tr></tbody></table><style type="text/css"> .grp_nm { width: 100px; } </style></div>
+<!-- add image preview view by YL, 2021-02-24 -->
+<div id="imageContainer" style="display: none;"></div>
+
+<input type="hidden" id="parentMenuIDSet" value="null">
+
+	
+	<script type="text/javascript">
+		jQuery(function(){
+			var c = new Cookie();
+			c.erase("___doSubmit_unique_flag");
+			// YL, 2021-07-15 check system notification - start
+			new Ajax.Request(_getAjaxUrl("com.ywlgroup.wci.action.AT001Action", {"__REQUEST_ID": _requestID(), "__SSI":_SSI()}, true), 
+					{method: "GET",
+			    	onComplete: function(transport) {
+						var rr = new ResponseResult();
+						rr.init(transport.responseText);
+						if(rr.isSuccess() && rr.getText() != "") {
+							_showSysMsg(rr.getText(), 300, 120);
+						}
+			     }});
+			// YL, 2021-07-15 - end
+			sendContentHeightToPyi(); // send wci's height to PYI
+		});
+		jQuery(window).load(function() {
+			// alert("All resources have been loaded!");
+			sendContentHeightToPyi(); // send wci's height to PYI
+		});
+		// YL, 2023-09-08 set PYI's height auto adaptive WCI content - start
+		// send message(wci's height) to PYI
+	    function sendContentHeightToPyi() {
+	      const contentDiv = document.getElementById('__systemScreenshotDiv');
+	      const height = contentDiv.scrollHeight;
+	      window.parent.postMessage({ type: 'wciContentHeight', height },
+	      	window.location.ancestorOrigins[0] // 这里替换为父页面的域名，确保域名匹配
+	      );
+	    }
+	 // YL, 2023-07-27 - start
+	</script>
+	
+
+
+
+</div><div class="modal fade" align="center" id="__systemFeedbackDialog" style="z-index: 200000;" tabindex="-1" role="dialog" aria-hidden="true" data-backdrop="static"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-hidden="true"></button><h4 class="modal-title">Feedback</h4></div><div class="modal-body"><form id="__systemFeedbackForm" enctype="multipart/form-data"><div class="input-group"><span class="input-group-addon" id="basic-addon3" style="padding: inherit;">Subject: </span>&nbsp;&nbsp;<input type="text" class="input-sm" id="__systemFeedbackFormSubject" aria-describedby="basic-addon3" placeholder="Add a subject"><span id="__systemFeedbackFormSubjectSpan">Required</span></div><div class="input-group"><span class="input-group-addon" id="basic-addon3" style="padding: inherit;">Type: </span>&nbsp;&nbsp;<select class="input-sm" id="__systemFeedbackFormType" aria-describedby="basic-addon3"></select><span id="__systemFeedbackFormTypeSpan">Required</span></div><div class="input-group"><span class="input-group-addon" id="basic-addon3" style="padding: inherit;">Content: </span>&nbsp;&nbsp;<textarea class="input-sm" id="__systemFeedbackFormContent" aria-describedby="basic-addon3" cols="40" rows="5" placeholder="Your feedback"></textarea><span id="__systemFeedbackFormContentSpan">Required</span></div><div class="input-group" id="uploadInput"><span class="input-group-addon" id="basic-addon3">Attachment: </span>&nbsp;&nbsp;<input type="file" class="input-sm" id="__systemFeedbackFormAttachment" aria-describedby="basic-addon3"></div></form></div><div class="modal-footer"><img id="__systemFeedbackProgressBar" src="/static/wci1/image/loading.gif"><button type="button" class="btn btn-secondary" id="__submitSystemFeedbackCancelBtn">Cancel</button><button type="button" class="btn btn-primary" id="__submitSystemFeedbackSubmitBtn">Submit</button></div></div></div></div></body><grammarly-desktop-integration data-grammarly-shadow-root="true"></grammarly-desktop-integration></html>
