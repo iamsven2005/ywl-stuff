@@ -656,7 +656,11 @@ export default function UsersTable() {
             <Plus className="h-4 w-4" />
             Add User
           </Button>
-          
+<form action="/api/user-upload" method="post" encType="multipart/form-data">
+  <Input type="file" name="file" accept=".html" required />
+  <Button type="submit">Upload</Button>
+</form>
+
           <Button variant="outline" onClick={handleExport} className="gap-2">
             <Download className="h-4 w-4" />
             Export
