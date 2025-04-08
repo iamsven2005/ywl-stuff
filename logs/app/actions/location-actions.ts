@@ -50,6 +50,7 @@ export async function addLocation({
   Region,
   WCI_URL,
   Remarks,
+  CCY,
   createBy = "system",
 }: {
   code: string
@@ -57,6 +58,7 @@ export async function addLocation({
   fullname: string
   Region: string
   WCI_URL: string
+  CCY: string
   Remarks: string
   createBy?: string
 }) {
@@ -68,6 +70,7 @@ export async function addLocation({
         fullname,
         Region,
         WCI_URL,
+        CCY,
         Remarks,
         createBy,
       },
@@ -96,16 +99,18 @@ export async function updateLocation({
   fullname,
   Region,
   WCI_URL,
+  CCY,
   Remarks,
   modifyBy = "system",
 }: {
   id: number
   code: string
   name: string
-  fullname?: string
-  Region?: string
-  WCI_URL?: string
-  Remarks?: string
+  fullname: string
+  Region: string
+  WCI_URL: string
+  CCY: string
+  Remarks: string
   modifyBy?: string
 }) {
   try {
@@ -117,6 +122,7 @@ export async function updateLocation({
         fullname,
         Region,
         WCI_URL,
+        CCY,
         Remarks,
         modifyBy,
         modifyDate: new Date(),

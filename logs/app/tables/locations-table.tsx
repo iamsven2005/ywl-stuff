@@ -51,6 +51,7 @@ interface LocationForm {
   fullname: string
   Region  : string
   WCI_URL : string
+  CCY: string
   Remarks : string
 }
 
@@ -75,6 +76,7 @@ export default function LocationsTable() {
     fullname: "",
     Region: "",
     WCI_URL: "",
+    CCY: "",
     Remarks: "",
   })
 
@@ -160,6 +162,7 @@ export default function LocationsTable() {
       fullname:"",
       Region: "",
       WCI_URL: "",
+      CCY: "",
       Remarks: "",
     })
     setAddModalOpen(true)
@@ -174,6 +177,7 @@ export default function LocationsTable() {
       fullname: location.fullname,
       Region: location.Region,
       WCI_URL: location.WCI_URL,
+      CCY: location.CCY,
       Remarks: location.Remarks,
     })
     setEditModalOpen(true)
@@ -208,6 +212,7 @@ export default function LocationsTable() {
         fullname: locationForm.fullname,
         Region: locationForm.Region,
         WCI_URL: locationForm.WCI_URL,
+        CCY: locationForm.CCY,
         Remarks: locationForm.Remarks
       })
 
@@ -239,6 +244,7 @@ export default function LocationsTable() {
         fullname: locationForm.fullname,
         Region: locationForm.Region,
         WCI_URL: locationForm.WCI_URL,
+        CCY: locationForm.CCY,
         Remarks: locationForm.Remarks
 
       })
@@ -408,6 +414,7 @@ export default function LocationsTable() {
               <TableHead className="w-[120px]">Fullname</TableHead>
               <TableHead className="w-[120px]">Region</TableHead>
               <TableHead className="w-[120px]">WCI_URL</TableHead>
+              <TableHead className="w-[120px]">CCY</TableHead>
               <TableHead className="w-[120px]">Remarks</TableHead>
               <TableHead className="w-[100px]">Actions</TableHead>
             </TableRow>
@@ -437,6 +444,7 @@ export default function LocationsTable() {
                   <TableCell>{location.fullname || "—"}</TableCell>
                   <TableCell>{location.Region || "—"}</TableCell>
                   <TableCell>{location.WCI_URL || "—"}</TableCell>
+                  <TableCell>{location.CCY || "—"}</TableCell>
                   <TableCell>{location.Remarks || "—"}</TableCell>
 
                   <TableCell>
@@ -579,6 +587,19 @@ export default function LocationsTable() {
               />
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="CCY" className="text-right">
+                CCY <span className="text-red-500">*</span>
+              </Label>
+              <Input
+                id="CCY"
+                name="CCY"
+                value={locationForm.CCY}
+                onChange={handleFormChange}
+                className="col-span-3"
+                required
+              />
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="Remarks" className="text-right">
                 Remarks <span className="text-red-500">*</span>
               </Label>
@@ -670,6 +691,19 @@ export default function LocationsTable() {
                 id="edit-WCI_URL"
                 name="WCI_URL"
                 value={locationForm.WCI_URL}
+                onChange={handleFormChange}
+                className="col-span-3"
+                required
+              />
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="edit-CCY" className="text-right">
+                CCY <span className="text-red-500">*</span>
+              </Label>
+              <Input
+                id="edit-CCY"
+                name="CCY"
+                value={locationForm.CCY}
                 onChange={handleFormChange}
                 className="col-span-3"
                 required

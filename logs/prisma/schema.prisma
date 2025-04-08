@@ -562,6 +562,7 @@ model location{
   fullname   String?
   Region     String?
   WCI_URL    String?
+  CCY    String?
   Remarks    String?
   modifyBy   String?
   createBy   String
