@@ -3,7 +3,7 @@
 import { db } from "@/lib/db"
 
 // Function to get LDAP users with pagination and search
-export async function getLdapUsers(page = 1, pageSize = 10, searchTerm = "") {
+export async function getLdapUsers(page = 1, pageSize = 30, searchTerm = "") {
   const skip = (page - 1) * pageSize
 
   // Create search conditions
@@ -27,7 +27,7 @@ export async function getLdapUsers(page = 1, pageSize = 10, searchTerm = "") {
   // Get users for current page
   const users = await db.ldapuser.findMany({
     where: searchCondition,
-    orderBy: { sAMAccountName: "asc" },
+    orderBy: { id: "asc" },
     skip,
     take: pageSize,
   })
