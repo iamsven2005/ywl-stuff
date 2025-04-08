@@ -29,6 +29,7 @@ import {
 import { Search, RefreshCw, Trash2, Edit, Plus } from "lucide-react"
 import { toast } from "sonner"
 import { getLocations, addLocation, updateLocation, deleteLocation } from "../actions/location-actions"
+import { location } from "@prisma/client"
 
 // Debounce function to limit how often a function can run
 function debounce<T extends (...args: any[]) => any>(func: T, wait: number): (...args: Parameters<T>) => void {
@@ -47,6 +48,10 @@ const pageSizeOptions = [10, 25, 50, 100]
 interface LocationForm {
   code: string
   name: string
+  fullname: string
+  Region  : string
+  WCI_URL : string
+  Remarks : string
 }
 
 export default function LocationsTable() {
@@ -54,7 +59,7 @@ export default function LocationsTable() {
   const [searchQuery, setSearchQuery] = useState("")
   const [debouncedSearchQuery, setDebouncedSearchQuery] = useState("")
   const [selectedLocations, setSelectedLocations] = useState<number[]>([])
-  const [locations, setLocations] = useState<any[]>([])
+  const [locations, setLocations] = useState<location[]>([])
   const [isLoading, setIsLoading] = useState(false)
 
   // Modal states
@@ -67,6 +72,10 @@ export default function LocationsTable() {
   const [locationForm, setLocationForm] = useState<LocationForm>({
     code: "",
     name: "",
+    fullname: "",
+    Region: "",
+    WCI_URL: "",
+    Remarks: "",
   })
 
   // Pagination state
@@ -148,16 +157,24 @@ export default function LocationsTable() {
     setLocationForm({
       code: "",
       name: "",
+      fullname:"",
+      Region: "",
+      WCI_URL: "",
+      Remarks: "",
     })
     setAddModalOpen(true)
   }
 
   // Open edit location modal
-  const openEditModal = (location: any) => {
+  const openEditModal = (location: LocationForm) => {
     setCurrentLocation(location)
     setLocationForm({
       code: location.code,
       name: location.name,
+      fullname: location.fullname,
+      Region: location.Region,
+      WCI_URL: location.WCI_URL,
+      Remarks: location.Remarks,
     })
     setEditModalOpen(true)
   }
@@ -188,6 +205,10 @@ export default function LocationsTable() {
       await addLocation({
         code: locationForm.code,
         name: locationForm.name,
+        fullname: locationForm.fullname,
+        Region: locationForm.Region,
+        WCI_URL: locationForm.WCI_URL,
+        Remarks: locationForm.Remarks
       })
 
       toast.success("Location added successfully")
@@ -215,6 +236,11 @@ export default function LocationsTable() {
         id: currentLocation.id,
         code: locationForm.code,
         name: locationForm.name,
+        fullname: locationForm.fullname,
+        Region: locationForm.Region,
+        WCI_URL: locationForm.WCI_URL,
+        Remarks: locationForm.Remarks
+
       })
 
       toast.success("Location updated successfully")
@@ -323,7 +349,7 @@ export default function LocationsTable() {
   }
 
   // Format date for display
-  const formatDate = (date: string | null) => {
+  const formatDate = (date: Date | null) => {
     if (!date) return "—"
     return new Date(date).toLocaleString()
   }
@@ -379,6 +405,10 @@ export default function LocationsTable() {
               <TableHead className="w-[120px]">Create By</TableHead>
               <TableHead className="w-[180px]">Modify Date</TableHead>
               <TableHead className="w-[120px]">Modify By</TableHead>
+              <TableHead className="w-[120px]">Fullname</TableHead>
+              <TableHead className="w-[120px]">Region</TableHead>
+              <TableHead className="w-[120px]">WCI_URL</TableHead>
+              <TableHead className="w-[120px]">Remarks</TableHead>
               <TableHead className="w-[100px]">Actions</TableHead>
             </TableRow>
           </TableHeader>
@@ -404,6 +434,11 @@ export default function LocationsTable() {
                   <TableCell>{location.createBy}</TableCell>
                   <TableCell>{formatDate(location.modifyDate)}</TableCell>
                   <TableCell>{location.modifyBy || "—"}</TableCell>
+                  <TableCell>{location.fullname || "—"}</TableCell>
+                  <TableCell>{location.Region || "—"}</TableCell>
+                  <TableCell>{location.WCI_URL || "—"}</TableCell>
+                  <TableCell>{location.Remarks || "—"}</TableCell>
+
                   <TableCell>
                     <div className="flex gap-2">
                       <Button variant="ghost" size="icon" onClick={() => openEditModal(location)} title="Edit Location">
@@ -504,6 +539,58 @@ export default function LocationsTable() {
                 required
               />
             </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="fullname" className="text-right">
+                Fullname <span className="text-red-500">*</span>
+              </Label>
+              <Input
+                id="fullname"
+                name="fullname"
+                value={locationForm.fullname}
+                onChange={handleFormChange}
+                className="col-span-3"
+                required
+              />
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="Region" className="text-right">
+                Region <span className="text-red-500">*</span>
+              </Label>
+              <Input
+                id="Region"
+                name="Region"
+                value={locationForm.Region}
+                onChange={handleFormChange}
+                className="col-span-3"
+                required
+              />
+            </div>            
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="WCI_URL" className="text-right">
+                WCI_URL <span className="text-red-500">*</span>
+              </Label>
+              <Input
+                id="WCI_URL"
+                name="WCI_URL"
+                value={locationForm.WCI_URL}
+                onChange={handleFormChange}
+                className="col-span-3"
+                required
+              />
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="Remarks" className="text-right">
+                Remarks <span className="text-red-500">*</span>
+              </Label>
+              <Input
+                id="Remarks"
+                name="Remarks"
+                value={locationForm.Remarks}
+                onChange={handleFormChange}
+                className="col-span-3"
+                required
+              />
+            </div>
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setAddModalOpen(false)}>
@@ -549,6 +636,58 @@ export default function LocationsTable() {
                 required
               />
             </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="edit-fullname" className="text-right">
+                Fullname <span className="text-red-500">*</span>
+              </Label>
+              <Input
+                id="edit-fullname"
+                name="fullname"
+                value={locationForm.fullname}
+                onChange={handleFormChange}
+                className="col-span-3"
+                required
+              />
+            </div>            
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="edit-Region" className="text-right">
+                Region <span className="text-red-500">*</span>
+              </Label>
+              <Input
+                id="edit-Region"
+                name="Region"
+                value={locationForm.Region}
+                onChange={handleFormChange}
+                className="col-span-3"
+                required
+              />
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="edit-WCI_URL" className="text-right">
+                WCI_URL <span className="text-red-500">*</span>
+              </Label>
+              <Input
+                id="edit-WCI_URL"
+                name="WCI_URL"
+                value={locationForm.WCI_URL}
+                onChange={handleFormChange}
+                className="col-span-3"
+                required
+              />
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="edit-Remarks" className="text-right">
+                Remarks <span className="text-red-500">*</span>
+              </Label>
+              <Input
+                id="edit-Remarks"
+                name="Remarks"
+                value={locationForm.Remarks}
+                onChange={handleFormChange}
+                className="col-span-3"
+                required
+              />
+            </div>       
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setEditModalOpen(false)}>

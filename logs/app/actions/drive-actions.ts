@@ -6,7 +6,7 @@ import { getSession } from "@/lib/auth"
 import { writeFile, mkdir } from "fs/promises"
 import path from "path"
 import { logActivity } from "@/lib/activity-logger"
-
+import fs from "fs/promises"
 // Get folders and files for a specific folder
 export async function getFolderContents(folderId: number | null = null) {
   try {
@@ -31,7 +31,7 @@ export async function getFolderContents(folderId: number | null = null) {
     // Get files
     const files = await db.driveFile.findMany({
       where: {
-        folderId: folderId ?? 1, // Shifted default folderId to 1
+        folderId: folderId,
         OR: [
           { ownerId: userId },
           {
@@ -60,6 +60,12 @@ export async function getFolderContents(folderId: number | null = null) {
     console.error("Error fetching folder contents:", error)
     throw new Error("Failed to fetch folder contents")
   }
+}
+export async function updateFolder2(id: number, data: { name?: string; parentId?: number }) {
+  return db.driveFolder.update({
+    where: { id },
+    data
+  })
 }
 
 // Get folder breadcrumb path
@@ -621,7 +627,7 @@ export async function renameFolder(folderId: number, newName: string) {
 }
 
 
-export async function updateFile(fileId: number, data: { folderId: number }) {
+export async function updateFile(id: number, data: { folderId: number | null }) {
   try {
     const session = await getSession()
     if (!session?.user) {
@@ -632,7 +638,7 @@ export async function updateFile(fileId: number, data: { folderId: number }) {
 
     // Get the file to check ownership
     const file = await db.driveFile.findUnique({
-      where: { id: fileId },
+      where: { id },
       select: { ownerId: true, name: true },
     })
 
@@ -645,16 +651,14 @@ export async function updateFile(fileId: number, data: { folderId: number }) {
     }
 
     const updatedFile = await db.driveFile.update({
-      where: { id: fileId },
-      data: {
-        folderId: data.folderId,
-      },
+      where: { id },
+      data,
     })
 
     await logActivity({
       actionType: "Updated File",
       targetType: "DriveFile",
-      targetId: fileId,
+      targetId: id,
       details: `Updated file: ${file.name} to folder ID: ${data.folderId}`,
     })
 
@@ -664,4 +668,43 @@ export async function updateFile(fileId: number, data: { folderId: number }) {
     console.error("Error updating file:", error)
     throw new Error("Failed to update file")
   }
+}
+export async function updateFileName(fileId: number, newName: string) {
+  const session = await getSession()
+  if (!session?.user) throw new Error("Not authenticated")
+
+  const userId = Number(session.user.id)
+
+  const file = await db.driveFile.findUnique({
+    where: { id: fileId },
+  })
+
+  if (!file) throw new Error("File not found")
+  if (file.ownerId !== userId) throw new Error("Unauthorized")
+
+  const oldPath = path.join(process.cwd(), "uploads", "drive", file.url.split("/").pop() || "")
+  const newFileName = `${Date.now()}-${userId}-${newName.replace(/[^a-zA-Z0-9.-]/g, "_")}`
+  const newPath = path.join(process.cwd(), "uploads", "drive", newFileName)
+
+  // Rename file on disk
+  await fs.rename(oldPath, newPath)
+
+  const updated = await db.driveFile.update({
+    where: { id: fileId },
+    data: {
+      name: newName,
+      url: `/api/drive/file/${newFileName}`,
+      updatedAt: new Date(),
+    },
+  })
+
+  await logActivity({
+    actionType: "Renamed File",
+    targetType: "DriveFile",
+    targetId: fileId,
+    details: `Renamed file to ${newName}`,
+  })
+
+  revalidatePath("/drive")
+  return updated
 }

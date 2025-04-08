@@ -5,7 +5,7 @@ import { revalidatePath } from "next/cache";
 // Get all roles
 export async function getRoles() {
   try {
-    const roles = await db.roles.findMany();
+    const roles = await db.roles.findMany({orderBy: {name: "asc"}});
     return { roles };
   } catch (error) {
     console.error("Error fetching roles:", error);

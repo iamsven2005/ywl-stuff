@@ -171,7 +171,6 @@ export default function UsersRolesTable() {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="w-[60px]">ID</TableHead>
               <TableHead>Name</TableHead>
               <TableHead>Description</TableHead>
               <TableHead className="w-[100px]">Actions</TableHead>
@@ -187,7 +186,6 @@ export default function UsersRolesTable() {
             ) : (
               filteredRoles.map((role) => (
                 <TableRow key={role.id}>
-                  <TableCell>{role.id}</TableCell>
                   <TableCell>{role.name}</TableCell>
                   <TableCell>{role.description}</TableCell>
                   <TableCell>

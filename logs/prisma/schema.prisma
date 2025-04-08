@@ -559,9 +559,14 @@ model location{
   id         Int      @id @default(autoincrement())
   code       String
   name       String
+  fullname   String?
+  Region     String?
+  WCI_URL    String?
+  Remarks    String?
   modifyBy   String?
   createBy   String
-  modifyDate DateTime? @default(now())
+  createDate DateTime @default(now())
+  modifyDate DateTime @default(now())
 }
 model ldapuser {
   id                     Int      @id @default(autoincrement())

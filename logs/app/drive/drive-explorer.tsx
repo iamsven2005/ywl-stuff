@@ -19,14 +19,28 @@ export function DriveExplorer() {
   const [path, setPath] = useState<any[]>([{ id: null, name: "My Drive" }])
   const [selectedFile, setSelectedFile] = useState<any>(null)
   const [isLoading, setIsLoading] = useState(true)
+  const [parentId, setparent] = useState<any>(null)
 
+  useEffect(() => {
+    const eventSource = new EventSource("/api/drive-events")
+  
+    eventSource.onmessage = (event) => {
+      const message = JSON.parse(event.data)
+      console.log("SSE update:", message)
+      handleRefresh()
+    }
+  
+    return () => eventSource.close()
+  }, [])
+  
   useEffect(() => {
     async function loadFolderContents() {
       setIsLoading(true)
       try {
         const { folders, files } = await getFolderContents(folderId)
         const pathData = await getFolderPath(folderId)
-
+        const parentId = path.length > 1 ? path[path.length - 2].id : null
+        setparent(parentId)
         setFolders(folders)
         setFiles(files)
         setPath(pathData)
@@ -71,6 +85,8 @@ export function DriveExplorer() {
             isLoading={isLoading}
             onFileSelect={handleFileSelect}
             onRefresh={handleRefresh}
+            parentFolderId={parentId}
+
           />
         </div>
 

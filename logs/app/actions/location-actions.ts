@@ -46,10 +46,18 @@ export async function getLocations({
 export async function addLocation({
   code,
   name,
+  fullname,
+  Region,
+  WCI_URL,
+  Remarks,
   createBy = "system",
 }: {
   code: string
   name: string
+  fullname: string
+  Region: string
+  WCI_URL: string
+  Remarks: string
   createBy?: string
 }) {
   try {
@@ -57,6 +65,10 @@ export async function addLocation({
       data: {
         code: code.toUpperCase(),
         name,
+        fullname,
+        Region,
+        WCI_URL,
+        Remarks,
         createBy,
       },
     })
@@ -81,11 +93,19 @@ export async function updateLocation({
   id,
   code,
   name,
+  fullname,
+  Region,
+  WCI_URL,
+  Remarks,
   modifyBy = "system",
 }: {
   id: number
   code: string
   name: string
+  fullname?: string
+  Region?: string
+  WCI_URL?: string
+  Remarks?: string
   modifyBy?: string
 }) {
   try {
@@ -94,6 +114,10 @@ export async function updateLocation({
       data: {
         code: code.toUpperCase(),
         name,
+        fullname,
+        Region,
+        WCI_URL,
+        Remarks,
         modifyBy,
         modifyDate: new Date(),
       },

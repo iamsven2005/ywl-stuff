@@ -728,7 +728,6 @@ export default function UsersTable() {
                   onCheckedChange={handleSelectAll}
                 />
               </TableHead>
-              <TableHead className="w-[60px]">ID</TableHead>
               <TableHead className="w-[200px]">Username</TableHead>
               <TableHead className="w-[250px]">Email</TableHead>
               <TableHead className="w-[150px]">Roles</TableHead>
@@ -757,7 +756,6 @@ export default function UsersTable() {
                       onCheckedChange={() => handleSelectUser(user.id)}
                     />
                   </TableCell>
-                  <TableCell>{user.id}</TableCell>
                   <TableCell>
                     <div className="flex items-center gap-2">
                       <User className="h-4 w-4 text-blue-500" />

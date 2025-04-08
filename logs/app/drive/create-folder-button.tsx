@@ -29,6 +29,11 @@ export function CreateFolderButton({ parentId, onFolderCreated }: CreateFolderBu
 
     try {
       await createFolder(folderName, parentId)
+      await fetch("/api/drive-events", {
+        method: "POST",
+        body: JSON.stringify({ type: "folder_created" }),
+        headers: { "Content-Type": "application/json" }
+      })      
       toast.success("Folder created successfully")
       setFolderName("")
       setOpen(false)
