@@ -8,7 +8,8 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { Label } from "@/components/ui/label"
 
 import type { User } from "@prisma/client"
-import { getAllUsersForPermissions, assignProjectAssignment, getProjectAssignments, removeProjectAssignment } from "./actions"
+import { assignProjectAssignment, getProjectAssignments, removeProjectAssignment } from "./actions"
+import { db } from "@/lib/db"
 
 interface AssignUsersModalProps {
   projectId: number
@@ -28,8 +29,8 @@ export const AssignUsersModal: React.FC<AssignUsersModalProps> = ({ projectId, i
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const usersData = await getAllUsersForPermissions()
-        setUsers(usersData.users)
+        const usersData = await db.user.findMany()
+        setUsers(usersData)
 
         const assignments = await getProjectAssignments(projectId)
         setAssignedUsers(assignments)

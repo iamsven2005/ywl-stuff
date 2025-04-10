@@ -92,7 +92,7 @@ export default function DevicesTable() {
   const [searchQuery, setSearchQuery] = useState("")
   const [debouncedSearchQuery, setDebouncedSearchQuery] = useState("")
   const [selectedDevices, setSelectedDevices] = useState<number[]>([])
-  const [devices, setDevices] = useState<devices[]>([])
+  const [devices, setDevices] = useState<any[]>([])
   const [isLoading, setIsLoading] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
 
@@ -554,7 +554,7 @@ export default function DevicesTable() {
               <TableHead className="w-[180px]">MAC Address</TableHead>
               <TableHead className="w-[150px]">Added</TableHead>
               <TableHead>Notes</TableHead>
-              {/* Add this to your table columns definition */}
+              <TableHead>Users</TableHead>
               <TableHead>Status</TableHead>
               <TableHead className="w-[100px]">Actions</TableHead>
             </TableRow>
@@ -602,6 +602,23 @@ export default function DevicesTable() {
                   <TableCell>
                     <div className="max-w-[300px] truncate">{device.notes}</div>
                   </TableCell>
+                  <TableCell>
+  {device.users && device.users.length > 0 ? (
+    <ul className="list-disc list-inside space-y-1">
+      {device.users.map(({ user }) => (
+        <li key={user.id}>
+          {user.username}{" "}
+          {user.email && (
+            <span className="text-muted-foreground">({user.email})</span>
+          )}
+        </li>
+      ))}
+    </ul>
+  ) : (
+    <span className="text-muted-foreground">No users</span>
+  )}
+</TableCell>
+
                   <TableCell>
                   <DeviceStatusIndicator status={deviceStatuses[device.id]} isConnected={isConnected} />
                   </TableCell>

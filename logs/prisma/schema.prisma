@@ -250,6 +250,11 @@ model User {
 
 
   DriveFilePermission DriveFilePermission[] @relation("receivedPermissions")
+
+  ledTeams     Team[] @relation("TeamLeader")
+
+  // Teams where this user is a member
+  memberOfTeams Team[] @relation("TeamMembers")
 }
 model Group {
   id          Int         @id @default(autoincrement())
@@ -568,6 +573,8 @@ model location{
   createBy   String
   createDate DateTime @default(now())
   modifyDate DateTime @default(now())
+
+  Team Team[]
 }
 model ldapuser {
   id                     Int      @id @default(autoincrement())
@@ -672,4 +679,32 @@ model JobTitle {
   selectableInStaffCV  String
   createdAt            DateTime @default(now())
   updatedAt            DateTime @updatedAt
+}
+model UserActivity {
+  id               Int      @id @default(autoincrement())
+  userId           Int
+  username         String
+  page             String
+  loginTime        DateTime @default(now())
+  }
+model Team {
+  id         Int       @id @default(autoincrement())
+  sequence   Int
+  company    String
+  name       String
+  description String?
+
+  // One-to-many: team has one leader
+  leaderId   Int
+  leader     User     @relation("TeamLeader", fields: [leaderId], references: [id])
+
+  // Many-to-many: team has many members (implicit relation)
+  members    User[]   @relation("TeamMembers") // ❗ no fields/references
+
+  // One-to-many: team belongs to one location
+  locationId Int
+  location   location @relation(fields: [locationId], references: [id])
+
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 }

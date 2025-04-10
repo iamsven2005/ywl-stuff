@@ -1,13 +1,15 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { useSearchParams } from "next/navigation"
+import { notFound, redirect, useSearchParams } from "next/navigation"
 import { getFolderContents, getFolderPath } from "../actions/drive-actions"
 import { FolderBreadcrumb } from "./folder-breadcrumb"
 import { FileGrid } from "./file-grid"
 import { UploadButton } from "./upload-button"
 import { CreateFolderButton } from "./create-folder-button"
 import { FileDetails } from "./file-details"
+import { getCurrentUser } from "../login/actions"
+import { checkUserPermission } from "../actions/permission-actions"
 
 export function DriveExplorer() {
   const searchParams = useSearchParams()
@@ -35,6 +37,14 @@ export function DriveExplorer() {
   
   useEffect(() => {
     async function loadFolderContents() {
+        const currentUser = await getCurrentUser()
+        if (!currentUser) {
+          redirect("/login")
+        }
+        const perm = await checkUserPermission(currentUser.id, "/drive")
+        if (perm.hasPermission === false) {
+          return notFound()
+        }
       setIsLoading(true)
       try {
         const { folders, files } = await getFolderContents(folderId)

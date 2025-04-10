@@ -3,6 +3,7 @@
 import { db } from "@/lib/db"
 import { revalidatePath } from "next/cache"
 import { logActivity } from "@/lib/activity-logger"
+import { routeModule } from "next/dist/build/templates/pages"
 
 // Get all page permissions with their associated roles and users
 export async function getAllPagePermissions() {
@@ -217,19 +218,26 @@ export async function deletePagePermission(id: number) {
 // Check if a user has permission to access a route
 export async function checkUserPermission(userId: number, route: string) {
   try {
-    // Get the user with their roles
+
     const user = await db.user.findUnique({
       where: { id: userId },
       select: {
         id: true,
         role: true,
+        username: true,
       },
     })
 
     if (!user) {
       return { hasPermission: false }
     }
-
+    await db.userActivity.create({
+      data:{
+        userId,
+        username: user.username,
+        page: route
+      }
+    })
     // Find matching page permissions
     const pagePermissions = await db.pagePermission.findMany({
       where: {

@@ -16,12 +16,12 @@ import { Textarea } from "@/components/ui/textarea"
 import { toast } from "sonner"
 import { createModelEntry, updateModelEntry, deleteModelEntry, getModelEntries } from "./actions"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { getAllUsersForPermissions } from "./actions"
 import { Loader2, Trash2, Edit } from "lucide-react"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area"
 import { ModelEntry, User } from "@prisma/client"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
+import { db } from "@/lib/db"
 
 interface ModelEntryModalProps {
   projectId: number
@@ -67,7 +67,7 @@ export function ModelEntryModal({ projectId, isOpen, onClose, onSuccess }: Model
   const fetchUsers = async () => {
     try {
       setLoadingUsers(true)
-      const { users } = await getAllUsersForPermissions()
+      const users = await db.user.findMany()
       setUsers(users)
     } catch (error) {
       toast.error("Failed to load users")

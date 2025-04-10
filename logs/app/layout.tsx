@@ -5,9 +5,8 @@ import { Toaster } from "sonner"
 import { ThemeProvider } from "@/components/theme-provider"
 import { CommandMatchAlert } from "@/components/command-match-alert"
 import { AlertMonitorWrapper } from "@/components/alert-monitor-wrapper"
-import { UserNav } from "@/components/user-nav"
-import { ThemeToggle } from "./theme-toggle"
 import { getCurrentUser } from "./login/actions"
+import Navbar from "@/components/navbar"
 
 export const metadata: Metadata = {
   title: "v0 App",
@@ -35,8 +34,7 @@ export default async function RootLayout({
           )}
             <AlertMonitorWrapper />
           </div>
-          <UserNav/>
-          <ThemeToggle />
+          <Navbar/>
 
           {children}
           <Toaster />

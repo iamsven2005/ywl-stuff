@@ -11,6 +11,9 @@ import { parseHtmlContent } from "./utils"
 import { bulkInsertJobTitles, deleteJobTitles, getJobTitles } from "../actions/job-title"
 import { Trash2 } from 'lucide-react'
 import { JobTitle } from "@prisma/client"
+import { getCurrentUser } from "../login/actions"
+import { notFound, redirect } from "next/navigation"
+import { checkUserPermission } from "../actions/permission-actions"
 
 export default function JobTitlesPage() {
   const [jobTitles, setJobTitles] = useState<JobTitle[]>([])
@@ -34,6 +37,14 @@ export default function JobTitlesPage() {
   
   useEffect(() => {
     const fetchTitles = async () => {
+        const currentUser = await getCurrentUser()
+        if (!currentUser) {
+          redirect("/login")
+        }
+        const perm = await checkUserPermission(currentUser.id, "/job-titles")
+        if (perm.hasPermission === false) {
+          return notFound()
+        }
       setIsLoading(true)
       try {
         const res = await getJobTitles()

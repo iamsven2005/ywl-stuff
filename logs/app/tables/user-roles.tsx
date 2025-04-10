@@ -17,6 +17,7 @@ import { Textarea } from "@/components/ui/textarea"
 
 export default function UsersRolesTable() {
   const [roles, setRoles] = useState<any[]>([])
+  const [users, setUsers] = useState<any[]>([])
   const [roleForm, setRoleForm] = useState({ name: "", description: "" })
   const [selectedRole, setSelectedRole] = useState<any | null>(null)
   const [roleModalOpen, setRoleModalOpen] = useState(false)
@@ -24,6 +25,8 @@ export default function UsersRolesTable() {
   const [searchTerm, setSearchTerm] = useState("")
   const [bulkRoleInput, setBulkRoleInput] = useState("")
   const [isBulkImporting, setIsBulkImporting] = useState(false)
+  const [roleUserSearch, setRoleUserSearch] = useState<Record<number, string>>({})
+
   const handleBulkImport = async () => {
     const lines = bulkRoleInput
       .split("\n")
@@ -66,6 +69,8 @@ export default function UsersRolesTable() {
     try {
       const result = await getRoles()
       setRoles(result.roles)
+      setUsers(result.users)
+
     } catch (error) {
       toast.error("Failed to fetch roles")
     }
@@ -130,7 +135,31 @@ export default function UsersRolesTable() {
       toast.error("Failed to delete role")
     }
   }
+  const roleMap = roles.reduce((acc, role) => {
+    acc[role.name] = role
+    return acc
+  }, {} as Record<string, { id: number; name: string; description: string }>)
+  
+  const roleToUsersMap: Record<string, any[]> = {}
 
+  users.forEach((user) => {
+    user.role.forEach((roleName: string) => {
+      if (!roleToUsersMap[roleName]) {
+        roleToUsersMap[roleName] = []
+      }
+      roleToUsersMap[roleName].push(user)
+    })
+  })
+  const filteredRoleKeys = Object.keys(roleToUsersMap).filter((roleName) => {
+  const role = roleMap[roleName]
+  const search = searchTerm.toLowerCase()
+
+  return (
+    roleName.toLowerCase().includes(search) ||
+    role?.description?.toLowerCase().includes(search) ||
+    role?.id?.toString().includes(search)
+  )
+})
 
   return (
     <div className="space-y-4">
@@ -168,47 +197,98 @@ export default function UsersRolesTable() {
         />
       </div>
       <div className="rounded-md border">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Name</TableHead>
-              <TableHead>Description</TableHead>
-              <TableHead className="w-[100px]">Actions</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {filteredRoles.length === 0 ? (
-              <TableRow>
-                <TableCell colSpan={4} className="h-24 text-center">
-                  {searchTerm ? "No matching roles found." : "No roles found."}
-                </TableCell>
-              </TableRow>
-            ) : (
-              filteredRoles.map((role) => (
-                <TableRow key={role.id}>
-                  <TableCell>{role.name}</TableCell>
-                  <TableCell>{role.description}</TableCell>
-                  <TableCell>
-                    <div className="flex gap-2">
-                      <Button variant="ghost" size="icon" onClick={() => openRoleModal(role)}>
-                        <Edit className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => handleDeleteRole(role.id)}
-                        className="text-red-500 hover:text-red-600"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </TableCell>
-                </TableRow>
-              ))
+  <Table>
+    <TableHeader>
+      <TableRow>
+        <TableHead>Name</TableHead>
+        <TableHead>Description</TableHead>
+        <TableHead>Users</TableHead>
+        <TableHead className="w-[100px]">Actions</TableHead>
+      </TableRow>
+    </TableHeader>
+    <TableBody>
+  {filteredRoles.length === 0 ? (
+    <TableRow>
+      <TableCell colSpan={4} className="h-24 text-center">
+        {searchTerm ? "No matching roles found." : "No roles found."}
+      </TableCell>
+    </TableRow>
+  ) : (
+    filteredRoles.map((role) => {
+      const usersInRole = users.filter((user) =>
+        user.role.includes(role.name)
+      )
+
+      return (
+        <TableRow key={role.id}>
+          <TableCell>{role.name}</TableCell>
+          <TableCell>{role.description || "—"}</TableCell>
+          <TableCell>
+  {/* Search input for this role */}
+  <Input
+    placeholder="Search users..."
+    value={roleUserSearch[role.id] || ""}
+    onChange={(e) =>
+      setRoleUserSearch((prev) => ({
+        ...prev,
+        [role.id]: e.target.value,
+      }))
+    }
+    className="mb-2"
+  />
+
+  {/* Filtered users */}
+  {usersInRole.length > 0 ? (
+    <ul className="list-disc list-inside space-y-1 max-h-40 overflow-y-auto pr-1">
+      {usersInRole
+        .filter((user) => {
+          const query = (roleUserSearch[role.id] || "").toLowerCase()
+          return (
+            user.username.toLowerCase().includes(query) ||
+            user.email?.toLowerCase().includes(query)
+          )
+        })
+        .map((user) => (
+          <li key={user.id}>
+            {user.username}{" "}
+            {user.email && (
+              <span className="text-muted-foreground">({user.email})</span>
             )}
-          </TableBody>
-        </Table>
-      </div>
+          </li>
+        ))}
+    </ul>
+  ) : (
+    <span className="text-muted-foreground">No users</span>
+  )}
+</TableCell>
+
+          <TableCell>
+            <div className="flex gap-2">
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => openRoleModal(role)}
+              >
+                <Edit className="h-4 w-4" />
+              </Button>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => handleDeleteRole(role.id)}
+                className="text-red-500 hover:text-red-600"
+              >
+                <Trash2 className="h-4 w-4" />
+              </Button>
+            </div>
+          </TableCell>
+        </TableRow>
+      )
+    })
+  )}
+</TableBody>
+
+  </Table>
+</div>
 
 
 

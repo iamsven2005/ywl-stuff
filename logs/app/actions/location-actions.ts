@@ -114,11 +114,24 @@ export async function updateLocation({
   modifyBy?: string
 }) {
   try {
+    // Step 1: Get the original location (to check if name changed)
+    const existingLocation = await db.location.findUnique({
+      where: { id },
+    })
+
+    if (!existingLocation) {
+      throw new Error("Location not found")
+    }
+
+    const oldName = existingLocation.name
+    const newName = name
+
+    // Step 2: Update the location
     const location = await db.location.update({
       where: { id },
       data: {
         code: code.toUpperCase(),
-        name,
+        name: newName,
         fullname,
         Region,
         WCI_URL,
@@ -129,14 +142,40 @@ export async function updateLocation({
       },
     })
 
+    // Step 3: If name changed, update all affected users
+    if (oldName !== newName) {
+      const affectedUsers = await db.user.findMany({
+        where: {
+          location: {
+            has: oldName,
+          },
+        },
+      })
+
+      await Promise.all(
+        affectedUsers.map((user) => {
+          const updatedLocations = user.location.map((loc) =>
+            loc === oldName ? newName : loc
+          )
+          return db.user.update({
+            where: { id: user.id },
+            data: {
+              location: updatedLocations,
+            },
+          })
+        })
+      )
+    }
+
+    // Step 4: Log and revalidate
     await logActivity({
       actionType: "Updated Location",
       targetType: "Location",
       targetId: location.id,
-      details: `Updated location ${code} - ${name}`,
+      details: `Updated location ${code} - ${newName}`,
     })
 
-    revalidatePath("/locations")
+    revalidatePath("/logs")
     return location
   } catch (error: any) {
     console.error("Error updating location:", error)
@@ -147,10 +186,34 @@ export async function updateLocation({
 // Delete a location
 export async function deleteLocation(id: number) {
   try {
+    // First, get the location before deletion to know the name/code
     const location = await db.location.delete({
       where: { id },
     })
 
+    // Find all users who have this location in their `location[]` array
+    const affectedUsers = await db.user.findMany({
+      where: {
+        location: {
+          has: location.name,
+        },
+      },
+    })
+
+    // Remove the location from each user's array
+    await Promise.all(
+      affectedUsers.map((user) => {
+        const updatedLocations = user.location.filter((loc) => loc !== location.name)
+        return db.user.update({
+          where: { id: user.id },
+          data: {
+            location: updatedLocations,
+          },
+        })
+      })
+    )
+
+    // Log the deletion
     await logActivity({
       actionType: "Deleted Location",
       targetType: "Location",
@@ -158,7 +221,7 @@ export async function deleteLocation(id: number) {
       details: `Deleted location ${location.code} - ${location.name}`,
     })
 
-    revalidatePath("/locations")
+    revalidatePath("/logs")
     return location
   } catch (error: any) {
     console.error("Error deleting location:", error)

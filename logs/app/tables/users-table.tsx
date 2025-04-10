@@ -33,7 +33,6 @@ import {
   Trash2,
   Edit,
   Plus,
-  User,
   Mail,
   Key,
   Download,
@@ -41,6 +40,7 @@ import {
   Server,
   Eye,
   EyeOff,
+  User,
 } from "lucide-react"
 import { toast } from "sonner"
 import {
@@ -733,8 +733,8 @@ export default function UsersTable() {
               <TableHead className="w-[150px]">Roles</TableHead>
               <TableHead className="w-[150px]">Created</TableHead>
               <TableHead className="w-[150px]">Updated</TableHead>
-              <TableHead className="w-[150px]">Location</TableHead>
               <TableHead className="w-[150px]">Remarks</TableHead>
+              <TableHead className="w-[150px]">Location</TableHead>
               <TableHead>Devices</TableHead>
               
               <TableHead className="w-[100px]">Actions</TableHead>
