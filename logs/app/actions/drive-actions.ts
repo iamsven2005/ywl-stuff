@@ -116,6 +116,7 @@ export async function createFolder(name: string, parentId: number | null = null)
 
     const folder = await db.driveFolder.create({
       data: {
+        id: userId + 100000,
         name,
         parentId,
         ownerId: userId,
@@ -147,7 +148,7 @@ export async function uploadFile(formData: FormData) {
 
     const userId = Number(session.user.id)
     const file = formData.get("file") as File
-    let folderId = Number(formData.get("folderId") as string) || 1 // Use 1 for root if null
+    let folderId = Number(formData.get("folderId") as string) || userId
 
     if (!file) {
       throw new Error("No file provided")
@@ -177,6 +178,7 @@ export async function uploadFile(formData: FormData) {
     const fileType = fileExtension.toLowerCase()
 
     // Create file record in database
+    console.log(file, folderId, userId)
     const fileRecord = await db.driveFile.create({
       data: {
         name: file.name,
