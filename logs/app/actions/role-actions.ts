@@ -1,8 +1,7 @@
 "use server"
 import { db } from "@/lib/db";
 import { revalidatePath } from "next/cache";
-
-import * as XLSX from "xlsx"
+import ExcelJS from "exceljs"
 
 type Role = {
   id: number
@@ -16,69 +15,6 @@ type User = {
   email?: string
   role: string[]
 }
-
-export async function exportRolesToExcel(roles: Role[], users: User[]) {
-  try {
-    // Create a workbook with two worksheets
-    const wb = XLSX.utils.book_new()
-
-    // 1. Roles worksheet
-    const rolesData = roles.map((role) => ({
-      ID: role.id,
-      Name: role.name,
-      Description: role.description || "",
-      "User Count": users.filter((user) => user.role.includes(role.name)).length,
-    }))
-
-    const rolesWs = XLSX.utils.json_to_sheet(rolesData)
-    XLSX.utils.book_append_sheet(wb, rolesWs, "Roles")
-
-    // 2. Users by Role worksheet
-    const usersByRoleData: any[] = []
-
-    roles.forEach((role) => {
-      const usersWithRole = users.filter((user) => user.role.includes(role.name))
-
-      if (usersWithRole.length === 0) {
-        usersByRoleData.push({
-          Role: role.name,
-          Username: "",
-          Email: "",
-          "User ID": "",
-        })
-      } else {
-        usersWithRole.forEach((user) => {
-          usersByRoleData.push({
-            Role: role.name,
-            Username: user.username,
-            Email: user.email || "",
-            "User ID": user.id,
-          })
-        })
-      }
-    })
-
-    const usersByRoleWs = XLSX.utils.json_to_sheet(usersByRoleData)
-    XLSX.utils.book_append_sheet(wb, usersByRoleWs, "Users by Role")
-
-    // Convert to binary string
-    const excelBuffer = XLSX.write(wb, { bookType: "xlsx", type: "buffer" })
-
-    return {
-      success: true,
-      buffer: excelBuffer,
-      filename: `roles_export_${new Date().toISOString().split("T")[0]}.xlsx`,
-    }
-  } catch (error) {
-    console.error("Excel export error:", error)
-    return {
-      success: false,
-      error: "Failed to export data to Excel",
-    }
-  }
-}
-
-// Get all roles
 export async function getRoles() {
   try {
     const roles = await db.roles.findMany({orderBy: {name: "asc"}});
