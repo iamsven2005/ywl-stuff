@@ -21,7 +21,7 @@ export default async function RootLayout({
 }>) {
 
   const user = await getCurrentUser()
-
+  const userid = user?.id
   return (
     <html lang="en" suppressHydrationWarning>
       <body>
@@ -34,7 +34,9 @@ export default async function RootLayout({
           )}
             <AlertMonitorWrapper />
           </div>
-          <Navbar/>
+          {userid && (
+          <Navbar id={userid}/>
+          )}
 
           {children}
           <Toaster />

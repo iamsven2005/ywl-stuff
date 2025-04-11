@@ -46,16 +46,12 @@ export async function getUserPermissions(userId: number) {
     console.log(mergedPermissions)
     return mergedPermissions
   }
+type Props= {
+  id: number
+}
+export default async function Navbar({id}: Props) {
 
-export default async function Navbar() {
-  const session = await getSession()
-
-  if (!session?.user?.id) {
-    throw new Error("User not authenticated")
-  }
-
-  const userId = (session.user.id)
-  const permittedRoutes = await getUserPermissions(userId)
+  const permittedRoutes = await getUserPermissions(id)
 
   const navItems = await db.pagePermission.findMany()
   
