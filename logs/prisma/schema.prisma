@@ -216,45 +216,26 @@ model User {
   devices     DeviceUser[]
   ActivityLog ActivityLog[]
   addressedMatches CommandMatch[] @relation("addressedBy")
-
   emailTemplates UserEmailTemplate[] // Many-to-many relationship
-
   CommandMatch CommandMatch[]
-
   NotificationRead NotificationRead[]
   assignedTickets SupportTicket[] @relation("AssignedTickets")
   createdTickets  SupportTicket[] @relation("CreatedTickets")
   ticketComments  TicketComment[]
-
   Feedback Feedback[] @relation("FeedbackSender")
-
   FeedbackRecipient FeedbackRecipient[] @relation("FeedbackRecipient")
-
   GroupMember GroupMember[]
-
   Message Message[]
-
   TicketAttachment TicketAttachment[]
-
   UserPermission UserPermission[]
-
   ProjectAssignment ProjectAssignment[]
-
-
   DriveFile DriveFile[]
-
-
   DriveFolder DriveFolder[]
   grantedPermissions DriveFilePermission[] @relation("GrantedBy") // permissions the user granted
   receivedPermissions DriveFilePermission[] // permissions the user received
-
-
   DriveFilePermission DriveFilePermission[] @relation("receivedPermissions")
-
-  ledTeams     Team[] @relation("TeamLeader")
-
-  // Teams where this user is a member
-  memberOfTeams Team[] @relation("TeamMembers")
+  TeamLeader TeamLeader[]
+  TeamMember TeamMember[]
 }
 model Group {
   id          Int         @id @default(autoincrement())
@@ -574,7 +555,7 @@ model location{
   createDate DateTime @default(now())
   modifyDate DateTime @default(now())
 
-  Team Team[]
+  TeamLocation TeamLocation[]
 }
 model ldapuser {
   id                     Int      @id @default(autoincrement())
@@ -688,23 +669,46 @@ model UserActivity {
   loginTime        DateTime @default(now())
   }
 model Team {
-  id         Int       @id @default(autoincrement())
-  sequence   Int
-  company    String
-  name       String
+  id          Int       @id @default(autoincrement())
+  sequence    Int
+  remarks     String
+  name        String
   description String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
 
-  // One-to-many: team has one leader
-  leaderId   Int
-  leader     User     @relation("TeamLeader", fields: [leaderId], references: [id])
+  // Relations
+  leaders     TeamLeader[]
+  members     TeamMember[]
+  locations   TeamLocation[]
+}
+model TeamLeader {
+  id      Int  @id @default(autoincrement())
+  teamId  Int
+  userId  Int
 
-  // Many-to-many: team has many members (implicit relation)
-  members    User[]   @relation("TeamMembers") // ❗ no fields/references
+  team    Team @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  user    User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  // One-to-many: team belongs to one location
+  @@unique([teamId, userId])
+}
+model TeamMember {
+  id      Int  @id @default(autoincrement())
+  teamId  Int
+  userId  Int
+
+  team    Team @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  user    User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([teamId, userId])
+}
+model TeamLocation {
+  id        Int  @id @default(autoincrement())
+  teamId    Int
   locationId Int
-  location   location @relation(fields: [locationId], references: [id])
 
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
+  team      Team     @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  location  location @relation(fields: [locationId], references: [id], onDelete: Cascade)
+
+  @@unique([teamId, locationId])
 }

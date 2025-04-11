@@ -9,9 +9,9 @@ import { Input } from "@/components/ui/input"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Label } from "@/components/ui/label"
 
-import { Trash2, Edit, Plus } from "lucide-react"
+import { Trash2, Edit, Plus, Download } from "lucide-react"
 import { toast } from "sonner"
-import { getRoles, addRole, updateRole, deleteRole } from "@/app/actions/role-actions"
+import { getRoles, addRole, updateRole, deleteRole, exportRolesToExcel } from "@/app/actions/role-actions"
 import { Textarea } from "@/components/ui/textarea"
 
 
@@ -26,6 +26,7 @@ export default function UsersRolesTable() {
   const [bulkRoleInput, setBulkRoleInput] = useState("")
   const [isBulkImporting, setIsBulkImporting] = useState(false)
   const [roleUserSearch, setRoleUserSearch] = useState<Record<number, string>>({})
+  const [isExporting, setIsExporting] = useState(false)
 
   const handleBulkImport = async () => {
     const lines = bulkRoleInput
@@ -160,7 +161,46 @@ export default function UsersRolesTable() {
     role?.id?.toString().includes(search)
   )
 })
+const handleExport = async () => {
+  if (roles.length === 0) {
+    toast.error("No roles to export")
+    return
+  }
 
+  setIsExporting(true)
+
+  try {
+    const result = await exportRolesToExcel(roles, users)
+
+    if (result.success && result.buffer) {
+      // Convert buffer to blob
+      const blob = new Blob([result.buffer], {
+        type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      })
+
+      // Create download link and trigger download
+      const url = window.URL.createObjectURL(blob)
+      const a = document.createElement("a")
+      a.href = url
+      a.download = result.filename
+      document.body.appendChild(a)
+      a.click()
+
+      // Cleanup
+      window.URL.revokeObjectURL(url)
+      document.body.removeChild(a)
+
+      toast.success("Excel file exported successfully")
+    } else {
+      toast.error(result.error || "Failed to export Excel file")
+    }
+  } catch (error) {
+    console.error("Export error:", error)
+    toast.error("An error occurred during export")
+  } finally {
+    setIsExporting(false)
+  }
+}
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center mb-4">
@@ -170,6 +210,14 @@ export default function UsersRolesTable() {
         </Button>
       </div>
       <div className="space-y-2 mb-6">
+      <Button
+      onClick={handleExport}
+      disabled={isExporting || roles.length === 0}
+      variant={"default"}
+    >
+      <Download className="h-4 w-4" />
+      {isExporting ? "Exporting..." : "Export to Excel"}
+    </Button>
   <Label htmlFor="bulk-role-input">Mass Import Roles</Label>
   <Textarea
     id="bulk-role-input"
