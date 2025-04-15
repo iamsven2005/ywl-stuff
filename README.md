@@ -247,4 +247,13 @@ For perm access
 
   #ToDO frequent backups
 
-  text, csv, pdf
+  text, csv, pdf, world, xlsx
+
+
+
+
+sudo apt install postresql-server-dev-16
+git clone https://github .com/pgvector/pgvector.git
+cd pgvector
+make
+sudo make install

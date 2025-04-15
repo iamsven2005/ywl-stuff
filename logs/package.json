@@ -61,6 +61,8 @@
     "pdf-lib": "^1.17.1",
     "pdf-parse": "^1.1.1",
     "pdfjs-dist": "^5.1.91",
+    "pgvector": "^0.2.0",
+    "prisma-extension-pgvector": "^0.11.0",
     "react": "^19.0.0",
     "react-day-picker": "8.10.1",
     "react-dom": "^19.0.0",

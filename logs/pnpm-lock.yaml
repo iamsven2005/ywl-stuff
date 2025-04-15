@@ -149,6 +149,12 @@ importers:
       pdfjs-dist:
         specifier: ^5.1.91
         version: 5.1.91
+      pgvector:
+        specifier: ^0.2.0
+        version: 0.2.0
+      prisma-extension-pgvector:
+        specifier: ^0.11.0
+        version: 0.11.0(@prisma/client@6.4.1(prisma@6.4.1(typescript@5.8.2))(typescript@5.8.2))(pgvector@0.2.0)
       react:
         specifier: ^19.0.0
         version: 19.0.0
@@ -3369,6 +3375,10 @@ packages:
     resolution: {integrity: sha512-qSIADdagooJB4wWCBnrBJjRvASevmxL0BwafvOuKJG5uTQdYoFBrhrRYnucKNiSc9qS6JIk0hC5y1yktFljXkA==}
     engines: {node: '>=20'}
 
+  pgvector@0.2.0:
+    resolution: {integrity: sha512-ef9SggYLzgshzpsFHAha77ghSOucf1ebXcuvokgTQK6V01uihqGJv6i0+U+yjEgiDsiVtTdojDrqOHRcSmcECw==}
+    engines: {node: '>= 18'}
+
   picocolors@1.1.1:
     resolution: {integrity: sha512-xceH2snhtb5M9liqDsmEw56le376mTZkEX/jEb/RxNFyegNul7eNslCXP9FDj/Lcu0X8KEyMceP2ntpaHrDEVA==}
 
@@ -3400,6 +3410,12 @@ packages:
     resolution: {integrity: sha512-tdN8qQGvNjw4CHbY+XXk0JgCXn9QiF21a55rBe5LJAU+kDyC4WQn4+awm2Xfk2lQMk5fKup9XgzTZtGkjBdP9Q==}
     engines: {node: '>=10.13.0'}
     hasBin: true
+
+  prisma-extension-pgvector@0.11.0:
+    resolution: {integrity: sha512-ITk+oDKX8V6gROvjJ/Gl7j9SZJWKf9kGn0pJ3bEPjSc+mqpI2r90t61AE2IzEXVjUQIczkA80vmT6zIGB95HIA==}
+    peerDependencies:
+      '@prisma/client': ^5.14.0
+      pgvector: '>=0.1.8'
 
   prisma@6.4.1:
     resolution: {integrity: sha512-q2uJkgXnua/jj66mk6P9bX/zgYJFI/jn4Yp0aS6SPRrjH/n6VyOV7RDe1vHD0DX8Aanx4MvgmUPPoYnR6MJnPg==}
@@ -7444,6 +7460,8 @@ snapshots:
     optionalDependencies:
       '@napi-rs/canvas': 0.1.69
 
+  pgvector@0.2.0: {}
+
   picocolors@1.1.1: {}
 
   picomatch@2.3.1: {}
@@ -7468,6 +7486,11 @@ snapshots:
 
   prettier@2.8.8:
     optional: true
+
+  prisma-extension-pgvector@0.11.0(@prisma/client@6.4.1(prisma@6.4.1(typescript@5.8.2))(typescript@5.8.2))(pgvector@0.2.0):
+    dependencies:
+      '@prisma/client': 6.4.1(prisma@6.4.1(typescript@5.8.2))(typescript@5.8.2)
+      pgvector: 0.2.0
 
   prisma@6.4.1(typescript@5.8.2):
     dependencies:

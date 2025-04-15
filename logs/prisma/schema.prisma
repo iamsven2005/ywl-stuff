@@ -1,10 +1,12 @@
 generator client {
   provider = "prisma-client-js"
+  previewFeatures = ["postgresqlExtensions"]
 }
 
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
+  extensions = [vector]
 }
 
 model logs {
@@ -711,4 +713,9 @@ model TeamLocation {
   location  location @relation(fields: [locationId], references: [id], onDelete: Cascade)
 
   @@unique([teamId, locationId])
+}
+
+model sample{
+  id Int @id @default(autoincrement())
+  embedding Unsupported("vector")?
 }
