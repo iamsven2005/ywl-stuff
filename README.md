@@ -246,3 +246,5 @@ For perm access
   }
 
   #ToDO frequent backups
+
+  text, csv, pdf
