@@ -3,6 +3,7 @@ import { db } from "@/lib/db"
 import { evaluateAlertCondition, getAlertConditions, createAlertEvent } from "@/app/actions/alert-actions"
 import { revalidatePath } from "next/cache"
 
+
 export async function GET(request: NextRequest) {
   try {
     const useExtendedWindow = request.nextUrl.searchParams.get("extended") === "true"
