@@ -709,7 +709,7 @@ const config = {
       "value": "prisma-client-js"
     },
     "output": {
-      "value": "C:\\Users\\sven.tan.YWLSG217\\Desktop\\SYSLOG\\prisma\\generated\\main",
+      "value": "/home/sven/Desktop/SYSLOG/prisma/generated/main",
       "fromEnvVar": null
     },
     "config": {
@@ -718,7 +718,7 @@ const config = {
     "binaryTargets": [
       {
         "fromEnvVar": null,
-        "value": "windows",
+        "value": "debian-openssl-3.0.x",
         "native": true
       },
       {
@@ -727,7 +727,7 @@ const config = {
       }
     ],
     "previewFeatures": [],
-    "sourceFilePath": "C:\\Users\\sven.tan.YWLSG217\\Desktop\\SYSLOG\\logs\\prisma\\schema.prisma",
+    "sourceFilePath": "/home/sven/Desktop/SYSLOG/logs/prisma/schema.prisma",
     "isCustomOutput": true
   },
   "relativeEnvPaths": {
@@ -787,6 +787,10 @@ warnEnvConflicts({
 const PrismaClient = getPrismaClient(config)
 exports.PrismaClient = PrismaClient
 Object.assign(exports, Prisma)
+
+// file annotations for bundling tools to include these files
+path.join(__dirname, "libquery_engine-debian-openssl-3.0.x.so.node");
+path.join(process.cwd(), "../prisma/generated/main/libquery_engine-debian-openssl-3.0.x.so.node")
 
 // file annotations for bundling tools to include these files
 path.join(__dirname, "query_engine-windows.dll.node");

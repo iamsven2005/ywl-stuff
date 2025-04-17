@@ -708,7 +708,7 @@ const config = {
       "value": "prisma-client-js"
     },
     "output": {
-      "value": "C:\\Users\\sven.tan.YWLSG217\\Desktop\\SYSLOG\\prisma\\generated\\main",
+      "value": "/home/sven/Desktop/SYSLOG/prisma/generated/main",
       "fromEnvVar": null
     },
     "config": {
@@ -717,7 +717,7 @@ const config = {
     "binaryTargets": [
       {
         "fromEnvVar": null,
-        "value": "windows",
+        "value": "debian-openssl-3.0.x",
         "native": true
       },
       {
@@ -726,7 +726,7 @@ const config = {
       }
     ],
     "previewFeatures": [],
-    "sourceFilePath": "C:\\Users\\sven.tan.YWLSG217\\Desktop\\SYSLOG\\logs\\prisma\\schema.prisma",
+    "sourceFilePath": "/home/sven/Desktop/SYSLOG/logs/prisma/schema.prisma",
     "isCustomOutput": true
   },
   "relativeEnvPaths": {
