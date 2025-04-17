@@ -4,7 +4,7 @@ import { NextRequest } from "next/server";
 
 export async function POST(req: NextRequest) {
   const body = await req.json();
-  const { text } = body;
+  const { text, userId, name } = body;
 
   const res = await fetch("http://192.168.1.26:5000/embed", {
     method: "POST",
@@ -16,8 +16,8 @@ export async function POST(req: NextRequest) {
 
   const result = await res.json();
   await db2.$executeRaw`
-  INSERT INTO "items" (embedding, json)
-  VALUES (${result.embedding}::vector, ${JSON.stringify(result.embedding)}::jsonb)
+  INSERT INTO "items" (embedding, json, name, fileid, text)
+  VALUES (${result.embedding}::vector, ${JSON.stringify(result.embedding)}::jsonb, ${name}, ${userId}, ${text})
 `;
   return Response.json({ embedding: result.embedding });
 }

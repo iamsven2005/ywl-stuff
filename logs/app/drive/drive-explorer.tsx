@@ -22,6 +22,7 @@ export function DriveExplorer() {
   const [selectedFile, setSelectedFile] = useState<any>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [parentId, setparent] = useState<any>(null)
+  const [userId, setuser] = useState<number>()
 
   useEffect(() => {
     const eventSource = new EventSource("/api/drive-events")
@@ -45,6 +46,7 @@ export function DriveExplorer() {
         if (perm.hasPermission === false) {
           return notFound()
         }
+        setuser(currentUser.id)
       setIsLoading(true)
       try {
         const { folders, files } = await getFolderContents(folderId)
@@ -81,7 +83,7 @@ export function DriveExplorer() {
   return (
     <div className="flex flex-col h-full">
       <div className="flex flex-wrap items-center gap-2 mb-4">
-        <UploadButton folderId={folderId} onUploadComplete={handleRefresh} />
+        <UploadButton userId={userId}folderId={folderId} onUploadComplete={handleRefresh} />
         <CreateFolderButton parentId={folderId} onFolderCreated={handleRefresh} />
       </div>
 

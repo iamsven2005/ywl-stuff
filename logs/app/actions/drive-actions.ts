@@ -1,6 +1,6 @@
 "use server"
 
-import { db } from "@/lib/db"
+import { db, db2 } from "@/lib/db"
 import { revalidatePath } from "next/cache"
 import { getSession } from "@/lib/auth"
 import { writeFile, mkdir } from "fs/promises"
@@ -113,10 +113,27 @@ export async function createFolder(name: string, parentId: number | null = null)
     }
 
     const userId = Number(session.user.id)
+    const baseId = userId + 100000
+
+    // Find the latest folder ID created by this user in the custom range
+    const latestFolder = await db.driveFolder.findFirst({
+      where: {
+        ownerId: userId,
+        id: {
+          gte: baseId,
+          lt: baseId + 100000, // max range to avoid collisions with other users
+        },
+      },
+      orderBy: {
+        id: "desc",
+      },
+    })
+
+    const newId = latestFolder ? latestFolder.id + 1 : baseId
 
     const folder = await db.driveFolder.create({
       data: {
-        id: userId + 100000,
+        id: newId,
         name,
         parentId,
         ownerId: userId,
@@ -137,6 +154,7 @@ export async function createFolder(name: string, parentId: number | null = null)
     throw new Error("Failed to create folder")
   }
 }
+
 
 // Upload a file
 export async function uploadFile(formData: FormData) {
@@ -175,20 +193,38 @@ export async function uploadFile(formData: FormData) {
     await writeFile(filePath, buffer)
 
     // Determine file type from extension
-    const fileType = fileExtension.toLowerCase()
+// Determine file type from extension
+const fileType = fileExtension.toLowerCase()
 
-    // Create file record in database
-    console.log(file, folderId, userId)
-    const fileRecord = await db.driveFile.create({
-      data: {
-        name: file.name,
-        type: fileType,
-        size: file.size,
-        folderId: folderId,
-        ownerId: userId,
-        url: `/api/drive/file/${uniqueFilename}`,
-      },
-    })
+// Handle duplicate filenames
+let baseName = file.name.replace(/\.[^/.]+$/, "")
+let extension = fileExtension ? `.${fileExtension}` : ""
+let finalName = file.name
+let counter = 1
+
+while (await db.driveFile.findFirst({
+  where: {
+    name: finalName,
+    ownerId: userId,
+    folderId: folderId
+  }
+})) {
+  finalName = `${baseName} (copy${counter > 1 ? ` ${counter}` : ""})${extension}`
+  counter++
+}
+
+// Create file record in database
+const fileRecord = await db.driveFile.create({
+  data: {
+    name: finalName,
+    type: fileType,
+    size: file.size,
+    folderId: folderId,
+    ownerId: userId,
+    url: `/api/drive/file/${uniqueFilename}`,
+  },
+})
+
 
     await logActivity({
       actionType: "Uploaded File",
@@ -699,6 +735,16 @@ export async function updateFileName(fileId: number, newName: string) {
       updatedAt: new Date(),
     },
   })
+  await db2.items.updateMany({
+    where: {
+      fileid: updated.ownerId,
+      name: file.name
+    },
+    data: {
+      name: newName,
+    }
+  })
+  
 
   await logActivity({
     actionType: "Renamed File",

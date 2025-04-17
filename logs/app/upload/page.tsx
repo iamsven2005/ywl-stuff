@@ -12,20 +12,23 @@ export default function FileTextExtractor() {
     // Use local MJS worker path
     pdfjsLib.GlobalWorkerOptions.workerSrc = "/pdfjs/pdf.worker.min.mjs";
   }, []);
-  const sendTextForEmbedding = async (text: string) => {
+  const sendTextForEmbedding = async (text: string, filename: string) => {
     const res = await fetch("/api/embed-text", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ text }),
+      body: JSON.stringify({ text, filename }),
     });
   
     const result = await res.json();
     if (result.embedding) {
-      setExtractedText(`Text:\n${text}\n\nEmbedding (first 5 dims):\n[${result.embedding.slice(0, 5).join(", ")} ...]`);
+      setExtractedText(
+        `Filename: ${filename}\n\nText:\n${text}\n\nEmbedding (first 5 dims):\n[${result.embedding.slice(0, 5).join(", ")} ...]`
+      );
     } else {
-      setExtractedText(`Text:\n${text}\n\nEmbedding: Failed to generate.`);
+      setExtractedText(`Filename: ${filename}\n\nText:\n${text}\n\nEmbedding: Failed to generate.`);
     }
   };
+  
   
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -69,7 +72,7 @@ export default function FileTextExtractor() {
 
 
         setExtractedText(text);
-        sendTextForEmbedding(text);
+        sendTextForEmbedding(text, file.name);
       };
       reader.readAsArrayBuffer(file);
     } else if (
@@ -80,7 +83,7 @@ export default function FileTextExtractor() {
       const reader = new FileReader();
       reader.onload = () => {
         const text = reader.result as string;
-        sendTextForEmbedding(text);
+        sendTextForEmbedding(text, file.name);
       };
       reader.readAsText(file);
     } else if (
@@ -92,7 +95,7 @@ export default function FileTextExtractor() {
       reader.onload = async function () {
         const arrayBuffer = this.result as ArrayBuffer;
         const { value } = await mammoth.extractRawText({ arrayBuffer });
-        sendTextForEmbedding(value);
+        sendTextForEmbedding(value, file.name);
       };
       reader.readAsArrayBuffer(file);
     } else if (
@@ -114,7 +117,7 @@ export default function FileTextExtractor() {
 
 
         setExtractedText(text);
-        sendTextForEmbedding(text);      
+        sendTextForEmbedding(text, file.name);
       };
       reader.readAsArrayBuffer(file);
     } else {

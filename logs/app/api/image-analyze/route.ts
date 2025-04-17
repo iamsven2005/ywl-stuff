@@ -4,7 +4,8 @@ import { NextRequest } from "next/server";
 export async function POST(req: NextRequest) {
   const formData = await req.formData();
   const image = formData.get("image") as File;
-
+  const userId = formData.get("userId");
+  const filename = formData.get("name")
   if (!image) return new Response("No image provided", { status: 400 });
 
   const arrayBuffer = await image.arrayBuffer();
@@ -22,8 +23,8 @@ export async function POST(req: NextRequest) {
 
   const data = await response.json();
   await db2.$executeRaw`
-    INSERT INTO "items" (embedding, json)
-    VALUES (${data.embedding}::vector, ${JSON.stringify(data.embedding)}::jsonb)
+    INSERT INTO "items" (embedding, json, name, fileid, text)
+    VALUES (${data.embedding}::vector, ${JSON.stringify(data.embedding)}::jsonb, ${filename}, ${Number(userId)}, ${data.caption})
   `;
   return Response.json(data);
 }

@@ -27,6 +27,7 @@ import { deleteFile, deleteFolder, updateFolder, updateFile, updateFolder2, upda
 import { Button } from "@/components/ui/button"
 import { toast } from "sonner"
 import { Input } from "@/components/ui/input"
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 
 interface FileGridProps {
   folders: any[]
@@ -44,6 +45,8 @@ export function FileGrid({ folders, files, isLoading, onFileSelect, onRefresh, p
   const [newFolderName, setNewFolderName] = useState("")
   const [searchQuery, setSearchQuery] = useState("")
   const [filteredFolders, setFilteredFolders] = useState(folders)
+  const [filteredFiles, setFilteredFiles] = useState(files)
+
   const [dragOverFolderId, setDragOverFolderId] = useState<number | null>(null)
   const [isRootDragOver, setIsRootDragOver] = useState(false)
   const [editingFileId, setEditingFileId] = useState<number | null>(null)
@@ -54,7 +57,8 @@ export function FileGrid({ folders, files, isLoading, onFileSelect, onRefresh, p
   const [selectBox, setSelectBox] = useState<Box | null>(null)
   const [isDraggingSelect, setIsDraggingSelect] = useState(false)
   const containerRef = useRef<HTMLDivElement | null>(null)
-  
+  const [embedText, setEmbedText] = useState("")
+const [showPopover, setShowPopover] = useState(false)
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
       if (!isDraggingSelect || !selectBox) return
@@ -104,11 +108,75 @@ export function FileGrid({ folders, files, isLoading, onFileSelect, onRefresh, p
   
   
   useEffect(() => {
-    // Filter folders based on search query
-    const filtered = folders.filter((folder) => folder.name.toLowerCase().includes(searchQuery.toLowerCase()))
-    setFilteredFolders(filtered)
-  }, [searchQuery, folders])
-
+    const lowerQuery = searchQuery.toLowerCase();
+  
+    const filteredF = folders.filter((folder) =>
+      folder.name.toLowerCase().includes(lowerQuery)
+    );
+  
+    const filteredFi = files.filter((file) =>
+      file.name.toLowerCase().includes(lowerQuery)
+    );
+  
+    setFilteredFolders(filteredF);
+    setFilteredFiles(filteredFi);
+  }, [searchQuery, folders, files]);
+  useEffect(() => {
+    if (!searchQuery.trim()) {
+      setEmbedText("")
+      setShowPopover(false)
+      return
+    }
+  
+    const timeout = setTimeout(async () => {
+      try {
+        // 1. First, fetch embedding
+        const embedRes = await fetch("/api/embed-text", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ text: searchQuery }),
+          cache: "no-store", // <-- important
+        })
+        
+        const embedData = await embedRes.json()
+  
+        if (!embedData?.embedding) {
+          setEmbedText("No embedding result")
+          setShowPopover(true)
+          return
+        }
+  
+        // 2. Second, send embedding to compare API
+        console.log(embedData.embedding)
+        const compareRes = await fetch("/api/compare", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ embedding: embedData.embedding }),
+        })
+        const compareData = await compareRes.json()
+  
+        // Show results in popover
+        if (compareData?.results?.length) {
+          const textResult = compareData.results
+            .map((r: any, i: number) => `${i + 1}. ${r.name} (${r.score.toFixed(2)})`)
+            .join("\n")
+          setEmbedText(textResult)
+        } else {
+          setEmbedText("No similar items found")
+        }
+  
+        setShowPopover(true)
+      } catch (err) {
+        console.error("Error during embed+compare:", err)
+        setEmbedText("Failed to fetch comparison")
+        setShowPopover(true)
+      }
+    }, 300)
+  
+    return () => clearTimeout(timeout)
+  }, [searchQuery])
+  
+  
   const handleDeleteFile = async (id: number) => {
     try {
       setDeletingId(id)
@@ -320,12 +388,31 @@ export function FileGrid({ folders, files, isLoading, onFileSelect, onRefresh, p
 
   return (
     <div className="space-y-2">
+<Popover open={showPopover} onOpenChange={setShowPopover}>
+  <PopoverTrigger asChild>
+    <div className="relative w-full">
       <Input
         type="search"
         placeholder="Search folders..."
         value={searchQuery}
-        onChange={(e) => setSearchQuery(e.target.value)}
+        onChange={(e) => {
+          setSearchQuery(e.target.value)
+        }}
+        onFocus={() => {
+          if (embedText) setShowPopover(true)
+        }}
       />
+    </div>
+  </PopoverTrigger>
+  <PopoverContent
+    align="start"
+    className="w-[300px] text-sm"
+    sideOffset={4}
+  >
+    <div className="whitespace-pre-wrap">{embedText || "Loading..."}</div>
+  </PopoverContent>
+</Popover>
+
 <div
   ref={containerRef}
   onMouseDown={(e) => {
@@ -443,7 +530,7 @@ export function FileGrid({ folders, files, isLoading, onFileSelect, onRefresh, p
           </div>
         ))}
 
-        {files.map((file) => (
+{filteredFiles.map((file) => (
           <div
             id={`file-${file.id}`}
             key={file.id}
