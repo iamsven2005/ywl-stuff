@@ -135,7 +135,7 @@ const config = {
       "value": "prisma-client-js"
     },
     "output": {
-      "value": "/home/sven/Desktop/SYSLOG/logs/prisma/generated/analytics",
+      "value": "C:\\Users\\sven.tan.YWLSG217\\Desktop\\SYSLOG\\logs\\prisma\\generated\\analytics",
       "fromEnvVar": null
     },
     "config": {
@@ -144,20 +144,12 @@ const config = {
     "binaryTargets": [
       {
         "fromEnvVar": null,
-        "value": "debian-openssl-3.0.x",
+        "value": "windows",
         "native": true
-      },
-      {
-        "fromEnvVar": null,
-        "value": "windows"
-      },
-      {
-        "fromEnvVar": null,
-        "value": "debian-openssl-1.1.x"
       }
     ],
     "previewFeatures": [],
-    "sourceFilePath": "/home/sven/Desktop/SYSLOG/logs/prisma/analytics/schema.prisma",
+    "sourceFilePath": "C:\\Users\\sven.tan.YWLSG217\\Desktop\\SYSLOG\\logs\\prisma\\analytics\\schema.prisma",
     "isCustomOutput": true
   },
   "relativeEnvPaths": {
@@ -179,8 +171,8 @@ const config = {
       }
     }
   },
-  "inlineSchema": "generator client {\n  provider      = \"prisma-client-js\"\n  binaryTargets = [\"native\", \"windows\", \"debian-openssl-1.1.x\"]\n  output        = \"../../prisma/generated/analytics\"\n}\n\ndatasource db {\n  provider = \"postgresql\"\n  url      = env(\"DATABASE_URL_ANALYTICS\")\n}\n\nmodel items {\n  id        BigInt                 @id @default(autoincrement())\n  embedding Unsupported(\"vector\")?\n  json      Json?\n}\n",
-  "inlineSchemaHash": "06a74d0790b859f9f8e54bbd9d61f9b5594eb086fdccc9337565a20efb86e788",
+  "inlineSchema": "generator client {\n  provider = \"prisma-client-js\"\n  output   = \"../../prisma/generated/analytics\"\n}\n\ndatasource db {\n  provider = \"postgresql\"\n  url      = env(\"DATABASE_URL_ANALYTICS\")\n}\n\nmodel items {\n  id        BigInt                 @id @default(autoincrement())\n  embedding Unsupported(\"vector\")?\n  json      Json?\n}\n",
+  "inlineSchemaHash": "79f16403844e031db312997c8969fef288c9c546c0505c2ece4157ff5d50a0dc",
   "copyEngine": true
 }
 config.dirname = '/'
