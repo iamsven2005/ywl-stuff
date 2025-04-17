@@ -2,3 +2,5 @@ timm
 transformers
 fairscale
 pycocoevalcap
+flask
+FlagEmbedding

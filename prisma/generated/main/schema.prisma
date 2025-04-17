@@ -1,6 +1,7 @@
 generator client {
-  provider = "prisma-client-js"
-  output   = "../../prisma/generated/main"
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "windows"]
+  output        = "../../prisma/generated/main"
 }
 
 datasource db {
@@ -180,7 +181,7 @@ model EmailTemplate {
 
 model User {
   id                  Int                   @id @default(autoincrement())
-  username            String                @unique
+  username            String?               @unique
   password            String
   email               String?               @unique
   role                String[]
@@ -195,7 +196,7 @@ model User {
   ndafile             String?
   ndasubmissiondate   DateTime              @default(now())
   createdAt           DateTime              @default(now())
-  updatedAt           DateTime              @updatedAt
+  updatedAt           DateTime              @default(now()) @updatedAt
   location            String[]
   ActivityLog         ActivityLog[]
   CommandMatch        CommandMatch[]
