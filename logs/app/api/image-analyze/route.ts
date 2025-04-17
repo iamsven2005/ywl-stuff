@@ -1,3 +1,4 @@
+import { db2 } from "@/lib/db";
 import { NextRequest } from "next/server";
 
 export async function POST(req: NextRequest) {
@@ -20,5 +21,9 @@ export async function POST(req: NextRequest) {
   }
 
   const data = await response.json();
+  await db2.$executeRaw`
+    INSERT INTO "items" (embedding, json)
+    VALUES (${data.embedding}::vector, ${JSON.stringify(data.embedding)}::jsonb)
+  `;
   return Response.json(data);
 }

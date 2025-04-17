@@ -166,6 +166,7 @@ export default function PermissionsTable() {
       setAddModalOpen(false)
       fetchData()
     } catch (error) {
+      console.log(error)
       toast.error("Failed to add permission")
     }
   }

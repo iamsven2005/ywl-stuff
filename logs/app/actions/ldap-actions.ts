@@ -27,7 +27,7 @@ export async function getLdapUsers(page = 1, pageSize = 30, searchTerm = "") {
   // Get users for current page
   const users = await db.ldapuser.findMany({
     where: searchCondition,
-    orderBy: { id: "asc" },
+    orderBy: { ids: "asc" },
     skip,
     take: pageSize,
   })
@@ -42,7 +42,7 @@ export async function getLdapUsers(page = 1, pageSize = 30, searchTerm = "") {
 // Function to get a single LDAP user by ID
 export async function getLdapUserById(id: number) {
   return db.ldapuser.findUnique({
-    where: { id },
+    where: { ids: id },
   })
 }
 

@@ -22,6 +22,7 @@ import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area"
 import { ModelEntry, User } from "@prisma/client"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 import { db } from "@/lib/db"
+import { getAllUsers } from "../actions/chat-actions"
 
 interface ModelEntryModalProps {
   projectId: number
@@ -67,10 +68,11 @@ export function ModelEntryModal({ projectId, isOpen, onClose, onSuccess }: Model
   const fetchUsers = async () => {
     try {
       setLoadingUsers(true)
-      const users = await db.user.findMany()
+      const users = await getAllUsers()
       setUsers(users)
     } catch (error) {
-      toast.error("Failed to load users")
+      console.log(error)
+      toast.error("Failed to load entry users")
     } finally {
       setLoadingUsers(false)
     }

@@ -1,9 +1,21 @@
-import { PrismaClient } from '@prisma/client'
+import { PrismaClient as MainPrismaClient } from '@/prisma/generated/main'
+import { PrismaClient as AnalyticsPrismaClient } from '@/prisma/generated/analytics'
 
 declare global {
-  var prisma: PrismaClient | undefined
+  // Extend global type for both clients
+  var mainPrisma: MainPrismaClient | undefined
+  var analyticsPrisma: AnalyticsPrismaClient | undefined
 }
 
-export const db = globalThis.prisma || new PrismaClient()
+// Create instances or reuse from global
+export const db =
+  globalThis.mainPrisma || new MainPrismaClient()
 
-if (process.env.NODE_ENV !== 'production') globalThis.prisma = db
+export const db2 =
+  globalThis.analyticsPrisma || new AnalyticsPrismaClient()
+
+// Persist in global for development
+if (process.env.NODE_ENV !== 'production') {
+  globalThis.mainPrisma = db
+  globalThis.analyticsPrisma = db2
+}

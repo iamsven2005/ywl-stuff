@@ -1,0 +1,15 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../../prisma/generated/analytics"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL_ANALYTICS")
+}
+
+model items {
+  id        BigInt                 @id @default(autoincrement())
+  embedding Unsupported("vector")?
+  json  Json?
+}

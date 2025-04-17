@@ -1,0 +1,683 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../../prisma/generated/main"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model logs {
+  id        Int      @id @default(autoincrement())
+  name      String
+  host      String?
+  timestamp DateTime @default(now())
+  piuser    String?
+  pid       Int?
+  action    String?
+  cpu       Float?
+  mem       Float?
+  command   String?
+  port      Int?
+  ipAddress String?
+
+  @@map("logs")
+}
+
+model auth {
+  id        Int      @id @default(autoincrement())
+  timestamp DateTime @default(now())
+  username  String
+  log_entry String
+}
+
+model memory_usage {
+  id               Int      @id @default(autoincrement())
+  total_memory     BigInt
+  used_memory      BigInt
+  free_memory      BigInt
+  available_memory BigInt
+  percent_usage    Float
+  host             String?
+  time             DateTime @default(now())
+}
+
+model system_metrics {
+  id          Int      @id @default(autoincrement())
+  timestamp   DateTime @default(now())
+  sensor_name String
+  value_type  String   @default("VALUE")
+  value       Float    @default(0.0)
+  host        String
+  min         String?
+  max         String?
+}
+
+model diskmetric {
+  id        Int      @id @default(autoincrement())
+  host      String
+  name      String
+  label     String?
+  totalgb   Float
+  usedgb    Float
+  freegb    Float
+  timestamp DateTime @default(now())
+}
+
+model notes {
+  id          Int      @id @default(autoincrement())
+  title       String
+  time        DateTime @default(now())
+  description String
+}
+
+model devices {
+  id            Int             @id @default(autoincrement())
+  name          String
+  ip_address    String?         @unique
+  mac_address   String?
+  password      String?
+  time          DateTime        @default(now())
+  notes         String
+  status        String          @default("online")
+  users         DeviceUser[]
+  SupportTicket SupportTicket[]
+}
+
+model DeviceUser {
+  id       Int     @id @default(autoincrement())
+  userId   Int
+  deviceId Int
+  role     String
+  device   devices @relation(fields: [deviceId], references: [id])
+  user     User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, deviceId])
+}
+
+model Command {
+  id              Int            @id @default(autoincrement())
+  ruleId          Int
+  command         String
+  emailTemplateId Int?
+  emailTemplate   EmailTemplate? @relation(fields: [emailTemplateId], references: [id])
+  rule            Rule           @relation(fields: [ruleId], references: [id])
+  matches         CommandMatch[]
+}
+
+model Rule {
+  id              Int            @id @default(autoincrement())
+  name            String
+  description     String?
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+  groupId         Int?
+  emailTemplateId Int?
+  commands        Command[]
+  matches         CommandMatch[]
+  emailTemplate   EmailTemplate? @relation(fields: [emailTemplateId], references: [id])
+  group           RuleGroup?     @relation(fields: [groupId], references: [id])
+}
+
+model RuleGroup {
+  id              Int            @id @default(autoincrement())
+  name            String
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+  emailTemplateId Int?
+  rules           Rule[]
+  emailTemplate   EmailTemplate? @relation(fields: [emailTemplateId], references: [id])
+}
+
+model CommandMatch {
+  id              Int      @id @default(autoincrement())
+  logId           Int
+  logType         String
+  commandId       Int
+  ruleId          Int
+  commandText     String
+  logEntry        String
+  timestamp       DateTime @default(now())
+  addressed       Boolean  @default(false)
+  addressedBy     Int?
+  addressedAt     DateTime @default(now())
+  notes           String?
+  emailSent       Boolean  @default(false)
+  addressedByUser User?    @relation(fields: [addressedBy], references: [id])
+  command         Command  @relation(fields: [commandId], references: [id], onDelete: Cascade)
+  rule            Rule     @relation(fields: [ruleId], references: [id])
+  User            User[]   @relation("addressedBy")
+}
+
+model ActivityLog {
+  id         Int      @id @default(autoincrement())
+  userId     Int
+  actionType String
+  targetType String
+  targetId   Int?
+  details    String?
+  timestamp  DateTime @default(now())
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model EmailTemplate {
+  id             Int                 @id @default(autoincrement())
+  name           String
+  subject        String
+  body           String
+  createdAt      DateTime            @default(now())
+  updatedAt      DateTime            @updatedAt
+  AlertCondition AlertCondition[]
+  Command        Command[]
+  Rule           Rule[]
+  RuleGroup      RuleGroup[]
+  SavedQuery     SavedQuery[]
+  assignedUsers  UserEmailTemplate[]
+}
+
+model User {
+  id                  Int                   @id @default(autoincrement())
+  username            String                @unique
+  password            String
+  email               String?               @unique
+  role                String[]
+  Mobile              Int?
+  PrimaryContact      String?
+  MobileContact       Int?
+  Relationship        String?
+  SecondContact       String?
+  SecondMobile        Int?
+  SecondRelationship  String?
+  Remarks             String?
+  ndafile             String?
+  ndasubmissiondate   DateTime              @default(now())
+  createdAt           DateTime              @default(now())
+  updatedAt           DateTime              @updatedAt
+  location            String[]
+  ActivityLog         ActivityLog[]
+  CommandMatch        CommandMatch[]
+  devices             DeviceUser[]
+  DriveFile           DriveFile[]
+  grantedPermissions  DriveFilePermission[] @relation("GrantedBy")
+  DriveFilePermission DriveFilePermission[] @relation("receivedPermissions")
+  DriveFolder         DriveFolder[]
+  Feedback            Feedback[]            @relation("FeedbackSender")
+  FeedbackRecipient   FeedbackRecipient[]   @relation("FeedbackRecipient")
+  GroupMember         GroupMember[]
+  Message             Message[]
+  NotificationRead    NotificationRead[]
+  ProjectAssignment   ProjectAssignment[]
+  assignedTickets     SupportTicket[]       @relation("AssignedTickets")
+  createdTickets      SupportTicket[]       @relation("CreatedTickets")
+  TeamLeader          TeamLeader[]
+  TeamMember          TeamMember[]
+  TicketAttachment    TicketAttachment[]
+  ticketComments      TicketComment[]
+  emailTemplates      UserEmailTemplate[]
+  UserPermission      UserPermission[]
+  receivedPermissions DriveFilePermission[] @relation("DriveFilePermissionToUser")
+  addressedMatches    CommandMatch[]        @relation("addressedBy")
+}
+
+model Group {
+  id        Int           @id @default(autoincrement())
+  name      String
+  createdBy String
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+  members   GroupMember[]
+  messages  Message[]
+}
+
+model GroupMember {
+  id       Int      @id @default(autoincrement())
+  userId   Int
+  groupId  Int
+  joinedAt DateTime @default(now())
+  group    Group    @relation(fields: [groupId], references: [id])
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, groupId])
+}
+
+model Message {
+  id               Int      @id @default(autoincrement())
+  content          String
+  senderId         Int
+  groupId          Int
+  edited           Boolean  @default(false)
+  createdAt        DateTime @default(now())
+  fileAttachment   String?
+  fileOriginalName String?
+  fileType         String?
+  group            Group    @relation(fields: [groupId], references: [id])
+  sender           User     @relation(fields: [senderId], references: [id])
+}
+
+model UserEmailTemplate {
+  userId          Int
+  emailTemplateId Int
+  assignedAt      DateTime      @default(now())
+  emailTemplate   EmailTemplate @relation(fields: [emailTemplateId], references: [id], onDelete: Cascade)
+  user            User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([userId, emailTemplateId])
+}
+
+model Roles {
+  id          Int    @id @default(autoincrement())
+  name        String
+  description String
+}
+
+model Notification {
+  id         Int                @id @default(autoincrement())
+  title      String
+  content    String
+  postDate   DateTime           @default(now())
+  expiryDate DateTime?
+  createdBy  Int
+  createdAt  DateTime           @default(now())
+  updatedAt  DateTime           @updatedAt
+  important  Boolean            @default(false)
+  reads      NotificationRead[]
+}
+
+model NotificationRead {
+  id             Int          @id @default(autoincrement())
+  notificationId Int
+  userId         Int
+  readAt         DateTime     @default(now())
+  notification   Notification @relation(fields: [notificationId], references: [id], onDelete: Cascade)
+  user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([notificationId, userId])
+}
+
+model SavedQuery {
+  id              Int            @id @default(autoincrement())
+  name            String         @unique
+  description     String?
+  tableName       String
+  columns         String[]
+  conditions      Json?
+  emailTemplateId Int?
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+  emailTemplate   EmailTemplate? @relation(fields: [emailTemplateId], references: [id])
+}
+
+model TicketComment {
+  id               Int                @id @default(autoincrement())
+  ticketId         Int
+  userId           Int
+  content          String
+  createdAt        DateTime           @default(now())
+  TicketAttachment TicketAttachment[]
+  ticket           SupportTicket      @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  user             User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model SupportTicket {
+  id              Int                @id @default(autoincrement())
+  title           String
+  description     String
+  status          String             @default("open")
+  priority        String             @default("medium")
+  createdAt       DateTime           @default(now())
+  updatedAt       DateTime           @updatedAt
+  assignedToId    Int?
+  createdById     Int
+  relatedDeviceId Int?
+  assignedTo      User?              @relation("AssignedTickets", fields: [assignedToId], references: [id])
+  createdBy       User               @relation("CreatedTickets", fields: [createdById], references: [id])
+  relatedDevice   devices?           @relation(fields: [relatedDeviceId], references: [id])
+  attachments     TicketAttachment[]
+  comments        TicketComment[]
+}
+
+model TicketAttachment {
+  id               Int            @id @default(autoincrement())
+  filename         String
+  originalFilename String
+  fileSize         Int
+  mimeType         String
+  createdAt        DateTime       @default(now())
+  ticketId         Int?
+  commentId        Int?
+  uploaderId       Int
+  comment          TicketComment? @relation(fields: [commentId], references: [id], onDelete: Cascade)
+  ticket           SupportTicket? @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  uploader         User           @relation(fields: [uploaderId], references: [id])
+}
+
+model AlertCondition {
+  id                Int            @id @default(autoincrement())
+  name              String
+  sourceTable       String
+  fieldName         String
+  comparator        String
+  thresholdValue    String
+  timeWindowMin     Int?
+  repeatIntervalMin Int?
+  countThreshold    Int?
+  lastTriggeredAt   DateTime?
+  active            Boolean        @default(true)
+  emailTemplateId   Int?
+  emailTemplate     EmailTemplate? @relation(fields: [emailTemplateId], references: [id])
+  triggeredAlerts   AlertEvent[]
+}
+
+model AlertEvent {
+  id             Int            @id @default(autoincrement())
+  conditionId    Int
+  triggeredAt    DateTime       @default(now())
+  resolved       Boolean        @default(false)
+  resolvedAt     DateTime?
+  notes          String?
+  alertCondition AlertCondition @relation(fields: [conditionId], references: [id])
+}
+
+model LibraryEntry {
+  id                 Int       @id @default(autoincrement())
+  refNo              String
+  category           String
+  title              String
+  author             String?
+  pubYear            Int?
+  creationDate       DateTime
+  borrower           String?
+  loanDate           DateTime?
+  remarks            String?
+  attachmentUrl      String?
+  attachmentFilename String?
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+}
+
+model Feedback {
+  id         Int                 @id @default(autoincrement())
+  subject    String
+  message    String
+  createdAt  DateTime            @default(now())
+  updatedAt  DateTime            @updatedAt
+  isRead     Boolean             @default(false)
+  senderId   Int
+  sender     User                @relation("FeedbackSender", fields: [senderId], references: [id])
+  recipients FeedbackRecipient[]
+}
+
+model FeedbackRecipient {
+  id         Int      @id @default(autoincrement())
+  feedbackId Int
+  userId     Int
+  feedback   Feedback @relation(fields: [feedbackId], references: [id], onDelete: Cascade)
+  user       User     @relation("FeedbackRecipient", fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([feedbackId, userId])
+}
+
+model PagePermission {
+  id           Int              @id @default(autoincrement())
+  route        String
+  description  String?
+  createdAt    DateTime         @default(now())
+  allowedRoles RolePermission[]
+  allowedUsers UserPermission[]
+}
+
+model RolePermission {
+  id               Int            @id @default(autoincrement())
+  roleName         String
+  pagePermissionId Int
+  pagePermission   PagePermission @relation(fields: [pagePermissionId], references: [id])
+
+  @@unique([roleName, pagePermissionId])
+}
+
+model UserPermission {
+  id               Int            @id @default(autoincrement())
+  userId           Int
+  pagePermissionId Int
+  pagePermission   PagePermission @relation(fields: [pagePermissionId], references: [id])
+  user             User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, pagePermissionId])
+}
+
+model pages {
+  id    Int     @id @default(autoincrement())
+  notes String?
+}
+
+model ProjectType {
+  id          Int       @id @default(autoincrement())
+  name        String    @unique
+  description String?
+  projects    Project[]
+}
+
+model Project {
+  id            Int                 @id @default(autoincrement())
+  businessCode  String
+  projectCode   String
+  name          String
+  createDate    DateTime            @default(now())
+  projectTypeId Int?
+  models        ModelEntry[]
+  projectType   ProjectType?        @relation(fields: [projectTypeId], references: [id])
+  assignments   ProjectAssignment[]
+}
+
+model ModelEntry {
+  id          Int       @id @default(autoincrement())
+  code        String
+  description String?
+  createDate  DateTime
+  createBy    String
+  modifyDate  DateTime?
+  modifyBy    String?
+  projectId   Int
+  project     Project   @relation(fields: [projectId], references: [id])
+}
+
+model ProjectAssignment {
+  id        Int     @id @default(autoincrement())
+  userId    Int
+  projectId Int
+  role      String
+  project   Project @relation(fields: [projectId], references: [id])
+  user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, projectId])
+}
+
+model SambaLog {
+  id        Int      @id @default(autoincrement())
+  timestamp DateTime @default(now())
+  component String
+  level     String
+  message   String
+  zone      String?
+  name      String?
+  errorCode Int?
+  errorName String?
+  hostname  String?
+  createdAt DateTime @default(now())
+
+  @@index([timestamp])
+}
+
+model location {
+  id           Int            @id @default(autoincrement())
+  code         String
+  name         String
+  modifyBy     String?
+  createBy     String
+  modifyDate   DateTime       @default(now())
+  CCY          String?
+  Region       String?
+  Remarks      String?
+  WCI_URL      String?
+  createDate   DateTime       @default(now())
+  fullname     String?
+  TeamLocation TeamLocation[]
+}
+
+model ldapuser {
+  dn                     String
+  objectClass            String[]
+  cn                     String
+  sn                     String?
+  givenName              String?
+  instanceType           Int
+  whenCreated            BigInt
+  displayName            String?
+  uSNCreated             Int
+  name                   String
+  objectGUID             String
+  badPwdCount            Int?
+  codePage               Int
+  countryCode            Int
+  badPasswordTime        BigInt?
+  lastLogoff             BigInt?
+  lastLogon              BigInt?
+  primaryGroupID         Int
+  objectSid              String
+  accountExpires         BigInt
+  logonCount             Int?
+  sAMAccountName         String
+  sAMAccountType         Int
+  userPrincipalName      String?
+  objectCategory         String
+  pwdLastSet             BigInt
+  userAccountControl     Int
+  whenChanged            BigInt
+  uSNChanged             Int
+  distinguishedName      String
+  createdAt              DateTime @default(now())
+  updatedAt              DateTime @updatedAt
+  adminCount             Int?
+  description            String?
+  isCriticalSystemObject Boolean?
+  memberOf               String?
+  servicePrincipalName   String?
+  showInAdvancedViewOnly Boolean?
+  id                     Int      @id @default(autoincrement())
+}
+
+model DriveFolder {
+  id        Int           @id @default(autoincrement())
+  name      String
+  parentId  Int?
+  ownerId   Int
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+  files     DriveFile[]
+  owner     User          @relation(fields: [ownerId], references: [id])
+  parent    DriveFolder?  @relation("FolderParent", fields: [parentId], references: [id])
+  children  DriveFolder[] @relation("FolderParent")
+
+  @@index([parentId])
+}
+
+model DriveFile {
+  id          Int                   @id @default(autoincrement())
+  name        String
+  type        String
+  size        Int
+  order       Int                   @default(0)
+  folderId    Int?
+  ownerId     Int
+  url         String
+  createdAt   DateTime              @default(now())
+  updatedAt   DateTime              @updatedAt
+  folder      DriveFolder?          @relation(fields: [folderId], references: [id])
+  owner       User                  @relation(fields: [ownerId], references: [id])
+  permissions DriveFilePermission[]
+
+  @@index([folderId])
+  @@index([type])
+  @@index([order])
+}
+
+model DriveFilePermission {
+  id        Int       @id @default(autoincrement())
+  fileId    Int
+  userId    Int
+  access    String
+  grantedBy Int
+  grantedAt DateTime  @default(now())
+  file      DriveFile @relation(fields: [fileId], references: [id])
+  granter   User      @relation("GrantedBy", fields: [grantedBy], references: [id])
+  user      User      @relation("receivedPermissions", fields: [userId], references: [id], onDelete: Cascade)
+  User      User[]    @relation("DriveFilePermissionToUser")
+
+  @@unique([fileId, userId])
+}
+
+model JobTitle {
+  id                  Int      @id @default(autoincrement())
+  sn                  String
+  jobTitle            String
+  abbreviation        String
+  grade               String
+  seniorityLevel      String
+  selectableInStaffCV String
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+}
+
+model UserActivity {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  username  String
+  page      String
+  loginTime DateTime @default(now())
+}
+
+model Team {
+  id          Int            @id @default(autoincrement())
+  sequence    Int
+  remarks     String
+  name        String
+  description String?
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+  leaders     TeamLeader[]
+  locations   TeamLocation[]
+  members     TeamMember[]
+}
+
+model TeamLeader {
+  id     Int  @id @default(autoincrement())
+  teamId Int
+  userId Int
+  team   Team @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([teamId, userId])
+}
+
+model TeamMember {
+  id     Int  @id @default(autoincrement())
+  teamId Int
+  userId Int
+  team   Team @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([teamId, userId])
+}
+
+model TeamLocation {
+  id         Int      @id @default(autoincrement())
+  teamId     Int
+  locationId Int
+  location   location @relation(fields: [locationId], references: [id], onDelete: Cascade)
+  team       Team     @relation(fields: [teamId], references: [id], onDelete: Cascade)
+
+  @@unique([teamId, locationId])
+}

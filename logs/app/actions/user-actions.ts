@@ -101,7 +101,13 @@ export async function addUser({
       Remarks
     },
   })
-
+  const folder = await db.driveFolder.create({
+    data:{
+      id: user.id,
+      name: "My Drive",
+      ownerId: user.id
+    }
+  })
 
   await logActivity({
     actionType: "Created User",

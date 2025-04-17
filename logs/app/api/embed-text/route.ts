@@ -1,4 +1,5 @@
 // /app/api/embed-text/route.ts
+import { db, db2 } from "@/lib/db";
 import { NextRequest } from "next/server";
 
 export async function POST(req: NextRequest) {
@@ -14,5 +15,9 @@ export async function POST(req: NextRequest) {
   if (!res.ok) return new Response("Failed to embed", { status: 500 });
 
   const result = await res.json();
+  await db2.$executeRaw`
+  INSERT INTO "items" (embedding, json)
+  VALUES (${result.embedding}::vector, ${JSON.stringify(result.embedding)}::jsonb)
+`;
   return Response.json({ embedding: result.embedding });
 }
