@@ -563,7 +563,7 @@ exports.Prisma.LdapuserScalarFieldEnum = {
   memberOf: 'memberOf',
   servicePrincipalName: 'servicePrincipalName',
   showInAdvancedViewOnly: 'showInAdvancedViewOnly',
-  ids: 'ids'
+  id: 'id'
 };
 
 exports.Prisma.DriveFolderScalarFieldEnum = {
