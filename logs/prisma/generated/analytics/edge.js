@@ -150,6 +150,10 @@ const config = {
       {
         "fromEnvVar": null,
         "value": "windows"
+      },
+      {
+        "fromEnvVar": null,
+        "value": "debian-openssl-1.1.x"
       }
     ],
     "previewFeatures": [],
@@ -167,6 +171,7 @@ const config = {
     "db"
   ],
   "activeProvider": "postgresql",
+  "postinstall": false,
   "inlineDatasources": {
     "db": {
       "url": {
@@ -175,8 +180,8 @@ const config = {
       }
     }
   },
-  "inlineSchema": "generator client {\n  provider      = \"prisma-client-js\"\n  binaryTargets = [\"native\", \"windows\"]\n  output        = \"../../prisma/generated/analytics\"\n}\n\ndatasource db {\n  provider = \"postgresql\"\n  url      = env(\"DATABASE_URL_ANALYTICS\")\n}\n\nmodel items {\n  id        BigInt                 @id @default(autoincrement())\n  embedding Unsupported(\"vector\")?\n  json      Json?\n}\n",
-  "inlineSchemaHash": "09c94cfb1aa69d7d0bc8c8ba64973c956c787d4217190279298b41ae76c2b73d",
+  "inlineSchema": "generator client {\n  provider      = \"prisma-client-js\"\n  binaryTargets = [\"native\", \"windows\", \"debian-openssl-1.1.x\"]\n  output        = \"../../prisma/generated/analytics\"\n}\n\ndatasource db {\n  provider = \"postgresql\"\n  url      = env(\"DATABASE_URL_ANALYTICS\")\n}\n\nmodel items {\n  id        BigInt                 @id @default(autoincrement())\n  embedding Unsupported(\"vector\")?\n  json      Json?\n}\n",
+  "inlineSchemaHash": "06a74d0790b859f9f8e54bbd9d61f9b5594eb086fdccc9337565a20efb86e788",
   "copyEngine": true
 }
 config.dirname = '/'
