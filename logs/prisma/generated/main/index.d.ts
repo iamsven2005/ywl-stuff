@@ -268,6 +268,41 @@ export type TeamMember = $Result.DefaultSelection<Prisma.$TeamMemberPayload>
  * 
  */
 export type TeamLocation = $Result.DefaultSelection<Prisma.$TeamLocationPayload>
+/**
+ * Model AuditWorkflow
+ * 
+ */
+export type AuditWorkflow = $Result.DefaultSelection<Prisma.$AuditWorkflowPayload>
+/**
+ * Model AuditStep
+ * 
+ */
+export type AuditStep = $Result.DefaultSelection<Prisma.$AuditStepPayload>
+/**
+ * Model StepLog
+ * 
+ */
+export type StepLog = $Result.DefaultSelection<Prisma.$StepLogPayload>
+
+/**
+ * Enums
+ */
+export namespace $Enums {
+  export const StepStatus: {
+  PENDING: 'PENDING',
+  IN_PROGRESS: 'IN_PROGRESS',
+  REVIEW: 'REVIEW',
+  COMPLETED: 'COMPLETED',
+  REJECTED: 'REJECTED'
+};
+
+export type StepStatus = (typeof StepStatus)[keyof typeof StepStatus]
+
+}
+
+export type StepStatus = $Enums.StepStatus
+
+export const StepStatus: typeof $Enums.StepStatus
 
 /**
  * ##  Prisma Client ʲˢ
@@ -903,6 +938,36 @@ export class PrismaClient<
     * ```
     */
   get teamLocation(): Prisma.TeamLocationDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.auditWorkflow`: Exposes CRUD operations for the **AuditWorkflow** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more AuditWorkflows
+    * const auditWorkflows = await prisma.auditWorkflow.findMany()
+    * ```
+    */
+  get auditWorkflow(): Prisma.AuditWorkflowDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.auditStep`: Exposes CRUD operations for the **AuditStep** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more AuditSteps
+    * const auditSteps = await prisma.auditStep.findMany()
+    * ```
+    */
+  get auditStep(): Prisma.AuditStepDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.stepLog`: Exposes CRUD operations for the **StepLog** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more StepLogs
+    * const stepLogs = await prisma.stepLog.findMany()
+    * ```
+    */
+  get stepLog(): Prisma.StepLogDelegate<ExtArgs, ClientOptions>;
 }
 
 export namespace Prisma {
@@ -1393,7 +1458,10 @@ export namespace Prisma {
     Team: 'Team',
     TeamLeader: 'TeamLeader',
     TeamMember: 'TeamMember',
-    TeamLocation: 'TeamLocation'
+    TeamLocation: 'TeamLocation',
+    AuditWorkflow: 'AuditWorkflow',
+    AuditStep: 'AuditStep',
+    StepLog: 'StepLog'
   };
 
   export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -1409,7 +1477,7 @@ export namespace Prisma {
 
   export type TypeMap<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, ClientOptions = {}> = {
     meta: {
-      modelProps: "logs" | "auth" | "memory_usage" | "system_metrics" | "diskmetric" | "notes" | "devices" | "deviceUser" | "command" | "rule" | "ruleGroup" | "commandMatch" | "activityLog" | "emailTemplate" | "user" | "group" | "groupMember" | "message" | "userEmailTemplate" | "roles" | "notification" | "notificationRead" | "savedQuery" | "ticketComment" | "supportTicket" | "ticketAttachment" | "alertCondition" | "alertEvent" | "libraryEntry" | "feedback" | "feedbackRecipient" | "pagePermission" | "rolePermission" | "userPermission" | "pages" | "projectType" | "project" | "modelEntry" | "projectAssignment" | "sambaLog" | "location" | "ldapuser" | "driveFolder" | "driveFile" | "driveFilePermission" | "jobTitle" | "userActivity" | "team" | "teamLeader" | "teamMember" | "teamLocation"
+      modelProps: "logs" | "auth" | "memory_usage" | "system_metrics" | "diskmetric" | "notes" | "devices" | "deviceUser" | "command" | "rule" | "ruleGroup" | "commandMatch" | "activityLog" | "emailTemplate" | "user" | "group" | "groupMember" | "message" | "userEmailTemplate" | "roles" | "notification" | "notificationRead" | "savedQuery" | "ticketComment" | "supportTicket" | "ticketAttachment" | "alertCondition" | "alertEvent" | "libraryEntry" | "feedback" | "feedbackRecipient" | "pagePermission" | "rolePermission" | "userPermission" | "pages" | "projectType" | "project" | "modelEntry" | "projectAssignment" | "sambaLog" | "location" | "ldapuser" | "driveFolder" | "driveFile" | "driveFilePermission" | "jobTitle" | "userActivity" | "team" | "teamLeader" | "teamMember" | "teamLocation" | "auditWorkflow" | "auditStep" | "stepLog"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -5187,6 +5255,228 @@ export namespace Prisma {
           }
         }
       }
+      AuditWorkflow: {
+        payload: Prisma.$AuditWorkflowPayload<ExtArgs>
+        fields: Prisma.AuditWorkflowFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.AuditWorkflowFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AuditWorkflowPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.AuditWorkflowFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AuditWorkflowPayload>
+          }
+          findFirst: {
+            args: Prisma.AuditWorkflowFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AuditWorkflowPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.AuditWorkflowFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AuditWorkflowPayload>
+          }
+          findMany: {
+            args: Prisma.AuditWorkflowFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AuditWorkflowPayload>[]
+          }
+          create: {
+            args: Prisma.AuditWorkflowCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AuditWorkflowPayload>
+          }
+          createMany: {
+            args: Prisma.AuditWorkflowCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.AuditWorkflowCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AuditWorkflowPayload>[]
+          }
+          delete: {
+            args: Prisma.AuditWorkflowDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AuditWorkflowPayload>
+          }
+          update: {
+            args: Prisma.AuditWorkflowUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AuditWorkflowPayload>
+          }
+          deleteMany: {
+            args: Prisma.AuditWorkflowDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.AuditWorkflowUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.AuditWorkflowUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AuditWorkflowPayload>[]
+          }
+          upsert: {
+            args: Prisma.AuditWorkflowUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AuditWorkflowPayload>
+          }
+          aggregate: {
+            args: Prisma.AuditWorkflowAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateAuditWorkflow>
+          }
+          groupBy: {
+            args: Prisma.AuditWorkflowGroupByArgs<ExtArgs>
+            result: $Utils.Optional<AuditWorkflowGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.AuditWorkflowCountArgs<ExtArgs>
+            result: $Utils.Optional<AuditWorkflowCountAggregateOutputType> | number
+          }
+        }
+      }
+      AuditStep: {
+        payload: Prisma.$AuditStepPayload<ExtArgs>
+        fields: Prisma.AuditStepFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.AuditStepFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AuditStepPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.AuditStepFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AuditStepPayload>
+          }
+          findFirst: {
+            args: Prisma.AuditStepFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AuditStepPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.AuditStepFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AuditStepPayload>
+          }
+          findMany: {
+            args: Prisma.AuditStepFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AuditStepPayload>[]
+          }
+          create: {
+            args: Prisma.AuditStepCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AuditStepPayload>
+          }
+          createMany: {
+            args: Prisma.AuditStepCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.AuditStepCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AuditStepPayload>[]
+          }
+          delete: {
+            args: Prisma.AuditStepDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AuditStepPayload>
+          }
+          update: {
+            args: Prisma.AuditStepUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AuditStepPayload>
+          }
+          deleteMany: {
+            args: Prisma.AuditStepDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.AuditStepUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.AuditStepUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AuditStepPayload>[]
+          }
+          upsert: {
+            args: Prisma.AuditStepUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AuditStepPayload>
+          }
+          aggregate: {
+            args: Prisma.AuditStepAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateAuditStep>
+          }
+          groupBy: {
+            args: Prisma.AuditStepGroupByArgs<ExtArgs>
+            result: $Utils.Optional<AuditStepGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.AuditStepCountArgs<ExtArgs>
+            result: $Utils.Optional<AuditStepCountAggregateOutputType> | number
+          }
+        }
+      }
+      StepLog: {
+        payload: Prisma.$StepLogPayload<ExtArgs>
+        fields: Prisma.StepLogFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.StepLogFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$StepLogPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.StepLogFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$StepLogPayload>
+          }
+          findFirst: {
+            args: Prisma.StepLogFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$StepLogPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.StepLogFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$StepLogPayload>
+          }
+          findMany: {
+            args: Prisma.StepLogFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$StepLogPayload>[]
+          }
+          create: {
+            args: Prisma.StepLogCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$StepLogPayload>
+          }
+          createMany: {
+            args: Prisma.StepLogCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.StepLogCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$StepLogPayload>[]
+          }
+          delete: {
+            args: Prisma.StepLogDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$StepLogPayload>
+          }
+          update: {
+            args: Prisma.StepLogUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$StepLogPayload>
+          }
+          deleteMany: {
+            args: Prisma.StepLogDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.StepLogUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.StepLogUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$StepLogPayload>[]
+          }
+          upsert: {
+            args: Prisma.StepLogUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$StepLogPayload>
+          }
+          aggregate: {
+            args: Prisma.StepLogAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateStepLog>
+          }
+          groupBy: {
+            args: Prisma.StepLogGroupByArgs<ExtArgs>
+            result: $Utils.Optional<StepLogGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.StepLogCountArgs<ExtArgs>
+            result: $Utils.Optional<StepLogCountAggregateOutputType> | number
+          }
+        }
+      }
     }
   } & {
     other: {
@@ -5322,6 +5612,9 @@ export namespace Prisma {
     teamLeader?: TeamLeaderOmit
     teamMember?: TeamMemberOmit
     teamLocation?: TeamLocationOmit
+    auditWorkflow?: AuditWorkflowOmit
+    auditStep?: AuditStepOmit
+    stepLog?: StepLogOmit
   }
 
   /* Types for Logging */
@@ -5688,6 +5981,7 @@ export namespace Prisma {
     UserPermission: number
     receivedPermissions: number
     addressedMatches: number
+    AuditStep: number
   }
 
   export type UserCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -5714,6 +6008,7 @@ export namespace Prisma {
     UserPermission?: boolean | UserCountOutputTypeCountUserPermissionArgs
     receivedPermissions?: boolean | UserCountOutputTypeCountReceivedPermissionsArgs
     addressedMatches?: boolean | UserCountOutputTypeCountAddressedMatchesArgs
+    AuditStep?: boolean | UserCountOutputTypeCountAuditStepArgs
   }
 
   // Custom InputTypes
@@ -5886,6 +6181,13 @@ export namespace Prisma {
    */
   export type UserCountOutputTypeCountAddressedMatchesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: CommandMatchWhereInput
+  }
+
+  /**
+   * UserCountOutputType without action
+   */
+  export type UserCountOutputTypeCountAuditStepArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: AuditStepWhereInput
   }
 
 
@@ -6383,6 +6685,68 @@ export namespace Prisma {
    */
   export type TeamCountOutputTypeCountMembersArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: TeamMemberWhereInput
+  }
+
+
+  /**
+   * Count Type AuditWorkflowCountOutputType
+   */
+
+  export type AuditWorkflowCountOutputType = {
+    steps: number
+  }
+
+  export type AuditWorkflowCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    steps?: boolean | AuditWorkflowCountOutputTypeCountStepsArgs
+  }
+
+  // Custom InputTypes
+  /**
+   * AuditWorkflowCountOutputType without action
+   */
+  export type AuditWorkflowCountOutputTypeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AuditWorkflowCountOutputType
+     */
+    select?: AuditWorkflowCountOutputTypeSelect<ExtArgs> | null
+  }
+
+  /**
+   * AuditWorkflowCountOutputType without action
+   */
+  export type AuditWorkflowCountOutputTypeCountStepsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: AuditStepWhereInput
+  }
+
+
+  /**
+   * Count Type AuditStepCountOutputType
+   */
+
+  export type AuditStepCountOutputType = {
+    logs: number
+  }
+
+  export type AuditStepCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    logs?: boolean | AuditStepCountOutputTypeCountLogsArgs
+  }
+
+  // Custom InputTypes
+  /**
+   * AuditStepCountOutputType without action
+   */
+  export type AuditStepCountOutputTypeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AuditStepCountOutputType
+     */
+    select?: AuditStepCountOutputTypeSelect<ExtArgs> | null
+  }
+
+  /**
+   * AuditStepCountOutputType without action
+   */
+  export type AuditStepCountOutputTypeCountLogsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: StepLogWhereInput
   }
 
 
@@ -22572,6 +22936,7 @@ export namespace Prisma {
     UserPermission?: boolean | User$UserPermissionArgs<ExtArgs>
     receivedPermissions?: boolean | User$receivedPermissionsArgs<ExtArgs>
     addressedMatches?: boolean | User$addressedMatchesArgs<ExtArgs>
+    AuditStep?: boolean | User$AuditStepArgs<ExtArgs>
     _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["user"]>
 
@@ -22663,6 +23028,7 @@ export namespace Prisma {
     UserPermission?: boolean | User$UserPermissionArgs<ExtArgs>
     receivedPermissions?: boolean | User$receivedPermissionsArgs<ExtArgs>
     addressedMatches?: boolean | User$addressedMatchesArgs<ExtArgs>
+    AuditStep?: boolean | User$AuditStepArgs<ExtArgs>
     _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type UserIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
@@ -22694,6 +23060,7 @@ export namespace Prisma {
       UserPermission: Prisma.$UserPermissionPayload<ExtArgs>[]
       receivedPermissions: Prisma.$DriveFilePermissionPayload<ExtArgs>[]
       addressedMatches: Prisma.$CommandMatchPayload<ExtArgs>[]
+      AuditStep: Prisma.$AuditStepPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: number
@@ -23131,6 +23498,7 @@ export namespace Prisma {
     UserPermission<T extends User$UserPermissionArgs<ExtArgs> = {}>(args?: Subset<T, User$UserPermissionArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$UserPermissionPayload<ExtArgs>, T, "findMany", ClientOptions> | Null>
     receivedPermissions<T extends User$receivedPermissionsArgs<ExtArgs> = {}>(args?: Subset<T, User$receivedPermissionsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DriveFilePermissionPayload<ExtArgs>, T, "findMany", ClientOptions> | Null>
     addressedMatches<T extends User$addressedMatchesArgs<ExtArgs> = {}>(args?: Subset<T, User$addressedMatchesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$CommandMatchPayload<ExtArgs>, T, "findMany", ClientOptions> | Null>
+    AuditStep<T extends User$AuditStepArgs<ExtArgs> = {}>(args?: Subset<T, User$AuditStepArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AuditStepPayload<ExtArgs>, T, "findMany", ClientOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -24115,6 +24483,30 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: CommandMatchScalarFieldEnum | CommandMatchScalarFieldEnum[]
+  }
+
+  /**
+   * User.AuditStep
+   */
+  export type User$AuditStepArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AuditStep
+     */
+    select?: AuditStepSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AuditStep
+     */
+    omit?: AuditStepOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AuditStepInclude<ExtArgs> | null
+    where?: AuditStepWhereInput
+    orderBy?: AuditStepOrderByWithRelationInput | AuditStepOrderByWithRelationInput[]
+    cursor?: AuditStepWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: AuditStepScalarFieldEnum | AuditStepScalarFieldEnum[]
   }
 
   /**
@@ -65134,6 +65526,3406 @@ export namespace Prisma {
 
 
   /**
+   * Model AuditWorkflow
+   */
+
+  export type AggregateAuditWorkflow = {
+    _count: AuditWorkflowCountAggregateOutputType | null
+    _avg: AuditWorkflowAvgAggregateOutputType | null
+    _sum: AuditWorkflowSumAggregateOutputType | null
+    _min: AuditWorkflowMinAggregateOutputType | null
+    _max: AuditWorkflowMaxAggregateOutputType | null
+  }
+
+  export type AuditWorkflowAvgAggregateOutputType = {
+    id: number | null
+  }
+
+  export type AuditWorkflowSumAggregateOutputType = {
+    id: number | null
+  }
+
+  export type AuditWorkflowMinAggregateOutputType = {
+    id: number | null
+    name: string | null
+    description: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type AuditWorkflowMaxAggregateOutputType = {
+    id: number | null
+    name: string | null
+    description: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type AuditWorkflowCountAggregateOutputType = {
+    id: number
+    name: number
+    description: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type AuditWorkflowAvgAggregateInputType = {
+    id?: true
+  }
+
+  export type AuditWorkflowSumAggregateInputType = {
+    id?: true
+  }
+
+  export type AuditWorkflowMinAggregateInputType = {
+    id?: true
+    name?: true
+    description?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type AuditWorkflowMaxAggregateInputType = {
+    id?: true
+    name?: true
+    description?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type AuditWorkflowCountAggregateInputType = {
+    id?: true
+    name?: true
+    description?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type AuditWorkflowAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which AuditWorkflow to aggregate.
+     */
+    where?: AuditWorkflowWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AuditWorkflows to fetch.
+     */
+    orderBy?: AuditWorkflowOrderByWithRelationInput | AuditWorkflowOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: AuditWorkflowWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AuditWorkflows from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AuditWorkflows.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned AuditWorkflows
+    **/
+    _count?: true | AuditWorkflowCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: AuditWorkflowAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: AuditWorkflowSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: AuditWorkflowMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: AuditWorkflowMaxAggregateInputType
+  }
+
+  export type GetAuditWorkflowAggregateType<T extends AuditWorkflowAggregateArgs> = {
+        [P in keyof T & keyof AggregateAuditWorkflow]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateAuditWorkflow[P]>
+      : GetScalarType<T[P], AggregateAuditWorkflow[P]>
+  }
+
+
+
+
+  export type AuditWorkflowGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: AuditWorkflowWhereInput
+    orderBy?: AuditWorkflowOrderByWithAggregationInput | AuditWorkflowOrderByWithAggregationInput[]
+    by: AuditWorkflowScalarFieldEnum[] | AuditWorkflowScalarFieldEnum
+    having?: AuditWorkflowScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: AuditWorkflowCountAggregateInputType | true
+    _avg?: AuditWorkflowAvgAggregateInputType
+    _sum?: AuditWorkflowSumAggregateInputType
+    _min?: AuditWorkflowMinAggregateInputType
+    _max?: AuditWorkflowMaxAggregateInputType
+  }
+
+  export type AuditWorkflowGroupByOutputType = {
+    id: number
+    name: string
+    description: string | null
+    createdAt: Date
+    updatedAt: Date
+    _count: AuditWorkflowCountAggregateOutputType | null
+    _avg: AuditWorkflowAvgAggregateOutputType | null
+    _sum: AuditWorkflowSumAggregateOutputType | null
+    _min: AuditWorkflowMinAggregateOutputType | null
+    _max: AuditWorkflowMaxAggregateOutputType | null
+  }
+
+  type GetAuditWorkflowGroupByPayload<T extends AuditWorkflowGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<AuditWorkflowGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof AuditWorkflowGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], AuditWorkflowGroupByOutputType[P]>
+            : GetScalarType<T[P], AuditWorkflowGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type AuditWorkflowSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    name?: boolean
+    description?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    steps?: boolean | AuditWorkflow$stepsArgs<ExtArgs>
+    _count?: boolean | AuditWorkflowCountOutputTypeDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["auditWorkflow"]>
+
+  export type AuditWorkflowSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    name?: boolean
+    description?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }, ExtArgs["result"]["auditWorkflow"]>
+
+  export type AuditWorkflowSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    name?: boolean
+    description?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }, ExtArgs["result"]["auditWorkflow"]>
+
+  export type AuditWorkflowSelectScalar = {
+    id?: boolean
+    name?: boolean
+    description?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type AuditWorkflowOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "description" | "createdAt" | "updatedAt", ExtArgs["result"]["auditWorkflow"]>
+  export type AuditWorkflowInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    steps?: boolean | AuditWorkflow$stepsArgs<ExtArgs>
+    _count?: boolean | AuditWorkflowCountOutputTypeDefaultArgs<ExtArgs>
+  }
+  export type AuditWorkflowIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
+  export type AuditWorkflowIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
+
+  export type $AuditWorkflowPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "AuditWorkflow"
+    objects: {
+      steps: Prisma.$AuditStepPayload<ExtArgs>[]
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: number
+      name: string
+      description: string | null
+      createdAt: Date
+      updatedAt: Date
+    }, ExtArgs["result"]["auditWorkflow"]>
+    composites: {}
+  }
+
+  type AuditWorkflowGetPayload<S extends boolean | null | undefined | AuditWorkflowDefaultArgs> = $Result.GetResult<Prisma.$AuditWorkflowPayload, S>
+
+  type AuditWorkflowCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<AuditWorkflowFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: AuditWorkflowCountAggregateInputType | true
+    }
+
+  export interface AuditWorkflowDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, ClientOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['AuditWorkflow'], meta: { name: 'AuditWorkflow' } }
+    /**
+     * Find zero or one AuditWorkflow that matches the filter.
+     * @param {AuditWorkflowFindUniqueArgs} args - Arguments to find a AuditWorkflow
+     * @example
+     * // Get one AuditWorkflow
+     * const auditWorkflow = await prisma.auditWorkflow.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends AuditWorkflowFindUniqueArgs>(args: SelectSubset<T, AuditWorkflowFindUniqueArgs<ExtArgs>>): Prisma__AuditWorkflowClient<$Result.GetResult<Prisma.$AuditWorkflowPayload<ExtArgs>, T, "findUnique", ClientOptions> | null, null, ExtArgs, ClientOptions>
+
+    /**
+     * Find one AuditWorkflow that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {AuditWorkflowFindUniqueOrThrowArgs} args - Arguments to find a AuditWorkflow
+     * @example
+     * // Get one AuditWorkflow
+     * const auditWorkflow = await prisma.auditWorkflow.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends AuditWorkflowFindUniqueOrThrowArgs>(args: SelectSubset<T, AuditWorkflowFindUniqueOrThrowArgs<ExtArgs>>): Prisma__AuditWorkflowClient<$Result.GetResult<Prisma.$AuditWorkflowPayload<ExtArgs>, T, "findUniqueOrThrow", ClientOptions>, never, ExtArgs, ClientOptions>
+
+    /**
+     * Find the first AuditWorkflow that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AuditWorkflowFindFirstArgs} args - Arguments to find a AuditWorkflow
+     * @example
+     * // Get one AuditWorkflow
+     * const auditWorkflow = await prisma.auditWorkflow.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends AuditWorkflowFindFirstArgs>(args?: SelectSubset<T, AuditWorkflowFindFirstArgs<ExtArgs>>): Prisma__AuditWorkflowClient<$Result.GetResult<Prisma.$AuditWorkflowPayload<ExtArgs>, T, "findFirst", ClientOptions> | null, null, ExtArgs, ClientOptions>
+
+    /**
+     * Find the first AuditWorkflow that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AuditWorkflowFindFirstOrThrowArgs} args - Arguments to find a AuditWorkflow
+     * @example
+     * // Get one AuditWorkflow
+     * const auditWorkflow = await prisma.auditWorkflow.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends AuditWorkflowFindFirstOrThrowArgs>(args?: SelectSubset<T, AuditWorkflowFindFirstOrThrowArgs<ExtArgs>>): Prisma__AuditWorkflowClient<$Result.GetResult<Prisma.$AuditWorkflowPayload<ExtArgs>, T, "findFirstOrThrow", ClientOptions>, never, ExtArgs, ClientOptions>
+
+    /**
+     * Find zero or more AuditWorkflows that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AuditWorkflowFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all AuditWorkflows
+     * const auditWorkflows = await prisma.auditWorkflow.findMany()
+     * 
+     * // Get first 10 AuditWorkflows
+     * const auditWorkflows = await prisma.auditWorkflow.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const auditWorkflowWithIdOnly = await prisma.auditWorkflow.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends AuditWorkflowFindManyArgs>(args?: SelectSubset<T, AuditWorkflowFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AuditWorkflowPayload<ExtArgs>, T, "findMany", ClientOptions>>
+
+    /**
+     * Create a AuditWorkflow.
+     * @param {AuditWorkflowCreateArgs} args - Arguments to create a AuditWorkflow.
+     * @example
+     * // Create one AuditWorkflow
+     * const AuditWorkflow = await prisma.auditWorkflow.create({
+     *   data: {
+     *     // ... data to create a AuditWorkflow
+     *   }
+     * })
+     * 
+     */
+    create<T extends AuditWorkflowCreateArgs>(args: SelectSubset<T, AuditWorkflowCreateArgs<ExtArgs>>): Prisma__AuditWorkflowClient<$Result.GetResult<Prisma.$AuditWorkflowPayload<ExtArgs>, T, "create", ClientOptions>, never, ExtArgs, ClientOptions>
+
+    /**
+     * Create many AuditWorkflows.
+     * @param {AuditWorkflowCreateManyArgs} args - Arguments to create many AuditWorkflows.
+     * @example
+     * // Create many AuditWorkflows
+     * const auditWorkflow = await prisma.auditWorkflow.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends AuditWorkflowCreateManyArgs>(args?: SelectSubset<T, AuditWorkflowCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many AuditWorkflows and returns the data saved in the database.
+     * @param {AuditWorkflowCreateManyAndReturnArgs} args - Arguments to create many AuditWorkflows.
+     * @example
+     * // Create many AuditWorkflows
+     * const auditWorkflow = await prisma.auditWorkflow.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many AuditWorkflows and only return the `id`
+     * const auditWorkflowWithIdOnly = await prisma.auditWorkflow.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends AuditWorkflowCreateManyAndReturnArgs>(args?: SelectSubset<T, AuditWorkflowCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AuditWorkflowPayload<ExtArgs>, T, "createManyAndReturn", ClientOptions>>
+
+    /**
+     * Delete a AuditWorkflow.
+     * @param {AuditWorkflowDeleteArgs} args - Arguments to delete one AuditWorkflow.
+     * @example
+     * // Delete one AuditWorkflow
+     * const AuditWorkflow = await prisma.auditWorkflow.delete({
+     *   where: {
+     *     // ... filter to delete one AuditWorkflow
+     *   }
+     * })
+     * 
+     */
+    delete<T extends AuditWorkflowDeleteArgs>(args: SelectSubset<T, AuditWorkflowDeleteArgs<ExtArgs>>): Prisma__AuditWorkflowClient<$Result.GetResult<Prisma.$AuditWorkflowPayload<ExtArgs>, T, "delete", ClientOptions>, never, ExtArgs, ClientOptions>
+
+    /**
+     * Update one AuditWorkflow.
+     * @param {AuditWorkflowUpdateArgs} args - Arguments to update one AuditWorkflow.
+     * @example
+     * // Update one AuditWorkflow
+     * const auditWorkflow = await prisma.auditWorkflow.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends AuditWorkflowUpdateArgs>(args: SelectSubset<T, AuditWorkflowUpdateArgs<ExtArgs>>): Prisma__AuditWorkflowClient<$Result.GetResult<Prisma.$AuditWorkflowPayload<ExtArgs>, T, "update", ClientOptions>, never, ExtArgs, ClientOptions>
+
+    /**
+     * Delete zero or more AuditWorkflows.
+     * @param {AuditWorkflowDeleteManyArgs} args - Arguments to filter AuditWorkflows to delete.
+     * @example
+     * // Delete a few AuditWorkflows
+     * const { count } = await prisma.auditWorkflow.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends AuditWorkflowDeleteManyArgs>(args?: SelectSubset<T, AuditWorkflowDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more AuditWorkflows.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AuditWorkflowUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many AuditWorkflows
+     * const auditWorkflow = await prisma.auditWorkflow.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends AuditWorkflowUpdateManyArgs>(args: SelectSubset<T, AuditWorkflowUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more AuditWorkflows and returns the data updated in the database.
+     * @param {AuditWorkflowUpdateManyAndReturnArgs} args - Arguments to update many AuditWorkflows.
+     * @example
+     * // Update many AuditWorkflows
+     * const auditWorkflow = await prisma.auditWorkflow.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more AuditWorkflows and only return the `id`
+     * const auditWorkflowWithIdOnly = await prisma.auditWorkflow.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends AuditWorkflowUpdateManyAndReturnArgs>(args: SelectSubset<T, AuditWorkflowUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AuditWorkflowPayload<ExtArgs>, T, "updateManyAndReturn", ClientOptions>>
+
+    /**
+     * Create or update one AuditWorkflow.
+     * @param {AuditWorkflowUpsertArgs} args - Arguments to update or create a AuditWorkflow.
+     * @example
+     * // Update or create a AuditWorkflow
+     * const auditWorkflow = await prisma.auditWorkflow.upsert({
+     *   create: {
+     *     // ... data to create a AuditWorkflow
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the AuditWorkflow we want to update
+     *   }
+     * })
+     */
+    upsert<T extends AuditWorkflowUpsertArgs>(args: SelectSubset<T, AuditWorkflowUpsertArgs<ExtArgs>>): Prisma__AuditWorkflowClient<$Result.GetResult<Prisma.$AuditWorkflowPayload<ExtArgs>, T, "upsert", ClientOptions>, never, ExtArgs, ClientOptions>
+
+
+    /**
+     * Count the number of AuditWorkflows.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AuditWorkflowCountArgs} args - Arguments to filter AuditWorkflows to count.
+     * @example
+     * // Count the number of AuditWorkflows
+     * const count = await prisma.auditWorkflow.count({
+     *   where: {
+     *     // ... the filter for the AuditWorkflows we want to count
+     *   }
+     * })
+    **/
+    count<T extends AuditWorkflowCountArgs>(
+      args?: Subset<T, AuditWorkflowCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], AuditWorkflowCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a AuditWorkflow.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AuditWorkflowAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends AuditWorkflowAggregateArgs>(args: Subset<T, AuditWorkflowAggregateArgs>): Prisma.PrismaPromise<GetAuditWorkflowAggregateType<T>>
+
+    /**
+     * Group by AuditWorkflow.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AuditWorkflowGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends AuditWorkflowGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: AuditWorkflowGroupByArgs['orderBy'] }
+        : { orderBy?: AuditWorkflowGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, AuditWorkflowGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetAuditWorkflowGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the AuditWorkflow model
+   */
+  readonly fields: AuditWorkflowFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for AuditWorkflow.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__AuditWorkflowClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, ClientOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    steps<T extends AuditWorkflow$stepsArgs<ExtArgs> = {}>(args?: Subset<T, AuditWorkflow$stepsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AuditStepPayload<ExtArgs>, T, "findMany", ClientOptions> | Null>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the AuditWorkflow model
+   */ 
+  interface AuditWorkflowFieldRefs {
+    readonly id: FieldRef<"AuditWorkflow", 'Int'>
+    readonly name: FieldRef<"AuditWorkflow", 'String'>
+    readonly description: FieldRef<"AuditWorkflow", 'String'>
+    readonly createdAt: FieldRef<"AuditWorkflow", 'DateTime'>
+    readonly updatedAt: FieldRef<"AuditWorkflow", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * AuditWorkflow findUnique
+   */
+  export type AuditWorkflowFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AuditWorkflow
+     */
+    select?: AuditWorkflowSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AuditWorkflow
+     */
+    omit?: AuditWorkflowOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AuditWorkflowInclude<ExtArgs> | null
+    /**
+     * Filter, which AuditWorkflow to fetch.
+     */
+    where: AuditWorkflowWhereUniqueInput
+  }
+
+  /**
+   * AuditWorkflow findUniqueOrThrow
+   */
+  export type AuditWorkflowFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AuditWorkflow
+     */
+    select?: AuditWorkflowSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AuditWorkflow
+     */
+    omit?: AuditWorkflowOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AuditWorkflowInclude<ExtArgs> | null
+    /**
+     * Filter, which AuditWorkflow to fetch.
+     */
+    where: AuditWorkflowWhereUniqueInput
+  }
+
+  /**
+   * AuditWorkflow findFirst
+   */
+  export type AuditWorkflowFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AuditWorkflow
+     */
+    select?: AuditWorkflowSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AuditWorkflow
+     */
+    omit?: AuditWorkflowOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AuditWorkflowInclude<ExtArgs> | null
+    /**
+     * Filter, which AuditWorkflow to fetch.
+     */
+    where?: AuditWorkflowWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AuditWorkflows to fetch.
+     */
+    orderBy?: AuditWorkflowOrderByWithRelationInput | AuditWorkflowOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for AuditWorkflows.
+     */
+    cursor?: AuditWorkflowWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AuditWorkflows from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AuditWorkflows.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of AuditWorkflows.
+     */
+    distinct?: AuditWorkflowScalarFieldEnum | AuditWorkflowScalarFieldEnum[]
+  }
+
+  /**
+   * AuditWorkflow findFirstOrThrow
+   */
+  export type AuditWorkflowFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AuditWorkflow
+     */
+    select?: AuditWorkflowSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AuditWorkflow
+     */
+    omit?: AuditWorkflowOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AuditWorkflowInclude<ExtArgs> | null
+    /**
+     * Filter, which AuditWorkflow to fetch.
+     */
+    where?: AuditWorkflowWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AuditWorkflows to fetch.
+     */
+    orderBy?: AuditWorkflowOrderByWithRelationInput | AuditWorkflowOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for AuditWorkflows.
+     */
+    cursor?: AuditWorkflowWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AuditWorkflows from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AuditWorkflows.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of AuditWorkflows.
+     */
+    distinct?: AuditWorkflowScalarFieldEnum | AuditWorkflowScalarFieldEnum[]
+  }
+
+  /**
+   * AuditWorkflow findMany
+   */
+  export type AuditWorkflowFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AuditWorkflow
+     */
+    select?: AuditWorkflowSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AuditWorkflow
+     */
+    omit?: AuditWorkflowOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AuditWorkflowInclude<ExtArgs> | null
+    /**
+     * Filter, which AuditWorkflows to fetch.
+     */
+    where?: AuditWorkflowWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AuditWorkflows to fetch.
+     */
+    orderBy?: AuditWorkflowOrderByWithRelationInput | AuditWorkflowOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing AuditWorkflows.
+     */
+    cursor?: AuditWorkflowWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AuditWorkflows from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AuditWorkflows.
+     */
+    skip?: number
+    distinct?: AuditWorkflowScalarFieldEnum | AuditWorkflowScalarFieldEnum[]
+  }
+
+  /**
+   * AuditWorkflow create
+   */
+  export type AuditWorkflowCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AuditWorkflow
+     */
+    select?: AuditWorkflowSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AuditWorkflow
+     */
+    omit?: AuditWorkflowOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AuditWorkflowInclude<ExtArgs> | null
+    /**
+     * The data needed to create a AuditWorkflow.
+     */
+    data: XOR<AuditWorkflowCreateInput, AuditWorkflowUncheckedCreateInput>
+  }
+
+  /**
+   * AuditWorkflow createMany
+   */
+  export type AuditWorkflowCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many AuditWorkflows.
+     */
+    data: AuditWorkflowCreateManyInput | AuditWorkflowCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * AuditWorkflow createManyAndReturn
+   */
+  export type AuditWorkflowCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AuditWorkflow
+     */
+    select?: AuditWorkflowSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the AuditWorkflow
+     */
+    omit?: AuditWorkflowOmit<ExtArgs> | null
+    /**
+     * The data used to create many AuditWorkflows.
+     */
+    data: AuditWorkflowCreateManyInput | AuditWorkflowCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * AuditWorkflow update
+   */
+  export type AuditWorkflowUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AuditWorkflow
+     */
+    select?: AuditWorkflowSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AuditWorkflow
+     */
+    omit?: AuditWorkflowOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AuditWorkflowInclude<ExtArgs> | null
+    /**
+     * The data needed to update a AuditWorkflow.
+     */
+    data: XOR<AuditWorkflowUpdateInput, AuditWorkflowUncheckedUpdateInput>
+    /**
+     * Choose, which AuditWorkflow to update.
+     */
+    where: AuditWorkflowWhereUniqueInput
+  }
+
+  /**
+   * AuditWorkflow updateMany
+   */
+  export type AuditWorkflowUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update AuditWorkflows.
+     */
+    data: XOR<AuditWorkflowUpdateManyMutationInput, AuditWorkflowUncheckedUpdateManyInput>
+    /**
+     * Filter which AuditWorkflows to update
+     */
+    where?: AuditWorkflowWhereInput
+    /**
+     * Limit how many AuditWorkflows to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * AuditWorkflow updateManyAndReturn
+   */
+  export type AuditWorkflowUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AuditWorkflow
+     */
+    select?: AuditWorkflowSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the AuditWorkflow
+     */
+    omit?: AuditWorkflowOmit<ExtArgs> | null
+    /**
+     * The data used to update AuditWorkflows.
+     */
+    data: XOR<AuditWorkflowUpdateManyMutationInput, AuditWorkflowUncheckedUpdateManyInput>
+    /**
+     * Filter which AuditWorkflows to update
+     */
+    where?: AuditWorkflowWhereInput
+    /**
+     * Limit how many AuditWorkflows to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * AuditWorkflow upsert
+   */
+  export type AuditWorkflowUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AuditWorkflow
+     */
+    select?: AuditWorkflowSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AuditWorkflow
+     */
+    omit?: AuditWorkflowOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AuditWorkflowInclude<ExtArgs> | null
+    /**
+     * The filter to search for the AuditWorkflow to update in case it exists.
+     */
+    where: AuditWorkflowWhereUniqueInput
+    /**
+     * In case the AuditWorkflow found by the `where` argument doesn't exist, create a new AuditWorkflow with this data.
+     */
+    create: XOR<AuditWorkflowCreateInput, AuditWorkflowUncheckedCreateInput>
+    /**
+     * In case the AuditWorkflow was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<AuditWorkflowUpdateInput, AuditWorkflowUncheckedUpdateInput>
+  }
+
+  /**
+   * AuditWorkflow delete
+   */
+  export type AuditWorkflowDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AuditWorkflow
+     */
+    select?: AuditWorkflowSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AuditWorkflow
+     */
+    omit?: AuditWorkflowOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AuditWorkflowInclude<ExtArgs> | null
+    /**
+     * Filter which AuditWorkflow to delete.
+     */
+    where: AuditWorkflowWhereUniqueInput
+  }
+
+  /**
+   * AuditWorkflow deleteMany
+   */
+  export type AuditWorkflowDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which AuditWorkflows to delete
+     */
+    where?: AuditWorkflowWhereInput
+    /**
+     * Limit how many AuditWorkflows to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * AuditWorkflow.steps
+   */
+  export type AuditWorkflow$stepsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AuditStep
+     */
+    select?: AuditStepSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AuditStep
+     */
+    omit?: AuditStepOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AuditStepInclude<ExtArgs> | null
+    where?: AuditStepWhereInput
+    orderBy?: AuditStepOrderByWithRelationInput | AuditStepOrderByWithRelationInput[]
+    cursor?: AuditStepWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: AuditStepScalarFieldEnum | AuditStepScalarFieldEnum[]
+  }
+
+  /**
+   * AuditWorkflow without action
+   */
+  export type AuditWorkflowDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AuditWorkflow
+     */
+    select?: AuditWorkflowSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AuditWorkflow
+     */
+    omit?: AuditWorkflowOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AuditWorkflowInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model AuditStep
+   */
+
+  export type AggregateAuditStep = {
+    _count: AuditStepCountAggregateOutputType | null
+    _avg: AuditStepAvgAggregateOutputType | null
+    _sum: AuditStepSumAggregateOutputType | null
+    _min: AuditStepMinAggregateOutputType | null
+    _max: AuditStepMaxAggregateOutputType | null
+  }
+
+  export type AuditStepAvgAggregateOutputType = {
+    id: number | null
+    position: number | null
+    assignedToId: number | null
+    workflowId: number | null
+  }
+
+  export type AuditStepSumAggregateOutputType = {
+    id: number | null
+    position: number | null
+    assignedToId: number | null
+    workflowId: number | null
+  }
+
+  export type AuditStepMinAggregateOutputType = {
+    id: number | null
+    title: string | null
+    description: string | null
+    position: number | null
+    status: $Enums.StepStatus | null
+    assignedToId: number | null
+    dueDate: Date | null
+    workflowId: number | null
+  }
+
+  export type AuditStepMaxAggregateOutputType = {
+    id: number | null
+    title: string | null
+    description: string | null
+    position: number | null
+    status: $Enums.StepStatus | null
+    assignedToId: number | null
+    dueDate: Date | null
+    workflowId: number | null
+  }
+
+  export type AuditStepCountAggregateOutputType = {
+    id: number
+    title: number
+    description: number
+    position: number
+    status: number
+    assignedToId: number
+    dueDate: number
+    workflowId: number
+    _all: number
+  }
+
+
+  export type AuditStepAvgAggregateInputType = {
+    id?: true
+    position?: true
+    assignedToId?: true
+    workflowId?: true
+  }
+
+  export type AuditStepSumAggregateInputType = {
+    id?: true
+    position?: true
+    assignedToId?: true
+    workflowId?: true
+  }
+
+  export type AuditStepMinAggregateInputType = {
+    id?: true
+    title?: true
+    description?: true
+    position?: true
+    status?: true
+    assignedToId?: true
+    dueDate?: true
+    workflowId?: true
+  }
+
+  export type AuditStepMaxAggregateInputType = {
+    id?: true
+    title?: true
+    description?: true
+    position?: true
+    status?: true
+    assignedToId?: true
+    dueDate?: true
+    workflowId?: true
+  }
+
+  export type AuditStepCountAggregateInputType = {
+    id?: true
+    title?: true
+    description?: true
+    position?: true
+    status?: true
+    assignedToId?: true
+    dueDate?: true
+    workflowId?: true
+    _all?: true
+  }
+
+  export type AuditStepAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which AuditStep to aggregate.
+     */
+    where?: AuditStepWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AuditSteps to fetch.
+     */
+    orderBy?: AuditStepOrderByWithRelationInput | AuditStepOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: AuditStepWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AuditSteps from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AuditSteps.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned AuditSteps
+    **/
+    _count?: true | AuditStepCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: AuditStepAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: AuditStepSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: AuditStepMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: AuditStepMaxAggregateInputType
+  }
+
+  export type GetAuditStepAggregateType<T extends AuditStepAggregateArgs> = {
+        [P in keyof T & keyof AggregateAuditStep]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateAuditStep[P]>
+      : GetScalarType<T[P], AggregateAuditStep[P]>
+  }
+
+
+
+
+  export type AuditStepGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: AuditStepWhereInput
+    orderBy?: AuditStepOrderByWithAggregationInput | AuditStepOrderByWithAggregationInput[]
+    by: AuditStepScalarFieldEnum[] | AuditStepScalarFieldEnum
+    having?: AuditStepScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: AuditStepCountAggregateInputType | true
+    _avg?: AuditStepAvgAggregateInputType
+    _sum?: AuditStepSumAggregateInputType
+    _min?: AuditStepMinAggregateInputType
+    _max?: AuditStepMaxAggregateInputType
+  }
+
+  export type AuditStepGroupByOutputType = {
+    id: number
+    title: string
+    description: string | null
+    position: number
+    status: $Enums.StepStatus
+    assignedToId: number | null
+    dueDate: Date | null
+    workflowId: number
+    _count: AuditStepCountAggregateOutputType | null
+    _avg: AuditStepAvgAggregateOutputType | null
+    _sum: AuditStepSumAggregateOutputType | null
+    _min: AuditStepMinAggregateOutputType | null
+    _max: AuditStepMaxAggregateOutputType | null
+  }
+
+  type GetAuditStepGroupByPayload<T extends AuditStepGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<AuditStepGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof AuditStepGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], AuditStepGroupByOutputType[P]>
+            : GetScalarType<T[P], AuditStepGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type AuditStepSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    title?: boolean
+    description?: boolean
+    position?: boolean
+    status?: boolean
+    assignedToId?: boolean
+    dueDate?: boolean
+    workflowId?: boolean
+    assignedTo?: boolean | AuditStep$assignedToArgs<ExtArgs>
+    workflow?: boolean | AuditWorkflowDefaultArgs<ExtArgs>
+    logs?: boolean | AuditStep$logsArgs<ExtArgs>
+    _count?: boolean | AuditStepCountOutputTypeDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["auditStep"]>
+
+  export type AuditStepSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    title?: boolean
+    description?: boolean
+    position?: boolean
+    status?: boolean
+    assignedToId?: boolean
+    dueDate?: boolean
+    workflowId?: boolean
+    assignedTo?: boolean | AuditStep$assignedToArgs<ExtArgs>
+    workflow?: boolean | AuditWorkflowDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["auditStep"]>
+
+  export type AuditStepSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    title?: boolean
+    description?: boolean
+    position?: boolean
+    status?: boolean
+    assignedToId?: boolean
+    dueDate?: boolean
+    workflowId?: boolean
+    assignedTo?: boolean | AuditStep$assignedToArgs<ExtArgs>
+    workflow?: boolean | AuditWorkflowDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["auditStep"]>
+
+  export type AuditStepSelectScalar = {
+    id?: boolean
+    title?: boolean
+    description?: boolean
+    position?: boolean
+    status?: boolean
+    assignedToId?: boolean
+    dueDate?: boolean
+    workflowId?: boolean
+  }
+
+  export type AuditStepOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "title" | "description" | "position" | "status" | "assignedToId" | "dueDate" | "workflowId", ExtArgs["result"]["auditStep"]>
+  export type AuditStepInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    assignedTo?: boolean | AuditStep$assignedToArgs<ExtArgs>
+    workflow?: boolean | AuditWorkflowDefaultArgs<ExtArgs>
+    logs?: boolean | AuditStep$logsArgs<ExtArgs>
+    _count?: boolean | AuditStepCountOutputTypeDefaultArgs<ExtArgs>
+  }
+  export type AuditStepIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    assignedTo?: boolean | AuditStep$assignedToArgs<ExtArgs>
+    workflow?: boolean | AuditWorkflowDefaultArgs<ExtArgs>
+  }
+  export type AuditStepIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    assignedTo?: boolean | AuditStep$assignedToArgs<ExtArgs>
+    workflow?: boolean | AuditWorkflowDefaultArgs<ExtArgs>
+  }
+
+  export type $AuditStepPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "AuditStep"
+    objects: {
+      assignedTo: Prisma.$UserPayload<ExtArgs> | null
+      workflow: Prisma.$AuditWorkflowPayload<ExtArgs>
+      logs: Prisma.$StepLogPayload<ExtArgs>[]
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: number
+      title: string
+      description: string | null
+      position: number
+      status: $Enums.StepStatus
+      assignedToId: number | null
+      dueDate: Date | null
+      workflowId: number
+    }, ExtArgs["result"]["auditStep"]>
+    composites: {}
+  }
+
+  type AuditStepGetPayload<S extends boolean | null | undefined | AuditStepDefaultArgs> = $Result.GetResult<Prisma.$AuditStepPayload, S>
+
+  type AuditStepCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<AuditStepFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: AuditStepCountAggregateInputType | true
+    }
+
+  export interface AuditStepDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, ClientOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['AuditStep'], meta: { name: 'AuditStep' } }
+    /**
+     * Find zero or one AuditStep that matches the filter.
+     * @param {AuditStepFindUniqueArgs} args - Arguments to find a AuditStep
+     * @example
+     * // Get one AuditStep
+     * const auditStep = await prisma.auditStep.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends AuditStepFindUniqueArgs>(args: SelectSubset<T, AuditStepFindUniqueArgs<ExtArgs>>): Prisma__AuditStepClient<$Result.GetResult<Prisma.$AuditStepPayload<ExtArgs>, T, "findUnique", ClientOptions> | null, null, ExtArgs, ClientOptions>
+
+    /**
+     * Find one AuditStep that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {AuditStepFindUniqueOrThrowArgs} args - Arguments to find a AuditStep
+     * @example
+     * // Get one AuditStep
+     * const auditStep = await prisma.auditStep.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends AuditStepFindUniqueOrThrowArgs>(args: SelectSubset<T, AuditStepFindUniqueOrThrowArgs<ExtArgs>>): Prisma__AuditStepClient<$Result.GetResult<Prisma.$AuditStepPayload<ExtArgs>, T, "findUniqueOrThrow", ClientOptions>, never, ExtArgs, ClientOptions>
+
+    /**
+     * Find the first AuditStep that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AuditStepFindFirstArgs} args - Arguments to find a AuditStep
+     * @example
+     * // Get one AuditStep
+     * const auditStep = await prisma.auditStep.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends AuditStepFindFirstArgs>(args?: SelectSubset<T, AuditStepFindFirstArgs<ExtArgs>>): Prisma__AuditStepClient<$Result.GetResult<Prisma.$AuditStepPayload<ExtArgs>, T, "findFirst", ClientOptions> | null, null, ExtArgs, ClientOptions>
+
+    /**
+     * Find the first AuditStep that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AuditStepFindFirstOrThrowArgs} args - Arguments to find a AuditStep
+     * @example
+     * // Get one AuditStep
+     * const auditStep = await prisma.auditStep.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends AuditStepFindFirstOrThrowArgs>(args?: SelectSubset<T, AuditStepFindFirstOrThrowArgs<ExtArgs>>): Prisma__AuditStepClient<$Result.GetResult<Prisma.$AuditStepPayload<ExtArgs>, T, "findFirstOrThrow", ClientOptions>, never, ExtArgs, ClientOptions>
+
+    /**
+     * Find zero or more AuditSteps that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AuditStepFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all AuditSteps
+     * const auditSteps = await prisma.auditStep.findMany()
+     * 
+     * // Get first 10 AuditSteps
+     * const auditSteps = await prisma.auditStep.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const auditStepWithIdOnly = await prisma.auditStep.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends AuditStepFindManyArgs>(args?: SelectSubset<T, AuditStepFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AuditStepPayload<ExtArgs>, T, "findMany", ClientOptions>>
+
+    /**
+     * Create a AuditStep.
+     * @param {AuditStepCreateArgs} args - Arguments to create a AuditStep.
+     * @example
+     * // Create one AuditStep
+     * const AuditStep = await prisma.auditStep.create({
+     *   data: {
+     *     // ... data to create a AuditStep
+     *   }
+     * })
+     * 
+     */
+    create<T extends AuditStepCreateArgs>(args: SelectSubset<T, AuditStepCreateArgs<ExtArgs>>): Prisma__AuditStepClient<$Result.GetResult<Prisma.$AuditStepPayload<ExtArgs>, T, "create", ClientOptions>, never, ExtArgs, ClientOptions>
+
+    /**
+     * Create many AuditSteps.
+     * @param {AuditStepCreateManyArgs} args - Arguments to create many AuditSteps.
+     * @example
+     * // Create many AuditSteps
+     * const auditStep = await prisma.auditStep.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends AuditStepCreateManyArgs>(args?: SelectSubset<T, AuditStepCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many AuditSteps and returns the data saved in the database.
+     * @param {AuditStepCreateManyAndReturnArgs} args - Arguments to create many AuditSteps.
+     * @example
+     * // Create many AuditSteps
+     * const auditStep = await prisma.auditStep.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many AuditSteps and only return the `id`
+     * const auditStepWithIdOnly = await prisma.auditStep.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends AuditStepCreateManyAndReturnArgs>(args?: SelectSubset<T, AuditStepCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AuditStepPayload<ExtArgs>, T, "createManyAndReturn", ClientOptions>>
+
+    /**
+     * Delete a AuditStep.
+     * @param {AuditStepDeleteArgs} args - Arguments to delete one AuditStep.
+     * @example
+     * // Delete one AuditStep
+     * const AuditStep = await prisma.auditStep.delete({
+     *   where: {
+     *     // ... filter to delete one AuditStep
+     *   }
+     * })
+     * 
+     */
+    delete<T extends AuditStepDeleteArgs>(args: SelectSubset<T, AuditStepDeleteArgs<ExtArgs>>): Prisma__AuditStepClient<$Result.GetResult<Prisma.$AuditStepPayload<ExtArgs>, T, "delete", ClientOptions>, never, ExtArgs, ClientOptions>
+
+    /**
+     * Update one AuditStep.
+     * @param {AuditStepUpdateArgs} args - Arguments to update one AuditStep.
+     * @example
+     * // Update one AuditStep
+     * const auditStep = await prisma.auditStep.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends AuditStepUpdateArgs>(args: SelectSubset<T, AuditStepUpdateArgs<ExtArgs>>): Prisma__AuditStepClient<$Result.GetResult<Prisma.$AuditStepPayload<ExtArgs>, T, "update", ClientOptions>, never, ExtArgs, ClientOptions>
+
+    /**
+     * Delete zero or more AuditSteps.
+     * @param {AuditStepDeleteManyArgs} args - Arguments to filter AuditSteps to delete.
+     * @example
+     * // Delete a few AuditSteps
+     * const { count } = await prisma.auditStep.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends AuditStepDeleteManyArgs>(args?: SelectSubset<T, AuditStepDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more AuditSteps.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AuditStepUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many AuditSteps
+     * const auditStep = await prisma.auditStep.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends AuditStepUpdateManyArgs>(args: SelectSubset<T, AuditStepUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more AuditSteps and returns the data updated in the database.
+     * @param {AuditStepUpdateManyAndReturnArgs} args - Arguments to update many AuditSteps.
+     * @example
+     * // Update many AuditSteps
+     * const auditStep = await prisma.auditStep.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more AuditSteps and only return the `id`
+     * const auditStepWithIdOnly = await prisma.auditStep.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends AuditStepUpdateManyAndReturnArgs>(args: SelectSubset<T, AuditStepUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AuditStepPayload<ExtArgs>, T, "updateManyAndReturn", ClientOptions>>
+
+    /**
+     * Create or update one AuditStep.
+     * @param {AuditStepUpsertArgs} args - Arguments to update or create a AuditStep.
+     * @example
+     * // Update or create a AuditStep
+     * const auditStep = await prisma.auditStep.upsert({
+     *   create: {
+     *     // ... data to create a AuditStep
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the AuditStep we want to update
+     *   }
+     * })
+     */
+    upsert<T extends AuditStepUpsertArgs>(args: SelectSubset<T, AuditStepUpsertArgs<ExtArgs>>): Prisma__AuditStepClient<$Result.GetResult<Prisma.$AuditStepPayload<ExtArgs>, T, "upsert", ClientOptions>, never, ExtArgs, ClientOptions>
+
+
+    /**
+     * Count the number of AuditSteps.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AuditStepCountArgs} args - Arguments to filter AuditSteps to count.
+     * @example
+     * // Count the number of AuditSteps
+     * const count = await prisma.auditStep.count({
+     *   where: {
+     *     // ... the filter for the AuditSteps we want to count
+     *   }
+     * })
+    **/
+    count<T extends AuditStepCountArgs>(
+      args?: Subset<T, AuditStepCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], AuditStepCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a AuditStep.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AuditStepAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends AuditStepAggregateArgs>(args: Subset<T, AuditStepAggregateArgs>): Prisma.PrismaPromise<GetAuditStepAggregateType<T>>
+
+    /**
+     * Group by AuditStep.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AuditStepGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends AuditStepGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: AuditStepGroupByArgs['orderBy'] }
+        : { orderBy?: AuditStepGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, AuditStepGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetAuditStepGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the AuditStep model
+   */
+  readonly fields: AuditStepFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for AuditStep.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__AuditStepClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, ClientOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    assignedTo<T extends AuditStep$assignedToArgs<ExtArgs> = {}>(args?: Subset<T, AuditStep$assignedToArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", ClientOptions> | null, null, ExtArgs, ClientOptions>
+    workflow<T extends AuditWorkflowDefaultArgs<ExtArgs> = {}>(args?: Subset<T, AuditWorkflowDefaultArgs<ExtArgs>>): Prisma__AuditWorkflowClient<$Result.GetResult<Prisma.$AuditWorkflowPayload<ExtArgs>, T, "findUniqueOrThrow", ClientOptions> | Null, Null, ExtArgs, ClientOptions>
+    logs<T extends AuditStep$logsArgs<ExtArgs> = {}>(args?: Subset<T, AuditStep$logsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$StepLogPayload<ExtArgs>, T, "findMany", ClientOptions> | Null>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the AuditStep model
+   */ 
+  interface AuditStepFieldRefs {
+    readonly id: FieldRef<"AuditStep", 'Int'>
+    readonly title: FieldRef<"AuditStep", 'String'>
+    readonly description: FieldRef<"AuditStep", 'String'>
+    readonly position: FieldRef<"AuditStep", 'Int'>
+    readonly status: FieldRef<"AuditStep", 'StepStatus'>
+    readonly assignedToId: FieldRef<"AuditStep", 'Int'>
+    readonly dueDate: FieldRef<"AuditStep", 'DateTime'>
+    readonly workflowId: FieldRef<"AuditStep", 'Int'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * AuditStep findUnique
+   */
+  export type AuditStepFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AuditStep
+     */
+    select?: AuditStepSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AuditStep
+     */
+    omit?: AuditStepOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AuditStepInclude<ExtArgs> | null
+    /**
+     * Filter, which AuditStep to fetch.
+     */
+    where: AuditStepWhereUniqueInput
+  }
+
+  /**
+   * AuditStep findUniqueOrThrow
+   */
+  export type AuditStepFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AuditStep
+     */
+    select?: AuditStepSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AuditStep
+     */
+    omit?: AuditStepOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AuditStepInclude<ExtArgs> | null
+    /**
+     * Filter, which AuditStep to fetch.
+     */
+    where: AuditStepWhereUniqueInput
+  }
+
+  /**
+   * AuditStep findFirst
+   */
+  export type AuditStepFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AuditStep
+     */
+    select?: AuditStepSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AuditStep
+     */
+    omit?: AuditStepOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AuditStepInclude<ExtArgs> | null
+    /**
+     * Filter, which AuditStep to fetch.
+     */
+    where?: AuditStepWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AuditSteps to fetch.
+     */
+    orderBy?: AuditStepOrderByWithRelationInput | AuditStepOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for AuditSteps.
+     */
+    cursor?: AuditStepWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AuditSteps from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AuditSteps.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of AuditSteps.
+     */
+    distinct?: AuditStepScalarFieldEnum | AuditStepScalarFieldEnum[]
+  }
+
+  /**
+   * AuditStep findFirstOrThrow
+   */
+  export type AuditStepFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AuditStep
+     */
+    select?: AuditStepSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AuditStep
+     */
+    omit?: AuditStepOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AuditStepInclude<ExtArgs> | null
+    /**
+     * Filter, which AuditStep to fetch.
+     */
+    where?: AuditStepWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AuditSteps to fetch.
+     */
+    orderBy?: AuditStepOrderByWithRelationInput | AuditStepOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for AuditSteps.
+     */
+    cursor?: AuditStepWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AuditSteps from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AuditSteps.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of AuditSteps.
+     */
+    distinct?: AuditStepScalarFieldEnum | AuditStepScalarFieldEnum[]
+  }
+
+  /**
+   * AuditStep findMany
+   */
+  export type AuditStepFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AuditStep
+     */
+    select?: AuditStepSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AuditStep
+     */
+    omit?: AuditStepOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AuditStepInclude<ExtArgs> | null
+    /**
+     * Filter, which AuditSteps to fetch.
+     */
+    where?: AuditStepWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AuditSteps to fetch.
+     */
+    orderBy?: AuditStepOrderByWithRelationInput | AuditStepOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing AuditSteps.
+     */
+    cursor?: AuditStepWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AuditSteps from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AuditSteps.
+     */
+    skip?: number
+    distinct?: AuditStepScalarFieldEnum | AuditStepScalarFieldEnum[]
+  }
+
+  /**
+   * AuditStep create
+   */
+  export type AuditStepCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AuditStep
+     */
+    select?: AuditStepSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AuditStep
+     */
+    omit?: AuditStepOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AuditStepInclude<ExtArgs> | null
+    /**
+     * The data needed to create a AuditStep.
+     */
+    data: XOR<AuditStepCreateInput, AuditStepUncheckedCreateInput>
+  }
+
+  /**
+   * AuditStep createMany
+   */
+  export type AuditStepCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many AuditSteps.
+     */
+    data: AuditStepCreateManyInput | AuditStepCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * AuditStep createManyAndReturn
+   */
+  export type AuditStepCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AuditStep
+     */
+    select?: AuditStepSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the AuditStep
+     */
+    omit?: AuditStepOmit<ExtArgs> | null
+    /**
+     * The data used to create many AuditSteps.
+     */
+    data: AuditStepCreateManyInput | AuditStepCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AuditStepIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * AuditStep update
+   */
+  export type AuditStepUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AuditStep
+     */
+    select?: AuditStepSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AuditStep
+     */
+    omit?: AuditStepOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AuditStepInclude<ExtArgs> | null
+    /**
+     * The data needed to update a AuditStep.
+     */
+    data: XOR<AuditStepUpdateInput, AuditStepUncheckedUpdateInput>
+    /**
+     * Choose, which AuditStep to update.
+     */
+    where: AuditStepWhereUniqueInput
+  }
+
+  /**
+   * AuditStep updateMany
+   */
+  export type AuditStepUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update AuditSteps.
+     */
+    data: XOR<AuditStepUpdateManyMutationInput, AuditStepUncheckedUpdateManyInput>
+    /**
+     * Filter which AuditSteps to update
+     */
+    where?: AuditStepWhereInput
+    /**
+     * Limit how many AuditSteps to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * AuditStep updateManyAndReturn
+   */
+  export type AuditStepUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AuditStep
+     */
+    select?: AuditStepSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the AuditStep
+     */
+    omit?: AuditStepOmit<ExtArgs> | null
+    /**
+     * The data used to update AuditSteps.
+     */
+    data: XOR<AuditStepUpdateManyMutationInput, AuditStepUncheckedUpdateManyInput>
+    /**
+     * Filter which AuditSteps to update
+     */
+    where?: AuditStepWhereInput
+    /**
+     * Limit how many AuditSteps to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AuditStepIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * AuditStep upsert
+   */
+  export type AuditStepUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AuditStep
+     */
+    select?: AuditStepSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AuditStep
+     */
+    omit?: AuditStepOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AuditStepInclude<ExtArgs> | null
+    /**
+     * The filter to search for the AuditStep to update in case it exists.
+     */
+    where: AuditStepWhereUniqueInput
+    /**
+     * In case the AuditStep found by the `where` argument doesn't exist, create a new AuditStep with this data.
+     */
+    create: XOR<AuditStepCreateInput, AuditStepUncheckedCreateInput>
+    /**
+     * In case the AuditStep was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<AuditStepUpdateInput, AuditStepUncheckedUpdateInput>
+  }
+
+  /**
+   * AuditStep delete
+   */
+  export type AuditStepDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AuditStep
+     */
+    select?: AuditStepSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AuditStep
+     */
+    omit?: AuditStepOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AuditStepInclude<ExtArgs> | null
+    /**
+     * Filter which AuditStep to delete.
+     */
+    where: AuditStepWhereUniqueInput
+  }
+
+  /**
+   * AuditStep deleteMany
+   */
+  export type AuditStepDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which AuditSteps to delete
+     */
+    where?: AuditStepWhereInput
+    /**
+     * Limit how many AuditSteps to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * AuditStep.assignedTo
+   */
+  export type AuditStep$assignedToArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the User
+     */
+    select?: UserSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the User
+     */
+    omit?: UserOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserInclude<ExtArgs> | null
+    where?: UserWhereInput
+  }
+
+  /**
+   * AuditStep.logs
+   */
+  export type AuditStep$logsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the StepLog
+     */
+    select?: StepLogSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the StepLog
+     */
+    omit?: StepLogOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: StepLogInclude<ExtArgs> | null
+    where?: StepLogWhereInput
+    orderBy?: StepLogOrderByWithRelationInput | StepLogOrderByWithRelationInput[]
+    cursor?: StepLogWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: StepLogScalarFieldEnum | StepLogScalarFieldEnum[]
+  }
+
+  /**
+   * AuditStep without action
+   */
+  export type AuditStepDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AuditStep
+     */
+    select?: AuditStepSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AuditStep
+     */
+    omit?: AuditStepOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AuditStepInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model StepLog
+   */
+
+  export type AggregateStepLog = {
+    _count: StepLogCountAggregateOutputType | null
+    _avg: StepLogAvgAggregateOutputType | null
+    _sum: StepLogSumAggregateOutputType | null
+    _min: StepLogMinAggregateOutputType | null
+    _max: StepLogMaxAggregateOutputType | null
+  }
+
+  export type StepLogAvgAggregateOutputType = {
+    id: number | null
+    stepId: number | null
+  }
+
+  export type StepLogSumAggregateOutputType = {
+    id: number | null
+    stepId: number | null
+  }
+
+  export type StepLogMinAggregateOutputType = {
+    id: number | null
+    stepId: number | null
+    message: string | null
+    createdBy: string | null
+    createdAt: Date | null
+  }
+
+  export type StepLogMaxAggregateOutputType = {
+    id: number | null
+    stepId: number | null
+    message: string | null
+    createdBy: string | null
+    createdAt: Date | null
+  }
+
+  export type StepLogCountAggregateOutputType = {
+    id: number
+    stepId: number
+    message: number
+    createdBy: number
+    createdAt: number
+    _all: number
+  }
+
+
+  export type StepLogAvgAggregateInputType = {
+    id?: true
+    stepId?: true
+  }
+
+  export type StepLogSumAggregateInputType = {
+    id?: true
+    stepId?: true
+  }
+
+  export type StepLogMinAggregateInputType = {
+    id?: true
+    stepId?: true
+    message?: true
+    createdBy?: true
+    createdAt?: true
+  }
+
+  export type StepLogMaxAggregateInputType = {
+    id?: true
+    stepId?: true
+    message?: true
+    createdBy?: true
+    createdAt?: true
+  }
+
+  export type StepLogCountAggregateInputType = {
+    id?: true
+    stepId?: true
+    message?: true
+    createdBy?: true
+    createdAt?: true
+    _all?: true
+  }
+
+  export type StepLogAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which StepLog to aggregate.
+     */
+    where?: StepLogWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of StepLogs to fetch.
+     */
+    orderBy?: StepLogOrderByWithRelationInput | StepLogOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: StepLogWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` StepLogs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` StepLogs.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned StepLogs
+    **/
+    _count?: true | StepLogCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: StepLogAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: StepLogSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: StepLogMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: StepLogMaxAggregateInputType
+  }
+
+  export type GetStepLogAggregateType<T extends StepLogAggregateArgs> = {
+        [P in keyof T & keyof AggregateStepLog]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateStepLog[P]>
+      : GetScalarType<T[P], AggregateStepLog[P]>
+  }
+
+
+
+
+  export type StepLogGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: StepLogWhereInput
+    orderBy?: StepLogOrderByWithAggregationInput | StepLogOrderByWithAggregationInput[]
+    by: StepLogScalarFieldEnum[] | StepLogScalarFieldEnum
+    having?: StepLogScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: StepLogCountAggregateInputType | true
+    _avg?: StepLogAvgAggregateInputType
+    _sum?: StepLogSumAggregateInputType
+    _min?: StepLogMinAggregateInputType
+    _max?: StepLogMaxAggregateInputType
+  }
+
+  export type StepLogGroupByOutputType = {
+    id: number
+    stepId: number
+    message: string
+    createdBy: string
+    createdAt: Date
+    _count: StepLogCountAggregateOutputType | null
+    _avg: StepLogAvgAggregateOutputType | null
+    _sum: StepLogSumAggregateOutputType | null
+    _min: StepLogMinAggregateOutputType | null
+    _max: StepLogMaxAggregateOutputType | null
+  }
+
+  type GetStepLogGroupByPayload<T extends StepLogGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<StepLogGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof StepLogGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], StepLogGroupByOutputType[P]>
+            : GetScalarType<T[P], StepLogGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type StepLogSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    stepId?: boolean
+    message?: boolean
+    createdBy?: boolean
+    createdAt?: boolean
+    step?: boolean | AuditStepDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["stepLog"]>
+
+  export type StepLogSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    stepId?: boolean
+    message?: boolean
+    createdBy?: boolean
+    createdAt?: boolean
+    step?: boolean | AuditStepDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["stepLog"]>
+
+  export type StepLogSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    stepId?: boolean
+    message?: boolean
+    createdBy?: boolean
+    createdAt?: boolean
+    step?: boolean | AuditStepDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["stepLog"]>
+
+  export type StepLogSelectScalar = {
+    id?: boolean
+    stepId?: boolean
+    message?: boolean
+    createdBy?: boolean
+    createdAt?: boolean
+  }
+
+  export type StepLogOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "stepId" | "message" | "createdBy" | "createdAt", ExtArgs["result"]["stepLog"]>
+  export type StepLogInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    step?: boolean | AuditStepDefaultArgs<ExtArgs>
+  }
+  export type StepLogIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    step?: boolean | AuditStepDefaultArgs<ExtArgs>
+  }
+  export type StepLogIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    step?: boolean | AuditStepDefaultArgs<ExtArgs>
+  }
+
+  export type $StepLogPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "StepLog"
+    objects: {
+      step: Prisma.$AuditStepPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: number
+      stepId: number
+      message: string
+      createdBy: string
+      createdAt: Date
+    }, ExtArgs["result"]["stepLog"]>
+    composites: {}
+  }
+
+  type StepLogGetPayload<S extends boolean | null | undefined | StepLogDefaultArgs> = $Result.GetResult<Prisma.$StepLogPayload, S>
+
+  type StepLogCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<StepLogFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: StepLogCountAggregateInputType | true
+    }
+
+  export interface StepLogDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, ClientOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['StepLog'], meta: { name: 'StepLog' } }
+    /**
+     * Find zero or one StepLog that matches the filter.
+     * @param {StepLogFindUniqueArgs} args - Arguments to find a StepLog
+     * @example
+     * // Get one StepLog
+     * const stepLog = await prisma.stepLog.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends StepLogFindUniqueArgs>(args: SelectSubset<T, StepLogFindUniqueArgs<ExtArgs>>): Prisma__StepLogClient<$Result.GetResult<Prisma.$StepLogPayload<ExtArgs>, T, "findUnique", ClientOptions> | null, null, ExtArgs, ClientOptions>
+
+    /**
+     * Find one StepLog that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {StepLogFindUniqueOrThrowArgs} args - Arguments to find a StepLog
+     * @example
+     * // Get one StepLog
+     * const stepLog = await prisma.stepLog.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends StepLogFindUniqueOrThrowArgs>(args: SelectSubset<T, StepLogFindUniqueOrThrowArgs<ExtArgs>>): Prisma__StepLogClient<$Result.GetResult<Prisma.$StepLogPayload<ExtArgs>, T, "findUniqueOrThrow", ClientOptions>, never, ExtArgs, ClientOptions>
+
+    /**
+     * Find the first StepLog that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {StepLogFindFirstArgs} args - Arguments to find a StepLog
+     * @example
+     * // Get one StepLog
+     * const stepLog = await prisma.stepLog.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends StepLogFindFirstArgs>(args?: SelectSubset<T, StepLogFindFirstArgs<ExtArgs>>): Prisma__StepLogClient<$Result.GetResult<Prisma.$StepLogPayload<ExtArgs>, T, "findFirst", ClientOptions> | null, null, ExtArgs, ClientOptions>
+
+    /**
+     * Find the first StepLog that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {StepLogFindFirstOrThrowArgs} args - Arguments to find a StepLog
+     * @example
+     * // Get one StepLog
+     * const stepLog = await prisma.stepLog.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends StepLogFindFirstOrThrowArgs>(args?: SelectSubset<T, StepLogFindFirstOrThrowArgs<ExtArgs>>): Prisma__StepLogClient<$Result.GetResult<Prisma.$StepLogPayload<ExtArgs>, T, "findFirstOrThrow", ClientOptions>, never, ExtArgs, ClientOptions>
+
+    /**
+     * Find zero or more StepLogs that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {StepLogFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all StepLogs
+     * const stepLogs = await prisma.stepLog.findMany()
+     * 
+     * // Get first 10 StepLogs
+     * const stepLogs = await prisma.stepLog.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const stepLogWithIdOnly = await prisma.stepLog.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends StepLogFindManyArgs>(args?: SelectSubset<T, StepLogFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$StepLogPayload<ExtArgs>, T, "findMany", ClientOptions>>
+
+    /**
+     * Create a StepLog.
+     * @param {StepLogCreateArgs} args - Arguments to create a StepLog.
+     * @example
+     * // Create one StepLog
+     * const StepLog = await prisma.stepLog.create({
+     *   data: {
+     *     // ... data to create a StepLog
+     *   }
+     * })
+     * 
+     */
+    create<T extends StepLogCreateArgs>(args: SelectSubset<T, StepLogCreateArgs<ExtArgs>>): Prisma__StepLogClient<$Result.GetResult<Prisma.$StepLogPayload<ExtArgs>, T, "create", ClientOptions>, never, ExtArgs, ClientOptions>
+
+    /**
+     * Create many StepLogs.
+     * @param {StepLogCreateManyArgs} args - Arguments to create many StepLogs.
+     * @example
+     * // Create many StepLogs
+     * const stepLog = await prisma.stepLog.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends StepLogCreateManyArgs>(args?: SelectSubset<T, StepLogCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many StepLogs and returns the data saved in the database.
+     * @param {StepLogCreateManyAndReturnArgs} args - Arguments to create many StepLogs.
+     * @example
+     * // Create many StepLogs
+     * const stepLog = await prisma.stepLog.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many StepLogs and only return the `id`
+     * const stepLogWithIdOnly = await prisma.stepLog.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends StepLogCreateManyAndReturnArgs>(args?: SelectSubset<T, StepLogCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$StepLogPayload<ExtArgs>, T, "createManyAndReturn", ClientOptions>>
+
+    /**
+     * Delete a StepLog.
+     * @param {StepLogDeleteArgs} args - Arguments to delete one StepLog.
+     * @example
+     * // Delete one StepLog
+     * const StepLog = await prisma.stepLog.delete({
+     *   where: {
+     *     // ... filter to delete one StepLog
+     *   }
+     * })
+     * 
+     */
+    delete<T extends StepLogDeleteArgs>(args: SelectSubset<T, StepLogDeleteArgs<ExtArgs>>): Prisma__StepLogClient<$Result.GetResult<Prisma.$StepLogPayload<ExtArgs>, T, "delete", ClientOptions>, never, ExtArgs, ClientOptions>
+
+    /**
+     * Update one StepLog.
+     * @param {StepLogUpdateArgs} args - Arguments to update one StepLog.
+     * @example
+     * // Update one StepLog
+     * const stepLog = await prisma.stepLog.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends StepLogUpdateArgs>(args: SelectSubset<T, StepLogUpdateArgs<ExtArgs>>): Prisma__StepLogClient<$Result.GetResult<Prisma.$StepLogPayload<ExtArgs>, T, "update", ClientOptions>, never, ExtArgs, ClientOptions>
+
+    /**
+     * Delete zero or more StepLogs.
+     * @param {StepLogDeleteManyArgs} args - Arguments to filter StepLogs to delete.
+     * @example
+     * // Delete a few StepLogs
+     * const { count } = await prisma.stepLog.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends StepLogDeleteManyArgs>(args?: SelectSubset<T, StepLogDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more StepLogs.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {StepLogUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many StepLogs
+     * const stepLog = await prisma.stepLog.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends StepLogUpdateManyArgs>(args: SelectSubset<T, StepLogUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more StepLogs and returns the data updated in the database.
+     * @param {StepLogUpdateManyAndReturnArgs} args - Arguments to update many StepLogs.
+     * @example
+     * // Update many StepLogs
+     * const stepLog = await prisma.stepLog.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more StepLogs and only return the `id`
+     * const stepLogWithIdOnly = await prisma.stepLog.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends StepLogUpdateManyAndReturnArgs>(args: SelectSubset<T, StepLogUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$StepLogPayload<ExtArgs>, T, "updateManyAndReturn", ClientOptions>>
+
+    /**
+     * Create or update one StepLog.
+     * @param {StepLogUpsertArgs} args - Arguments to update or create a StepLog.
+     * @example
+     * // Update or create a StepLog
+     * const stepLog = await prisma.stepLog.upsert({
+     *   create: {
+     *     // ... data to create a StepLog
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the StepLog we want to update
+     *   }
+     * })
+     */
+    upsert<T extends StepLogUpsertArgs>(args: SelectSubset<T, StepLogUpsertArgs<ExtArgs>>): Prisma__StepLogClient<$Result.GetResult<Prisma.$StepLogPayload<ExtArgs>, T, "upsert", ClientOptions>, never, ExtArgs, ClientOptions>
+
+
+    /**
+     * Count the number of StepLogs.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {StepLogCountArgs} args - Arguments to filter StepLogs to count.
+     * @example
+     * // Count the number of StepLogs
+     * const count = await prisma.stepLog.count({
+     *   where: {
+     *     // ... the filter for the StepLogs we want to count
+     *   }
+     * })
+    **/
+    count<T extends StepLogCountArgs>(
+      args?: Subset<T, StepLogCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], StepLogCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a StepLog.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {StepLogAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends StepLogAggregateArgs>(args: Subset<T, StepLogAggregateArgs>): Prisma.PrismaPromise<GetStepLogAggregateType<T>>
+
+    /**
+     * Group by StepLog.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {StepLogGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends StepLogGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: StepLogGroupByArgs['orderBy'] }
+        : { orderBy?: StepLogGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, StepLogGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetStepLogGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the StepLog model
+   */
+  readonly fields: StepLogFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for StepLog.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__StepLogClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, ClientOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    step<T extends AuditStepDefaultArgs<ExtArgs> = {}>(args?: Subset<T, AuditStepDefaultArgs<ExtArgs>>): Prisma__AuditStepClient<$Result.GetResult<Prisma.$AuditStepPayload<ExtArgs>, T, "findUniqueOrThrow", ClientOptions> | Null, Null, ExtArgs, ClientOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the StepLog model
+   */ 
+  interface StepLogFieldRefs {
+    readonly id: FieldRef<"StepLog", 'Int'>
+    readonly stepId: FieldRef<"StepLog", 'Int'>
+    readonly message: FieldRef<"StepLog", 'String'>
+    readonly createdBy: FieldRef<"StepLog", 'String'>
+    readonly createdAt: FieldRef<"StepLog", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * StepLog findUnique
+   */
+  export type StepLogFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the StepLog
+     */
+    select?: StepLogSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the StepLog
+     */
+    omit?: StepLogOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: StepLogInclude<ExtArgs> | null
+    /**
+     * Filter, which StepLog to fetch.
+     */
+    where: StepLogWhereUniqueInput
+  }
+
+  /**
+   * StepLog findUniqueOrThrow
+   */
+  export type StepLogFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the StepLog
+     */
+    select?: StepLogSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the StepLog
+     */
+    omit?: StepLogOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: StepLogInclude<ExtArgs> | null
+    /**
+     * Filter, which StepLog to fetch.
+     */
+    where: StepLogWhereUniqueInput
+  }
+
+  /**
+   * StepLog findFirst
+   */
+  export type StepLogFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the StepLog
+     */
+    select?: StepLogSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the StepLog
+     */
+    omit?: StepLogOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: StepLogInclude<ExtArgs> | null
+    /**
+     * Filter, which StepLog to fetch.
+     */
+    where?: StepLogWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of StepLogs to fetch.
+     */
+    orderBy?: StepLogOrderByWithRelationInput | StepLogOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for StepLogs.
+     */
+    cursor?: StepLogWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` StepLogs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` StepLogs.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of StepLogs.
+     */
+    distinct?: StepLogScalarFieldEnum | StepLogScalarFieldEnum[]
+  }
+
+  /**
+   * StepLog findFirstOrThrow
+   */
+  export type StepLogFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the StepLog
+     */
+    select?: StepLogSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the StepLog
+     */
+    omit?: StepLogOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: StepLogInclude<ExtArgs> | null
+    /**
+     * Filter, which StepLog to fetch.
+     */
+    where?: StepLogWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of StepLogs to fetch.
+     */
+    orderBy?: StepLogOrderByWithRelationInput | StepLogOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for StepLogs.
+     */
+    cursor?: StepLogWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` StepLogs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` StepLogs.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of StepLogs.
+     */
+    distinct?: StepLogScalarFieldEnum | StepLogScalarFieldEnum[]
+  }
+
+  /**
+   * StepLog findMany
+   */
+  export type StepLogFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the StepLog
+     */
+    select?: StepLogSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the StepLog
+     */
+    omit?: StepLogOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: StepLogInclude<ExtArgs> | null
+    /**
+     * Filter, which StepLogs to fetch.
+     */
+    where?: StepLogWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of StepLogs to fetch.
+     */
+    orderBy?: StepLogOrderByWithRelationInput | StepLogOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing StepLogs.
+     */
+    cursor?: StepLogWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` StepLogs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` StepLogs.
+     */
+    skip?: number
+    distinct?: StepLogScalarFieldEnum | StepLogScalarFieldEnum[]
+  }
+
+  /**
+   * StepLog create
+   */
+  export type StepLogCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the StepLog
+     */
+    select?: StepLogSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the StepLog
+     */
+    omit?: StepLogOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: StepLogInclude<ExtArgs> | null
+    /**
+     * The data needed to create a StepLog.
+     */
+    data: XOR<StepLogCreateInput, StepLogUncheckedCreateInput>
+  }
+
+  /**
+   * StepLog createMany
+   */
+  export type StepLogCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many StepLogs.
+     */
+    data: StepLogCreateManyInput | StepLogCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * StepLog createManyAndReturn
+   */
+  export type StepLogCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the StepLog
+     */
+    select?: StepLogSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the StepLog
+     */
+    omit?: StepLogOmit<ExtArgs> | null
+    /**
+     * The data used to create many StepLogs.
+     */
+    data: StepLogCreateManyInput | StepLogCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: StepLogIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * StepLog update
+   */
+  export type StepLogUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the StepLog
+     */
+    select?: StepLogSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the StepLog
+     */
+    omit?: StepLogOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: StepLogInclude<ExtArgs> | null
+    /**
+     * The data needed to update a StepLog.
+     */
+    data: XOR<StepLogUpdateInput, StepLogUncheckedUpdateInput>
+    /**
+     * Choose, which StepLog to update.
+     */
+    where: StepLogWhereUniqueInput
+  }
+
+  /**
+   * StepLog updateMany
+   */
+  export type StepLogUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update StepLogs.
+     */
+    data: XOR<StepLogUpdateManyMutationInput, StepLogUncheckedUpdateManyInput>
+    /**
+     * Filter which StepLogs to update
+     */
+    where?: StepLogWhereInput
+    /**
+     * Limit how many StepLogs to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * StepLog updateManyAndReturn
+   */
+  export type StepLogUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the StepLog
+     */
+    select?: StepLogSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the StepLog
+     */
+    omit?: StepLogOmit<ExtArgs> | null
+    /**
+     * The data used to update StepLogs.
+     */
+    data: XOR<StepLogUpdateManyMutationInput, StepLogUncheckedUpdateManyInput>
+    /**
+     * Filter which StepLogs to update
+     */
+    where?: StepLogWhereInput
+    /**
+     * Limit how many StepLogs to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: StepLogIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * StepLog upsert
+   */
+  export type StepLogUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the StepLog
+     */
+    select?: StepLogSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the StepLog
+     */
+    omit?: StepLogOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: StepLogInclude<ExtArgs> | null
+    /**
+     * The filter to search for the StepLog to update in case it exists.
+     */
+    where: StepLogWhereUniqueInput
+    /**
+     * In case the StepLog found by the `where` argument doesn't exist, create a new StepLog with this data.
+     */
+    create: XOR<StepLogCreateInput, StepLogUncheckedCreateInput>
+    /**
+     * In case the StepLog was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<StepLogUpdateInput, StepLogUncheckedUpdateInput>
+  }
+
+  /**
+   * StepLog delete
+   */
+  export type StepLogDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the StepLog
+     */
+    select?: StepLogSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the StepLog
+     */
+    omit?: StepLogOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: StepLogInclude<ExtArgs> | null
+    /**
+     * Filter which StepLog to delete.
+     */
+    where: StepLogWhereUniqueInput
+  }
+
+  /**
+   * StepLog deleteMany
+   */
+  export type StepLogDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which StepLogs to delete
+     */
+    where?: StepLogWhereInput
+    /**
+     * Limit how many StepLogs to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * StepLog without action
+   */
+  export type StepLogDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the StepLog
+     */
+    select?: StepLogSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the StepLog
+     */
+    omit?: StepLogOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: StepLogInclude<ExtArgs> | null
+  }
+
+
+  /**
    * Enums
    */
 
@@ -65828,6 +69620,42 @@ export namespace Prisma {
   export type TeamLocationScalarFieldEnum = (typeof TeamLocationScalarFieldEnum)[keyof typeof TeamLocationScalarFieldEnum]
 
 
+  export const AuditWorkflowScalarFieldEnum: {
+    id: 'id',
+    name: 'name',
+    description: 'description',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type AuditWorkflowScalarFieldEnum = (typeof AuditWorkflowScalarFieldEnum)[keyof typeof AuditWorkflowScalarFieldEnum]
+
+
+  export const AuditStepScalarFieldEnum: {
+    id: 'id',
+    title: 'title',
+    description: 'description',
+    position: 'position',
+    status: 'status',
+    assignedToId: 'assignedToId',
+    dueDate: 'dueDate',
+    workflowId: 'workflowId'
+  };
+
+  export type AuditStepScalarFieldEnum = (typeof AuditStepScalarFieldEnum)[keyof typeof AuditStepScalarFieldEnum]
+
+
+  export const StepLogScalarFieldEnum: {
+    id: 'id',
+    stepId: 'stepId',
+    message: 'message',
+    createdBy: 'createdBy',
+    createdAt: 'createdAt'
+  };
+
+  export type StepLogScalarFieldEnum = (typeof StepLogScalarFieldEnum)[keyof typeof StepLogScalarFieldEnum]
+
+
   export const SortOrder: {
     asc: 'asc',
     desc: 'desc'
@@ -65962,6 +69790,20 @@ export namespace Prisma {
    * Reference to a field of type 'QueryMode'
    */
   export type EnumQueryModeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'QueryMode'>
+    
+
+
+  /**
+   * Reference to a field of type 'StepStatus'
+   */
+  export type EnumStepStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'StepStatus'>
+    
+
+
+  /**
+   * Reference to a field of type 'StepStatus[]'
+   */
+  export type ListEnumStepStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'StepStatus[]'>
     
   /**
    * Deep Input Types
@@ -66982,6 +70824,7 @@ export namespace Prisma {
     UserPermission?: UserPermissionListRelationFilter
     receivedPermissions?: DriveFilePermissionListRelationFilter
     addressedMatches?: CommandMatchListRelationFilter
+    AuditStep?: AuditStepListRelationFilter
   }
 
   export type UserOrderByWithRelationInput = {
@@ -67026,6 +70869,7 @@ export namespace Prisma {
     UserPermission?: UserPermissionOrderByRelationAggregateInput
     receivedPermissions?: DriveFilePermissionOrderByRelationAggregateInput
     addressedMatches?: CommandMatchOrderByRelationAggregateInput
+    AuditStep?: AuditStepOrderByRelationAggregateInput
   }
 
   export type UserWhereUniqueInput = Prisma.AtLeast<{
@@ -67073,6 +70917,7 @@ export namespace Prisma {
     UserPermission?: UserPermissionListRelationFilter
     receivedPermissions?: DriveFilePermissionListRelationFilter
     addressedMatches?: CommandMatchListRelationFilter
+    AuditStep?: AuditStepListRelationFilter
   }, "id" | "username" | "email">
 
   export type UserOrderByWithAggregationInput = {
@@ -69664,6 +73509,198 @@ export namespace Prisma {
     locationId?: IntWithAggregatesFilter<"TeamLocation"> | number
   }
 
+  export type AuditWorkflowWhereInput = {
+    AND?: AuditWorkflowWhereInput | AuditWorkflowWhereInput[]
+    OR?: AuditWorkflowWhereInput[]
+    NOT?: AuditWorkflowWhereInput | AuditWorkflowWhereInput[]
+    id?: IntFilter<"AuditWorkflow"> | number
+    name?: StringFilter<"AuditWorkflow"> | string
+    description?: StringNullableFilter<"AuditWorkflow"> | string | null
+    createdAt?: DateTimeFilter<"AuditWorkflow"> | Date | string
+    updatedAt?: DateTimeFilter<"AuditWorkflow"> | Date | string
+    steps?: AuditStepListRelationFilter
+  }
+
+  export type AuditWorkflowOrderByWithRelationInput = {
+    id?: SortOrder
+    name?: SortOrder
+    description?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    steps?: AuditStepOrderByRelationAggregateInput
+  }
+
+  export type AuditWorkflowWhereUniqueInput = Prisma.AtLeast<{
+    id?: number
+    AND?: AuditWorkflowWhereInput | AuditWorkflowWhereInput[]
+    OR?: AuditWorkflowWhereInput[]
+    NOT?: AuditWorkflowWhereInput | AuditWorkflowWhereInput[]
+    name?: StringFilter<"AuditWorkflow"> | string
+    description?: StringNullableFilter<"AuditWorkflow"> | string | null
+    createdAt?: DateTimeFilter<"AuditWorkflow"> | Date | string
+    updatedAt?: DateTimeFilter<"AuditWorkflow"> | Date | string
+    steps?: AuditStepListRelationFilter
+  }, "id">
+
+  export type AuditWorkflowOrderByWithAggregationInput = {
+    id?: SortOrder
+    name?: SortOrder
+    description?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: AuditWorkflowCountOrderByAggregateInput
+    _avg?: AuditWorkflowAvgOrderByAggregateInput
+    _max?: AuditWorkflowMaxOrderByAggregateInput
+    _min?: AuditWorkflowMinOrderByAggregateInput
+    _sum?: AuditWorkflowSumOrderByAggregateInput
+  }
+
+  export type AuditWorkflowScalarWhereWithAggregatesInput = {
+    AND?: AuditWorkflowScalarWhereWithAggregatesInput | AuditWorkflowScalarWhereWithAggregatesInput[]
+    OR?: AuditWorkflowScalarWhereWithAggregatesInput[]
+    NOT?: AuditWorkflowScalarWhereWithAggregatesInput | AuditWorkflowScalarWhereWithAggregatesInput[]
+    id?: IntWithAggregatesFilter<"AuditWorkflow"> | number
+    name?: StringWithAggregatesFilter<"AuditWorkflow"> | string
+    description?: StringNullableWithAggregatesFilter<"AuditWorkflow"> | string | null
+    createdAt?: DateTimeWithAggregatesFilter<"AuditWorkflow"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"AuditWorkflow"> | Date | string
+  }
+
+  export type AuditStepWhereInput = {
+    AND?: AuditStepWhereInput | AuditStepWhereInput[]
+    OR?: AuditStepWhereInput[]
+    NOT?: AuditStepWhereInput | AuditStepWhereInput[]
+    id?: IntFilter<"AuditStep"> | number
+    title?: StringFilter<"AuditStep"> | string
+    description?: StringNullableFilter<"AuditStep"> | string | null
+    position?: IntFilter<"AuditStep"> | number
+    status?: EnumStepStatusFilter<"AuditStep"> | $Enums.StepStatus
+    assignedToId?: IntNullableFilter<"AuditStep"> | number | null
+    dueDate?: DateTimeNullableFilter<"AuditStep"> | Date | string | null
+    workflowId?: IntFilter<"AuditStep"> | number
+    assignedTo?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
+    workflow?: XOR<AuditWorkflowScalarRelationFilter, AuditWorkflowWhereInput>
+    logs?: StepLogListRelationFilter
+  }
+
+  export type AuditStepOrderByWithRelationInput = {
+    id?: SortOrder
+    title?: SortOrder
+    description?: SortOrderInput | SortOrder
+    position?: SortOrder
+    status?: SortOrder
+    assignedToId?: SortOrderInput | SortOrder
+    dueDate?: SortOrderInput | SortOrder
+    workflowId?: SortOrder
+    assignedTo?: UserOrderByWithRelationInput
+    workflow?: AuditWorkflowOrderByWithRelationInput
+    logs?: StepLogOrderByRelationAggregateInput
+  }
+
+  export type AuditStepWhereUniqueInput = Prisma.AtLeast<{
+    id?: number
+    AND?: AuditStepWhereInput | AuditStepWhereInput[]
+    OR?: AuditStepWhereInput[]
+    NOT?: AuditStepWhereInput | AuditStepWhereInput[]
+    title?: StringFilter<"AuditStep"> | string
+    description?: StringNullableFilter<"AuditStep"> | string | null
+    position?: IntFilter<"AuditStep"> | number
+    status?: EnumStepStatusFilter<"AuditStep"> | $Enums.StepStatus
+    assignedToId?: IntNullableFilter<"AuditStep"> | number | null
+    dueDate?: DateTimeNullableFilter<"AuditStep"> | Date | string | null
+    workflowId?: IntFilter<"AuditStep"> | number
+    assignedTo?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
+    workflow?: XOR<AuditWorkflowScalarRelationFilter, AuditWorkflowWhereInput>
+    logs?: StepLogListRelationFilter
+  }, "id">
+
+  export type AuditStepOrderByWithAggregationInput = {
+    id?: SortOrder
+    title?: SortOrder
+    description?: SortOrderInput | SortOrder
+    position?: SortOrder
+    status?: SortOrder
+    assignedToId?: SortOrderInput | SortOrder
+    dueDate?: SortOrderInput | SortOrder
+    workflowId?: SortOrder
+    _count?: AuditStepCountOrderByAggregateInput
+    _avg?: AuditStepAvgOrderByAggregateInput
+    _max?: AuditStepMaxOrderByAggregateInput
+    _min?: AuditStepMinOrderByAggregateInput
+    _sum?: AuditStepSumOrderByAggregateInput
+  }
+
+  export type AuditStepScalarWhereWithAggregatesInput = {
+    AND?: AuditStepScalarWhereWithAggregatesInput | AuditStepScalarWhereWithAggregatesInput[]
+    OR?: AuditStepScalarWhereWithAggregatesInput[]
+    NOT?: AuditStepScalarWhereWithAggregatesInput | AuditStepScalarWhereWithAggregatesInput[]
+    id?: IntWithAggregatesFilter<"AuditStep"> | number
+    title?: StringWithAggregatesFilter<"AuditStep"> | string
+    description?: StringNullableWithAggregatesFilter<"AuditStep"> | string | null
+    position?: IntWithAggregatesFilter<"AuditStep"> | number
+    status?: EnumStepStatusWithAggregatesFilter<"AuditStep"> | $Enums.StepStatus
+    assignedToId?: IntNullableWithAggregatesFilter<"AuditStep"> | number | null
+    dueDate?: DateTimeNullableWithAggregatesFilter<"AuditStep"> | Date | string | null
+    workflowId?: IntWithAggregatesFilter<"AuditStep"> | number
+  }
+
+  export type StepLogWhereInput = {
+    AND?: StepLogWhereInput | StepLogWhereInput[]
+    OR?: StepLogWhereInput[]
+    NOT?: StepLogWhereInput | StepLogWhereInput[]
+    id?: IntFilter<"StepLog"> | number
+    stepId?: IntFilter<"StepLog"> | number
+    message?: StringFilter<"StepLog"> | string
+    createdBy?: StringFilter<"StepLog"> | string
+    createdAt?: DateTimeFilter<"StepLog"> | Date | string
+    step?: XOR<AuditStepScalarRelationFilter, AuditStepWhereInput>
+  }
+
+  export type StepLogOrderByWithRelationInput = {
+    id?: SortOrder
+    stepId?: SortOrder
+    message?: SortOrder
+    createdBy?: SortOrder
+    createdAt?: SortOrder
+    step?: AuditStepOrderByWithRelationInput
+  }
+
+  export type StepLogWhereUniqueInput = Prisma.AtLeast<{
+    id?: number
+    AND?: StepLogWhereInput | StepLogWhereInput[]
+    OR?: StepLogWhereInput[]
+    NOT?: StepLogWhereInput | StepLogWhereInput[]
+    stepId?: IntFilter<"StepLog"> | number
+    message?: StringFilter<"StepLog"> | string
+    createdBy?: StringFilter<"StepLog"> | string
+    createdAt?: DateTimeFilter<"StepLog"> | Date | string
+    step?: XOR<AuditStepScalarRelationFilter, AuditStepWhereInput>
+  }, "id">
+
+  export type StepLogOrderByWithAggregationInput = {
+    id?: SortOrder
+    stepId?: SortOrder
+    message?: SortOrder
+    createdBy?: SortOrder
+    createdAt?: SortOrder
+    _count?: StepLogCountOrderByAggregateInput
+    _avg?: StepLogAvgOrderByAggregateInput
+    _max?: StepLogMaxOrderByAggregateInput
+    _min?: StepLogMinOrderByAggregateInput
+    _sum?: StepLogSumOrderByAggregateInput
+  }
+
+  export type StepLogScalarWhereWithAggregatesInput = {
+    AND?: StepLogScalarWhereWithAggregatesInput | StepLogScalarWhereWithAggregatesInput[]
+    OR?: StepLogScalarWhereWithAggregatesInput[]
+    NOT?: StepLogScalarWhereWithAggregatesInput | StepLogScalarWhereWithAggregatesInput[]
+    id?: IntWithAggregatesFilter<"StepLog"> | number
+    stepId?: IntWithAggregatesFilter<"StepLog"> | number
+    message?: StringWithAggregatesFilter<"StepLog"> | string
+    createdBy?: StringWithAggregatesFilter<"StepLog"> | string
+    createdAt?: DateTimeWithAggregatesFilter<"StepLog"> | Date | string
+  }
+
   export type logsCreateInput = {
     name: string
     host?: string | null
@@ -70684,6 +74721,7 @@ export namespace Prisma {
     UserPermission?: UserPermissionCreateNestedManyWithoutUserInput
     receivedPermissions?: DriveFilePermissionCreateNestedManyWithoutUserInput
     addressedMatches?: CommandMatchCreateNestedManyWithoutUserInput
+    AuditStep?: AuditStepCreateNestedManyWithoutAssignedToInput
   }
 
   export type UserUncheckedCreateInput = {
@@ -70728,6 +74766,7 @@ export namespace Prisma {
     UserPermission?: UserPermissionUncheckedCreateNestedManyWithoutUserInput
     receivedPermissions?: DriveFilePermissionUncheckedCreateNestedManyWithoutUserInput
     addressedMatches?: CommandMatchUncheckedCreateNestedManyWithoutUserInput
+    AuditStep?: AuditStepUncheckedCreateNestedManyWithoutAssignedToInput
   }
 
   export type UserUpdateInput = {
@@ -70771,6 +74810,7 @@ export namespace Prisma {
     UserPermission?: UserPermissionUpdateManyWithoutUserNestedInput
     receivedPermissions?: DriveFilePermissionUpdateManyWithoutUserNestedInput
     addressedMatches?: CommandMatchUpdateManyWithoutUserNestedInput
+    AuditStep?: AuditStepUpdateManyWithoutAssignedToNestedInput
   }
 
   export type UserUncheckedUpdateInput = {
@@ -70815,6 +74855,7 @@ export namespace Prisma {
     UserPermission?: UserPermissionUncheckedUpdateManyWithoutUserNestedInput
     receivedPermissions?: DriveFilePermissionUncheckedUpdateManyWithoutUserNestedInput
     addressedMatches?: CommandMatchUncheckedUpdateManyWithoutUserNestedInput
+    AuditStep?: AuditStepUncheckedUpdateManyWithoutAssignedToNestedInput
   }
 
   export type UserCreateManyInput = {
@@ -73390,6 +77431,191 @@ export namespace Prisma {
     locationId?: IntFieldUpdateOperationsInput | number
   }
 
+  export type AuditWorkflowCreateInput = {
+    name: string
+    description?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    steps?: AuditStepCreateNestedManyWithoutWorkflowInput
+  }
+
+  export type AuditWorkflowUncheckedCreateInput = {
+    id?: number
+    name: string
+    description?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    steps?: AuditStepUncheckedCreateNestedManyWithoutWorkflowInput
+  }
+
+  export type AuditWorkflowUpdateInput = {
+    name?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    steps?: AuditStepUpdateManyWithoutWorkflowNestedInput
+  }
+
+  export type AuditWorkflowUncheckedUpdateInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    name?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    steps?: AuditStepUncheckedUpdateManyWithoutWorkflowNestedInput
+  }
+
+  export type AuditWorkflowCreateManyInput = {
+    id?: number
+    name: string
+    description?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type AuditWorkflowUpdateManyMutationInput = {
+    name?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type AuditWorkflowUncheckedUpdateManyInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    name?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type AuditStepCreateInput = {
+    title: string
+    description?: string | null
+    position: number
+    status?: $Enums.StepStatus
+    dueDate?: Date | string | null
+    assignedTo?: UserCreateNestedOneWithoutAuditStepInput
+    workflow: AuditWorkflowCreateNestedOneWithoutStepsInput
+    logs?: StepLogCreateNestedManyWithoutStepInput
+  }
+
+  export type AuditStepUncheckedCreateInput = {
+    id?: number
+    title: string
+    description?: string | null
+    position: number
+    status?: $Enums.StepStatus
+    assignedToId?: number | null
+    dueDate?: Date | string | null
+    workflowId: number
+    logs?: StepLogUncheckedCreateNestedManyWithoutStepInput
+  }
+
+  export type AuditStepUpdateInput = {
+    title?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    position?: IntFieldUpdateOperationsInput | number
+    status?: EnumStepStatusFieldUpdateOperationsInput | $Enums.StepStatus
+    dueDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    assignedTo?: UserUpdateOneWithoutAuditStepNestedInput
+    workflow?: AuditWorkflowUpdateOneRequiredWithoutStepsNestedInput
+    logs?: StepLogUpdateManyWithoutStepNestedInput
+  }
+
+  export type AuditStepUncheckedUpdateInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    title?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    position?: IntFieldUpdateOperationsInput | number
+    status?: EnumStepStatusFieldUpdateOperationsInput | $Enums.StepStatus
+    assignedToId?: NullableIntFieldUpdateOperationsInput | number | null
+    dueDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    workflowId?: IntFieldUpdateOperationsInput | number
+    logs?: StepLogUncheckedUpdateManyWithoutStepNestedInput
+  }
+
+  export type AuditStepCreateManyInput = {
+    id?: number
+    title: string
+    description?: string | null
+    position: number
+    status?: $Enums.StepStatus
+    assignedToId?: number | null
+    dueDate?: Date | string | null
+    workflowId: number
+  }
+
+  export type AuditStepUpdateManyMutationInput = {
+    title?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    position?: IntFieldUpdateOperationsInput | number
+    status?: EnumStepStatusFieldUpdateOperationsInput | $Enums.StepStatus
+    dueDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type AuditStepUncheckedUpdateManyInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    title?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    position?: IntFieldUpdateOperationsInput | number
+    status?: EnumStepStatusFieldUpdateOperationsInput | $Enums.StepStatus
+    assignedToId?: NullableIntFieldUpdateOperationsInput | number | null
+    dueDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    workflowId?: IntFieldUpdateOperationsInput | number
+  }
+
+  export type StepLogCreateInput = {
+    message: string
+    createdBy: string
+    createdAt?: Date | string
+    step: AuditStepCreateNestedOneWithoutLogsInput
+  }
+
+  export type StepLogUncheckedCreateInput = {
+    id?: number
+    stepId: number
+    message: string
+    createdBy: string
+    createdAt?: Date | string
+  }
+
+  export type StepLogUpdateInput = {
+    message?: StringFieldUpdateOperationsInput | string
+    createdBy?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    step?: AuditStepUpdateOneRequiredWithoutLogsNestedInput
+  }
+
+  export type StepLogUncheckedUpdateInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    stepId?: IntFieldUpdateOperationsInput | number
+    message?: StringFieldUpdateOperationsInput | string
+    createdBy?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type StepLogCreateManyInput = {
+    id?: number
+    stepId: number
+    message: string
+    createdBy: string
+    createdAt?: Date | string
+  }
+
+  export type StepLogUpdateManyMutationInput = {
+    message?: StringFieldUpdateOperationsInput | string
+    createdBy?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type StepLogUncheckedUpdateManyInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    stepId?: IntFieldUpdateOperationsInput | number
+    message?: StringFieldUpdateOperationsInput | string
+    createdBy?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type IntFilter<$PrismaModel = never> = {
     equals?: number | IntFieldRefInput<$PrismaModel>
     in?: number[] | ListIntFieldRefInput<$PrismaModel>
@@ -74456,6 +78682,12 @@ export namespace Prisma {
     none?: UserPermissionWhereInput
   }
 
+  export type AuditStepListRelationFilter = {
+    every?: AuditStepWhereInput
+    some?: AuditStepWhereInput
+    none?: AuditStepWhereInput
+  }
+
   export type ActivityLogOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
@@ -74513,6 +78745,10 @@ export namespace Prisma {
   }
 
   export type UserPermissionOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type AuditStepOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
@@ -76411,6 +80647,156 @@ export namespace Prisma {
     locationId?: SortOrder
   }
 
+  export type AuditWorkflowCountOrderByAggregateInput = {
+    id?: SortOrder
+    name?: SortOrder
+    description?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type AuditWorkflowAvgOrderByAggregateInput = {
+    id?: SortOrder
+  }
+
+  export type AuditWorkflowMaxOrderByAggregateInput = {
+    id?: SortOrder
+    name?: SortOrder
+    description?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type AuditWorkflowMinOrderByAggregateInput = {
+    id?: SortOrder
+    name?: SortOrder
+    description?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type AuditWorkflowSumOrderByAggregateInput = {
+    id?: SortOrder
+  }
+
+  export type EnumStepStatusFilter<$PrismaModel = never> = {
+    equals?: $Enums.StepStatus | EnumStepStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.StepStatus[] | ListEnumStepStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.StepStatus[] | ListEnumStepStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumStepStatusFilter<$PrismaModel> | $Enums.StepStatus
+  }
+
+  export type AuditWorkflowScalarRelationFilter = {
+    is?: AuditWorkflowWhereInput
+    isNot?: AuditWorkflowWhereInput
+  }
+
+  export type StepLogListRelationFilter = {
+    every?: StepLogWhereInput
+    some?: StepLogWhereInput
+    none?: StepLogWhereInput
+  }
+
+  export type StepLogOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type AuditStepCountOrderByAggregateInput = {
+    id?: SortOrder
+    title?: SortOrder
+    description?: SortOrder
+    position?: SortOrder
+    status?: SortOrder
+    assignedToId?: SortOrder
+    dueDate?: SortOrder
+    workflowId?: SortOrder
+  }
+
+  export type AuditStepAvgOrderByAggregateInput = {
+    id?: SortOrder
+    position?: SortOrder
+    assignedToId?: SortOrder
+    workflowId?: SortOrder
+  }
+
+  export type AuditStepMaxOrderByAggregateInput = {
+    id?: SortOrder
+    title?: SortOrder
+    description?: SortOrder
+    position?: SortOrder
+    status?: SortOrder
+    assignedToId?: SortOrder
+    dueDate?: SortOrder
+    workflowId?: SortOrder
+  }
+
+  export type AuditStepMinOrderByAggregateInput = {
+    id?: SortOrder
+    title?: SortOrder
+    description?: SortOrder
+    position?: SortOrder
+    status?: SortOrder
+    assignedToId?: SortOrder
+    dueDate?: SortOrder
+    workflowId?: SortOrder
+  }
+
+  export type AuditStepSumOrderByAggregateInput = {
+    id?: SortOrder
+    position?: SortOrder
+    assignedToId?: SortOrder
+    workflowId?: SortOrder
+  }
+
+  export type EnumStepStatusWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.StepStatus | EnumStepStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.StepStatus[] | ListEnumStepStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.StepStatus[] | ListEnumStepStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumStepStatusWithAggregatesFilter<$PrismaModel> | $Enums.StepStatus
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumStepStatusFilter<$PrismaModel>
+    _max?: NestedEnumStepStatusFilter<$PrismaModel>
+  }
+
+  export type AuditStepScalarRelationFilter = {
+    is?: AuditStepWhereInput
+    isNot?: AuditStepWhereInput
+  }
+
+  export type StepLogCountOrderByAggregateInput = {
+    id?: SortOrder
+    stepId?: SortOrder
+    message?: SortOrder
+    createdBy?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type StepLogAvgOrderByAggregateInput = {
+    id?: SortOrder
+    stepId?: SortOrder
+  }
+
+  export type StepLogMaxOrderByAggregateInput = {
+    id?: SortOrder
+    stepId?: SortOrder
+    message?: SortOrder
+    createdBy?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type StepLogMinOrderByAggregateInput = {
+    id?: SortOrder
+    stepId?: SortOrder
+    message?: SortOrder
+    createdBy?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type StepLogSumOrderByAggregateInput = {
+    id?: SortOrder
+    stepId?: SortOrder
+  }
+
   export type StringFieldUpdateOperationsInput = {
     set?: string
   }
@@ -77340,6 +81726,13 @@ export namespace Prisma {
     connect?: CommandMatchWhereUniqueInput | CommandMatchWhereUniqueInput[]
   }
 
+  export type AuditStepCreateNestedManyWithoutAssignedToInput = {
+    create?: XOR<AuditStepCreateWithoutAssignedToInput, AuditStepUncheckedCreateWithoutAssignedToInput> | AuditStepCreateWithoutAssignedToInput[] | AuditStepUncheckedCreateWithoutAssignedToInput[]
+    connectOrCreate?: AuditStepCreateOrConnectWithoutAssignedToInput | AuditStepCreateOrConnectWithoutAssignedToInput[]
+    createMany?: AuditStepCreateManyAssignedToInputEnvelope
+    connect?: AuditStepWhereUniqueInput | AuditStepWhereUniqueInput[]
+  }
+
   export type ActivityLogUncheckedCreateNestedManyWithoutUserInput = {
     create?: XOR<ActivityLogCreateWithoutUserInput, ActivityLogUncheckedCreateWithoutUserInput> | ActivityLogCreateWithoutUserInput[] | ActivityLogUncheckedCreateWithoutUserInput[]
     connectOrCreate?: ActivityLogCreateOrConnectWithoutUserInput | ActivityLogCreateOrConnectWithoutUserInput[]
@@ -77497,6 +81890,13 @@ export namespace Prisma {
     create?: XOR<CommandMatchCreateWithoutUserInput, CommandMatchUncheckedCreateWithoutUserInput> | CommandMatchCreateWithoutUserInput[] | CommandMatchUncheckedCreateWithoutUserInput[]
     connectOrCreate?: CommandMatchCreateOrConnectWithoutUserInput | CommandMatchCreateOrConnectWithoutUserInput[]
     connect?: CommandMatchWhereUniqueInput | CommandMatchWhereUniqueInput[]
+  }
+
+  export type AuditStepUncheckedCreateNestedManyWithoutAssignedToInput = {
+    create?: XOR<AuditStepCreateWithoutAssignedToInput, AuditStepUncheckedCreateWithoutAssignedToInput> | AuditStepCreateWithoutAssignedToInput[] | AuditStepUncheckedCreateWithoutAssignedToInput[]
+    connectOrCreate?: AuditStepCreateOrConnectWithoutAssignedToInput | AuditStepCreateOrConnectWithoutAssignedToInput[]
+    createMany?: AuditStepCreateManyAssignedToInputEnvelope
+    connect?: AuditStepWhereUniqueInput | AuditStepWhereUniqueInput[]
   }
 
   export type UserUpdateroleInput = {
@@ -77829,6 +82229,20 @@ export namespace Prisma {
     deleteMany?: CommandMatchScalarWhereInput | CommandMatchScalarWhereInput[]
   }
 
+  export type AuditStepUpdateManyWithoutAssignedToNestedInput = {
+    create?: XOR<AuditStepCreateWithoutAssignedToInput, AuditStepUncheckedCreateWithoutAssignedToInput> | AuditStepCreateWithoutAssignedToInput[] | AuditStepUncheckedCreateWithoutAssignedToInput[]
+    connectOrCreate?: AuditStepCreateOrConnectWithoutAssignedToInput | AuditStepCreateOrConnectWithoutAssignedToInput[]
+    upsert?: AuditStepUpsertWithWhereUniqueWithoutAssignedToInput | AuditStepUpsertWithWhereUniqueWithoutAssignedToInput[]
+    createMany?: AuditStepCreateManyAssignedToInputEnvelope
+    set?: AuditStepWhereUniqueInput | AuditStepWhereUniqueInput[]
+    disconnect?: AuditStepWhereUniqueInput | AuditStepWhereUniqueInput[]
+    delete?: AuditStepWhereUniqueInput | AuditStepWhereUniqueInput[]
+    connect?: AuditStepWhereUniqueInput | AuditStepWhereUniqueInput[]
+    update?: AuditStepUpdateWithWhereUniqueWithoutAssignedToInput | AuditStepUpdateWithWhereUniqueWithoutAssignedToInput[]
+    updateMany?: AuditStepUpdateManyWithWhereWithoutAssignedToInput | AuditStepUpdateManyWithWhereWithoutAssignedToInput[]
+    deleteMany?: AuditStepScalarWhereInput | AuditStepScalarWhereInput[]
+  }
+
   export type ActivityLogUncheckedUpdateManyWithoutUserNestedInput = {
     create?: XOR<ActivityLogCreateWithoutUserInput, ActivityLogUncheckedCreateWithoutUserInput> | ActivityLogCreateWithoutUserInput[] | ActivityLogUncheckedCreateWithoutUserInput[]
     connectOrCreate?: ActivityLogCreateOrConnectWithoutUserInput | ActivityLogCreateOrConnectWithoutUserInput[]
@@ -78147,6 +82561,20 @@ export namespace Prisma {
     update?: CommandMatchUpdateWithWhereUniqueWithoutUserInput | CommandMatchUpdateWithWhereUniqueWithoutUserInput[]
     updateMany?: CommandMatchUpdateManyWithWhereWithoutUserInput | CommandMatchUpdateManyWithWhereWithoutUserInput[]
     deleteMany?: CommandMatchScalarWhereInput | CommandMatchScalarWhereInput[]
+  }
+
+  export type AuditStepUncheckedUpdateManyWithoutAssignedToNestedInput = {
+    create?: XOR<AuditStepCreateWithoutAssignedToInput, AuditStepUncheckedCreateWithoutAssignedToInput> | AuditStepCreateWithoutAssignedToInput[] | AuditStepUncheckedCreateWithoutAssignedToInput[]
+    connectOrCreate?: AuditStepCreateOrConnectWithoutAssignedToInput | AuditStepCreateOrConnectWithoutAssignedToInput[]
+    upsert?: AuditStepUpsertWithWhereUniqueWithoutAssignedToInput | AuditStepUpsertWithWhereUniqueWithoutAssignedToInput[]
+    createMany?: AuditStepCreateManyAssignedToInputEnvelope
+    set?: AuditStepWhereUniqueInput | AuditStepWhereUniqueInput[]
+    disconnect?: AuditStepWhereUniqueInput | AuditStepWhereUniqueInput[]
+    delete?: AuditStepWhereUniqueInput | AuditStepWhereUniqueInput[]
+    connect?: AuditStepWhereUniqueInput | AuditStepWhereUniqueInput[]
+    update?: AuditStepUpdateWithWhereUniqueWithoutAssignedToInput | AuditStepUpdateWithWhereUniqueWithoutAssignedToInput[]
+    updateMany?: AuditStepUpdateManyWithWhereWithoutAssignedToInput | AuditStepUpdateManyWithWhereWithoutAssignedToInput[]
+    deleteMany?: AuditStepScalarWhereInput | AuditStepScalarWhereInput[]
   }
 
   export type GroupMemberCreateNestedManyWithoutGroupInput = {
@@ -79667,6 +84095,138 @@ export namespace Prisma {
     update?: XOR<XOR<TeamUpdateToOneWithWhereWithoutLocationsInput, TeamUpdateWithoutLocationsInput>, TeamUncheckedUpdateWithoutLocationsInput>
   }
 
+  export type AuditStepCreateNestedManyWithoutWorkflowInput = {
+    create?: XOR<AuditStepCreateWithoutWorkflowInput, AuditStepUncheckedCreateWithoutWorkflowInput> | AuditStepCreateWithoutWorkflowInput[] | AuditStepUncheckedCreateWithoutWorkflowInput[]
+    connectOrCreate?: AuditStepCreateOrConnectWithoutWorkflowInput | AuditStepCreateOrConnectWithoutWorkflowInput[]
+    createMany?: AuditStepCreateManyWorkflowInputEnvelope
+    connect?: AuditStepWhereUniqueInput | AuditStepWhereUniqueInput[]
+  }
+
+  export type AuditStepUncheckedCreateNestedManyWithoutWorkflowInput = {
+    create?: XOR<AuditStepCreateWithoutWorkflowInput, AuditStepUncheckedCreateWithoutWorkflowInput> | AuditStepCreateWithoutWorkflowInput[] | AuditStepUncheckedCreateWithoutWorkflowInput[]
+    connectOrCreate?: AuditStepCreateOrConnectWithoutWorkflowInput | AuditStepCreateOrConnectWithoutWorkflowInput[]
+    createMany?: AuditStepCreateManyWorkflowInputEnvelope
+    connect?: AuditStepWhereUniqueInput | AuditStepWhereUniqueInput[]
+  }
+
+  export type AuditStepUpdateManyWithoutWorkflowNestedInput = {
+    create?: XOR<AuditStepCreateWithoutWorkflowInput, AuditStepUncheckedCreateWithoutWorkflowInput> | AuditStepCreateWithoutWorkflowInput[] | AuditStepUncheckedCreateWithoutWorkflowInput[]
+    connectOrCreate?: AuditStepCreateOrConnectWithoutWorkflowInput | AuditStepCreateOrConnectWithoutWorkflowInput[]
+    upsert?: AuditStepUpsertWithWhereUniqueWithoutWorkflowInput | AuditStepUpsertWithWhereUniqueWithoutWorkflowInput[]
+    createMany?: AuditStepCreateManyWorkflowInputEnvelope
+    set?: AuditStepWhereUniqueInput | AuditStepWhereUniqueInput[]
+    disconnect?: AuditStepWhereUniqueInput | AuditStepWhereUniqueInput[]
+    delete?: AuditStepWhereUniqueInput | AuditStepWhereUniqueInput[]
+    connect?: AuditStepWhereUniqueInput | AuditStepWhereUniqueInput[]
+    update?: AuditStepUpdateWithWhereUniqueWithoutWorkflowInput | AuditStepUpdateWithWhereUniqueWithoutWorkflowInput[]
+    updateMany?: AuditStepUpdateManyWithWhereWithoutWorkflowInput | AuditStepUpdateManyWithWhereWithoutWorkflowInput[]
+    deleteMany?: AuditStepScalarWhereInput | AuditStepScalarWhereInput[]
+  }
+
+  export type AuditStepUncheckedUpdateManyWithoutWorkflowNestedInput = {
+    create?: XOR<AuditStepCreateWithoutWorkflowInput, AuditStepUncheckedCreateWithoutWorkflowInput> | AuditStepCreateWithoutWorkflowInput[] | AuditStepUncheckedCreateWithoutWorkflowInput[]
+    connectOrCreate?: AuditStepCreateOrConnectWithoutWorkflowInput | AuditStepCreateOrConnectWithoutWorkflowInput[]
+    upsert?: AuditStepUpsertWithWhereUniqueWithoutWorkflowInput | AuditStepUpsertWithWhereUniqueWithoutWorkflowInput[]
+    createMany?: AuditStepCreateManyWorkflowInputEnvelope
+    set?: AuditStepWhereUniqueInput | AuditStepWhereUniqueInput[]
+    disconnect?: AuditStepWhereUniqueInput | AuditStepWhereUniqueInput[]
+    delete?: AuditStepWhereUniqueInput | AuditStepWhereUniqueInput[]
+    connect?: AuditStepWhereUniqueInput | AuditStepWhereUniqueInput[]
+    update?: AuditStepUpdateWithWhereUniqueWithoutWorkflowInput | AuditStepUpdateWithWhereUniqueWithoutWorkflowInput[]
+    updateMany?: AuditStepUpdateManyWithWhereWithoutWorkflowInput | AuditStepUpdateManyWithWhereWithoutWorkflowInput[]
+    deleteMany?: AuditStepScalarWhereInput | AuditStepScalarWhereInput[]
+  }
+
+  export type UserCreateNestedOneWithoutAuditStepInput = {
+    create?: XOR<UserCreateWithoutAuditStepInput, UserUncheckedCreateWithoutAuditStepInput>
+    connectOrCreate?: UserCreateOrConnectWithoutAuditStepInput
+    connect?: UserWhereUniqueInput
+  }
+
+  export type AuditWorkflowCreateNestedOneWithoutStepsInput = {
+    create?: XOR<AuditWorkflowCreateWithoutStepsInput, AuditWorkflowUncheckedCreateWithoutStepsInput>
+    connectOrCreate?: AuditWorkflowCreateOrConnectWithoutStepsInput
+    connect?: AuditWorkflowWhereUniqueInput
+  }
+
+  export type StepLogCreateNestedManyWithoutStepInput = {
+    create?: XOR<StepLogCreateWithoutStepInput, StepLogUncheckedCreateWithoutStepInput> | StepLogCreateWithoutStepInput[] | StepLogUncheckedCreateWithoutStepInput[]
+    connectOrCreate?: StepLogCreateOrConnectWithoutStepInput | StepLogCreateOrConnectWithoutStepInput[]
+    createMany?: StepLogCreateManyStepInputEnvelope
+    connect?: StepLogWhereUniqueInput | StepLogWhereUniqueInput[]
+  }
+
+  export type StepLogUncheckedCreateNestedManyWithoutStepInput = {
+    create?: XOR<StepLogCreateWithoutStepInput, StepLogUncheckedCreateWithoutStepInput> | StepLogCreateWithoutStepInput[] | StepLogUncheckedCreateWithoutStepInput[]
+    connectOrCreate?: StepLogCreateOrConnectWithoutStepInput | StepLogCreateOrConnectWithoutStepInput[]
+    createMany?: StepLogCreateManyStepInputEnvelope
+    connect?: StepLogWhereUniqueInput | StepLogWhereUniqueInput[]
+  }
+
+  export type EnumStepStatusFieldUpdateOperationsInput = {
+    set?: $Enums.StepStatus
+  }
+
+  export type UserUpdateOneWithoutAuditStepNestedInput = {
+    create?: XOR<UserCreateWithoutAuditStepInput, UserUncheckedCreateWithoutAuditStepInput>
+    connectOrCreate?: UserCreateOrConnectWithoutAuditStepInput
+    upsert?: UserUpsertWithoutAuditStepInput
+    disconnect?: UserWhereInput | boolean
+    delete?: UserWhereInput | boolean
+    connect?: UserWhereUniqueInput
+    update?: XOR<XOR<UserUpdateToOneWithWhereWithoutAuditStepInput, UserUpdateWithoutAuditStepInput>, UserUncheckedUpdateWithoutAuditStepInput>
+  }
+
+  export type AuditWorkflowUpdateOneRequiredWithoutStepsNestedInput = {
+    create?: XOR<AuditWorkflowCreateWithoutStepsInput, AuditWorkflowUncheckedCreateWithoutStepsInput>
+    connectOrCreate?: AuditWorkflowCreateOrConnectWithoutStepsInput
+    upsert?: AuditWorkflowUpsertWithoutStepsInput
+    connect?: AuditWorkflowWhereUniqueInput
+    update?: XOR<XOR<AuditWorkflowUpdateToOneWithWhereWithoutStepsInput, AuditWorkflowUpdateWithoutStepsInput>, AuditWorkflowUncheckedUpdateWithoutStepsInput>
+  }
+
+  export type StepLogUpdateManyWithoutStepNestedInput = {
+    create?: XOR<StepLogCreateWithoutStepInput, StepLogUncheckedCreateWithoutStepInput> | StepLogCreateWithoutStepInput[] | StepLogUncheckedCreateWithoutStepInput[]
+    connectOrCreate?: StepLogCreateOrConnectWithoutStepInput | StepLogCreateOrConnectWithoutStepInput[]
+    upsert?: StepLogUpsertWithWhereUniqueWithoutStepInput | StepLogUpsertWithWhereUniqueWithoutStepInput[]
+    createMany?: StepLogCreateManyStepInputEnvelope
+    set?: StepLogWhereUniqueInput | StepLogWhereUniqueInput[]
+    disconnect?: StepLogWhereUniqueInput | StepLogWhereUniqueInput[]
+    delete?: StepLogWhereUniqueInput | StepLogWhereUniqueInput[]
+    connect?: StepLogWhereUniqueInput | StepLogWhereUniqueInput[]
+    update?: StepLogUpdateWithWhereUniqueWithoutStepInput | StepLogUpdateWithWhereUniqueWithoutStepInput[]
+    updateMany?: StepLogUpdateManyWithWhereWithoutStepInput | StepLogUpdateManyWithWhereWithoutStepInput[]
+    deleteMany?: StepLogScalarWhereInput | StepLogScalarWhereInput[]
+  }
+
+  export type StepLogUncheckedUpdateManyWithoutStepNestedInput = {
+    create?: XOR<StepLogCreateWithoutStepInput, StepLogUncheckedCreateWithoutStepInput> | StepLogCreateWithoutStepInput[] | StepLogUncheckedCreateWithoutStepInput[]
+    connectOrCreate?: StepLogCreateOrConnectWithoutStepInput | StepLogCreateOrConnectWithoutStepInput[]
+    upsert?: StepLogUpsertWithWhereUniqueWithoutStepInput | StepLogUpsertWithWhereUniqueWithoutStepInput[]
+    createMany?: StepLogCreateManyStepInputEnvelope
+    set?: StepLogWhereUniqueInput | StepLogWhereUniqueInput[]
+    disconnect?: StepLogWhereUniqueInput | StepLogWhereUniqueInput[]
+    delete?: StepLogWhereUniqueInput | StepLogWhereUniqueInput[]
+    connect?: StepLogWhereUniqueInput | StepLogWhereUniqueInput[]
+    update?: StepLogUpdateWithWhereUniqueWithoutStepInput | StepLogUpdateWithWhereUniqueWithoutStepInput[]
+    updateMany?: StepLogUpdateManyWithWhereWithoutStepInput | StepLogUpdateManyWithWhereWithoutStepInput[]
+    deleteMany?: StepLogScalarWhereInput | StepLogScalarWhereInput[]
+  }
+
+  export type AuditStepCreateNestedOneWithoutLogsInput = {
+    create?: XOR<AuditStepCreateWithoutLogsInput, AuditStepUncheckedCreateWithoutLogsInput>
+    connectOrCreate?: AuditStepCreateOrConnectWithoutLogsInput
+    connect?: AuditStepWhereUniqueInput
+  }
+
+  export type AuditStepUpdateOneRequiredWithoutLogsNestedInput = {
+    create?: XOR<AuditStepCreateWithoutLogsInput, AuditStepUncheckedCreateWithoutLogsInput>
+    connectOrCreate?: AuditStepCreateOrConnectWithoutLogsInput
+    upsert?: AuditStepUpsertWithoutLogsInput
+    connect?: AuditStepWhereUniqueInput
+    update?: XOR<XOR<AuditStepUpdateToOneWithWhereWithoutLogsInput, AuditStepUpdateWithoutLogsInput>, AuditStepUncheckedUpdateWithoutLogsInput>
+  }
+
   export type NestedIntFilter<$PrismaModel = never> = {
     equals?: number | IntFieldRefInput<$PrismaModel>
     in?: number[] | ListIntFieldRefInput<$PrismaModel>
@@ -79990,6 +84550,23 @@ export namespace Prisma {
     _max?: NestedBoolNullableFilter<$PrismaModel>
   }
 
+  export type NestedEnumStepStatusFilter<$PrismaModel = never> = {
+    equals?: $Enums.StepStatus | EnumStepStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.StepStatus[] | ListEnumStepStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.StepStatus[] | ListEnumStepStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumStepStatusFilter<$PrismaModel> | $Enums.StepStatus
+  }
+
+  export type NestedEnumStepStatusWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.StepStatus | EnumStepStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.StepStatus[] | ListEnumStepStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.StepStatus[] | ListEnumStepStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumStepStatusWithAggregatesFilter<$PrismaModel> | $Enums.StepStatus
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumStepStatusFilter<$PrismaModel>
+    _max?: NestedEnumStepStatusFilter<$PrismaModel>
+  }
+
   export type DeviceUserCreateWithoutDeviceInput = {
     role: string
     user: UserCreateNestedOneWithoutDevicesInput
@@ -80174,6 +84751,7 @@ export namespace Prisma {
     UserPermission?: UserPermissionCreateNestedManyWithoutUserInput
     receivedPermissions?: DriveFilePermissionCreateNestedManyWithoutUserInput
     addressedMatches?: CommandMatchCreateNestedManyWithoutUserInput
+    AuditStep?: AuditStepCreateNestedManyWithoutAssignedToInput
   }
 
   export type UserUncheckedCreateWithoutDevicesInput = {
@@ -80217,6 +84795,7 @@ export namespace Prisma {
     UserPermission?: UserPermissionUncheckedCreateNestedManyWithoutUserInput
     receivedPermissions?: DriveFilePermissionUncheckedCreateNestedManyWithoutUserInput
     addressedMatches?: CommandMatchUncheckedCreateNestedManyWithoutUserInput
+    AuditStep?: AuditStepUncheckedCreateNestedManyWithoutAssignedToInput
   }
 
   export type UserCreateOrConnectWithoutDevicesInput = {
@@ -80309,6 +84888,7 @@ export namespace Prisma {
     UserPermission?: UserPermissionUpdateManyWithoutUserNestedInput
     receivedPermissions?: DriveFilePermissionUpdateManyWithoutUserNestedInput
     addressedMatches?: CommandMatchUpdateManyWithoutUserNestedInput
+    AuditStep?: AuditStepUpdateManyWithoutAssignedToNestedInput
   }
 
   export type UserUncheckedUpdateWithoutDevicesInput = {
@@ -80352,6 +84932,7 @@ export namespace Prisma {
     UserPermission?: UserPermissionUncheckedUpdateManyWithoutUserNestedInput
     receivedPermissions?: DriveFilePermissionUncheckedUpdateManyWithoutUserNestedInput
     addressedMatches?: CommandMatchUncheckedUpdateManyWithoutUserNestedInput
+    AuditStep?: AuditStepUncheckedUpdateManyWithoutAssignedToNestedInput
   }
 
   export type EmailTemplateCreateWithoutCommandInput = {
@@ -80950,6 +85531,7 @@ export namespace Prisma {
     UserPermission?: UserPermissionCreateNestedManyWithoutUserInput
     receivedPermissions?: DriveFilePermissionCreateNestedManyWithoutUserInput
     addressedMatches?: CommandMatchCreateNestedManyWithoutUserInput
+    AuditStep?: AuditStepCreateNestedManyWithoutAssignedToInput
   }
 
   export type UserUncheckedCreateWithoutCommandMatchInput = {
@@ -80993,6 +85575,7 @@ export namespace Prisma {
     UserPermission?: UserPermissionUncheckedCreateNestedManyWithoutUserInput
     receivedPermissions?: DriveFilePermissionUncheckedCreateNestedManyWithoutUserInput
     addressedMatches?: CommandMatchUncheckedCreateNestedManyWithoutUserInput
+    AuditStep?: AuditStepUncheckedCreateNestedManyWithoutAssignedToInput
   }
 
   export type UserCreateOrConnectWithoutCommandMatchInput = {
@@ -81084,6 +85667,7 @@ export namespace Prisma {
     emailTemplates?: UserEmailTemplateCreateNestedManyWithoutUserInput
     UserPermission?: UserPermissionCreateNestedManyWithoutUserInput
     receivedPermissions?: DriveFilePermissionCreateNestedManyWithoutUserInput
+    AuditStep?: AuditStepCreateNestedManyWithoutAssignedToInput
   }
 
   export type UserUncheckedCreateWithoutAddressedMatchesInput = {
@@ -81127,6 +85711,7 @@ export namespace Prisma {
     emailTemplates?: UserEmailTemplateUncheckedCreateNestedManyWithoutUserInput
     UserPermission?: UserPermissionUncheckedCreateNestedManyWithoutUserInput
     receivedPermissions?: DriveFilePermissionUncheckedCreateNestedManyWithoutUserInput
+    AuditStep?: AuditStepUncheckedCreateNestedManyWithoutAssignedToInput
   }
 
   export type UserCreateOrConnectWithoutAddressedMatchesInput = {
@@ -81185,6 +85770,7 @@ export namespace Prisma {
     UserPermission?: UserPermissionUpdateManyWithoutUserNestedInput
     receivedPermissions?: DriveFilePermissionUpdateManyWithoutUserNestedInput
     addressedMatches?: CommandMatchUpdateManyWithoutUserNestedInput
+    AuditStep?: AuditStepUpdateManyWithoutAssignedToNestedInput
   }
 
   export type UserUncheckedUpdateWithoutCommandMatchInput = {
@@ -81228,6 +85814,7 @@ export namespace Prisma {
     UserPermission?: UserPermissionUncheckedUpdateManyWithoutUserNestedInput
     receivedPermissions?: DriveFilePermissionUncheckedUpdateManyWithoutUserNestedInput
     addressedMatches?: CommandMatchUncheckedUpdateManyWithoutUserNestedInput
+    AuditStep?: AuditStepUncheckedUpdateManyWithoutAssignedToNestedInput
   }
 
   export type CommandUpsertWithoutMatchesInput = {
@@ -81366,6 +85953,7 @@ export namespace Prisma {
     UserPermission?: UserPermissionCreateNestedManyWithoutUserInput
     receivedPermissions?: DriveFilePermissionCreateNestedManyWithoutUserInput
     addressedMatches?: CommandMatchCreateNestedManyWithoutUserInput
+    AuditStep?: AuditStepCreateNestedManyWithoutAssignedToInput
   }
 
   export type UserUncheckedCreateWithoutActivityLogInput = {
@@ -81409,6 +85997,7 @@ export namespace Prisma {
     UserPermission?: UserPermissionUncheckedCreateNestedManyWithoutUserInput
     receivedPermissions?: DriveFilePermissionUncheckedCreateNestedManyWithoutUserInput
     addressedMatches?: CommandMatchUncheckedCreateNestedManyWithoutUserInput
+    AuditStep?: AuditStepUncheckedCreateNestedManyWithoutAssignedToInput
   }
 
   export type UserCreateOrConnectWithoutActivityLogInput = {
@@ -81467,6 +86056,7 @@ export namespace Prisma {
     UserPermission?: UserPermissionUpdateManyWithoutUserNestedInput
     receivedPermissions?: DriveFilePermissionUpdateManyWithoutUserNestedInput
     addressedMatches?: CommandMatchUpdateManyWithoutUserNestedInput
+    AuditStep?: AuditStepUpdateManyWithoutAssignedToNestedInput
   }
 
   export type UserUncheckedUpdateWithoutActivityLogInput = {
@@ -81510,6 +86100,7 @@ export namespace Prisma {
     UserPermission?: UserPermissionUncheckedUpdateManyWithoutUserNestedInput
     receivedPermissions?: DriveFilePermissionUncheckedUpdateManyWithoutUserNestedInput
     addressedMatches?: CommandMatchUncheckedUpdateManyWithoutUserNestedInput
+    AuditStep?: AuditStepUncheckedUpdateManyWithoutAssignedToNestedInput
   }
 
   export type AlertConditionCreateWithoutEmailTemplateInput = {
@@ -82439,6 +87030,37 @@ export namespace Prisma {
     create: XOR<CommandMatchCreateWithoutUserInput, CommandMatchUncheckedCreateWithoutUserInput>
   }
 
+  export type AuditStepCreateWithoutAssignedToInput = {
+    title: string
+    description?: string | null
+    position: number
+    status?: $Enums.StepStatus
+    dueDate?: Date | string | null
+    workflow: AuditWorkflowCreateNestedOneWithoutStepsInput
+    logs?: StepLogCreateNestedManyWithoutStepInput
+  }
+
+  export type AuditStepUncheckedCreateWithoutAssignedToInput = {
+    id?: number
+    title: string
+    description?: string | null
+    position: number
+    status?: $Enums.StepStatus
+    dueDate?: Date | string | null
+    workflowId: number
+    logs?: StepLogUncheckedCreateNestedManyWithoutStepInput
+  }
+
+  export type AuditStepCreateOrConnectWithoutAssignedToInput = {
+    where: AuditStepWhereUniqueInput
+    create: XOR<AuditStepCreateWithoutAssignedToInput, AuditStepUncheckedCreateWithoutAssignedToInput>
+  }
+
+  export type AuditStepCreateManyAssignedToInputEnvelope = {
+    data: AuditStepCreateManyAssignedToInput | AuditStepCreateManyAssignedToInput[]
+    skipDuplicates?: boolean
+  }
+
   export type ActivityLogUpsertWithWhereUniqueWithoutUserInput = {
     where: ActivityLogWhereUniqueInput
     update: XOR<ActivityLogUpdateWithoutUserInput, ActivityLogUncheckedUpdateWithoutUserInput>
@@ -82980,6 +87602,36 @@ export namespace Prisma {
     data: XOR<CommandMatchUpdateManyMutationInput, CommandMatchUncheckedUpdateManyWithoutUserInput>
   }
 
+  export type AuditStepUpsertWithWhereUniqueWithoutAssignedToInput = {
+    where: AuditStepWhereUniqueInput
+    update: XOR<AuditStepUpdateWithoutAssignedToInput, AuditStepUncheckedUpdateWithoutAssignedToInput>
+    create: XOR<AuditStepCreateWithoutAssignedToInput, AuditStepUncheckedCreateWithoutAssignedToInput>
+  }
+
+  export type AuditStepUpdateWithWhereUniqueWithoutAssignedToInput = {
+    where: AuditStepWhereUniqueInput
+    data: XOR<AuditStepUpdateWithoutAssignedToInput, AuditStepUncheckedUpdateWithoutAssignedToInput>
+  }
+
+  export type AuditStepUpdateManyWithWhereWithoutAssignedToInput = {
+    where: AuditStepScalarWhereInput
+    data: XOR<AuditStepUpdateManyMutationInput, AuditStepUncheckedUpdateManyWithoutAssignedToInput>
+  }
+
+  export type AuditStepScalarWhereInput = {
+    AND?: AuditStepScalarWhereInput | AuditStepScalarWhereInput[]
+    OR?: AuditStepScalarWhereInput[]
+    NOT?: AuditStepScalarWhereInput | AuditStepScalarWhereInput[]
+    id?: IntFilter<"AuditStep"> | number
+    title?: StringFilter<"AuditStep"> | string
+    description?: StringNullableFilter<"AuditStep"> | string | null
+    position?: IntFilter<"AuditStep"> | number
+    status?: EnumStepStatusFilter<"AuditStep"> | $Enums.StepStatus
+    assignedToId?: IntNullableFilter<"AuditStep"> | number | null
+    dueDate?: DateTimeNullableFilter<"AuditStep"> | Date | string | null
+    workflowId?: IntFilter<"AuditStep"> | number
+  }
+
   export type GroupMemberCreateWithoutGroupInput = {
     joinedAt?: Date | string
     user: UserCreateNestedOneWithoutGroupMemberInput
@@ -83126,6 +87778,7 @@ export namespace Prisma {
     UserPermission?: UserPermissionCreateNestedManyWithoutUserInput
     receivedPermissions?: DriveFilePermissionCreateNestedManyWithoutUserInput
     addressedMatches?: CommandMatchCreateNestedManyWithoutUserInput
+    AuditStep?: AuditStepCreateNestedManyWithoutAssignedToInput
   }
 
   export type UserUncheckedCreateWithoutGroupMemberInput = {
@@ -83169,6 +87822,7 @@ export namespace Prisma {
     UserPermission?: UserPermissionUncheckedCreateNestedManyWithoutUserInput
     receivedPermissions?: DriveFilePermissionUncheckedCreateNestedManyWithoutUserInput
     addressedMatches?: CommandMatchUncheckedCreateNestedManyWithoutUserInput
+    AuditStep?: AuditStepUncheckedCreateNestedManyWithoutAssignedToInput
   }
 
   export type UserCreateOrConnectWithoutGroupMemberInput = {
@@ -83255,6 +87909,7 @@ export namespace Prisma {
     UserPermission?: UserPermissionUpdateManyWithoutUserNestedInput
     receivedPermissions?: DriveFilePermissionUpdateManyWithoutUserNestedInput
     addressedMatches?: CommandMatchUpdateManyWithoutUserNestedInput
+    AuditStep?: AuditStepUpdateManyWithoutAssignedToNestedInput
   }
 
   export type UserUncheckedUpdateWithoutGroupMemberInput = {
@@ -83298,6 +87953,7 @@ export namespace Prisma {
     UserPermission?: UserPermissionUncheckedUpdateManyWithoutUserNestedInput
     receivedPermissions?: DriveFilePermissionUncheckedUpdateManyWithoutUserNestedInput
     addressedMatches?: CommandMatchUncheckedUpdateManyWithoutUserNestedInput
+    AuditStep?: AuditStepUncheckedUpdateManyWithoutAssignedToNestedInput
   }
 
   export type GroupCreateWithoutMessagesInput = {
@@ -83362,6 +88018,7 @@ export namespace Prisma {
     UserPermission?: UserPermissionCreateNestedManyWithoutUserInput
     receivedPermissions?: DriveFilePermissionCreateNestedManyWithoutUserInput
     addressedMatches?: CommandMatchCreateNestedManyWithoutUserInput
+    AuditStep?: AuditStepCreateNestedManyWithoutAssignedToInput
   }
 
   export type UserUncheckedCreateWithoutMessageInput = {
@@ -83405,6 +88062,7 @@ export namespace Prisma {
     UserPermission?: UserPermissionUncheckedCreateNestedManyWithoutUserInput
     receivedPermissions?: DriveFilePermissionUncheckedCreateNestedManyWithoutUserInput
     addressedMatches?: CommandMatchUncheckedCreateNestedManyWithoutUserInput
+    AuditStep?: AuditStepUncheckedCreateNestedManyWithoutAssignedToInput
   }
 
   export type UserCreateOrConnectWithoutMessageInput = {
@@ -83491,6 +88149,7 @@ export namespace Prisma {
     UserPermission?: UserPermissionUpdateManyWithoutUserNestedInput
     receivedPermissions?: DriveFilePermissionUpdateManyWithoutUserNestedInput
     addressedMatches?: CommandMatchUpdateManyWithoutUserNestedInput
+    AuditStep?: AuditStepUpdateManyWithoutAssignedToNestedInput
   }
 
   export type UserUncheckedUpdateWithoutMessageInput = {
@@ -83534,6 +88193,7 @@ export namespace Prisma {
     UserPermission?: UserPermissionUncheckedUpdateManyWithoutUserNestedInput
     receivedPermissions?: DriveFilePermissionUncheckedUpdateManyWithoutUserNestedInput
     addressedMatches?: CommandMatchUncheckedUpdateManyWithoutUserNestedInput
+    AuditStep?: AuditStepUncheckedUpdateManyWithoutAssignedToNestedInput
   }
 
   export type EmailTemplateCreateWithoutAssignedUsersInput = {
@@ -83608,6 +88268,7 @@ export namespace Prisma {
     UserPermission?: UserPermissionCreateNestedManyWithoutUserInput
     receivedPermissions?: DriveFilePermissionCreateNestedManyWithoutUserInput
     addressedMatches?: CommandMatchCreateNestedManyWithoutUserInput
+    AuditStep?: AuditStepCreateNestedManyWithoutAssignedToInput
   }
 
   export type UserUncheckedCreateWithoutEmailTemplatesInput = {
@@ -83651,6 +88312,7 @@ export namespace Prisma {
     UserPermission?: UserPermissionUncheckedCreateNestedManyWithoutUserInput
     receivedPermissions?: DriveFilePermissionUncheckedCreateNestedManyWithoutUserInput
     addressedMatches?: CommandMatchUncheckedCreateNestedManyWithoutUserInput
+    AuditStep?: AuditStepUncheckedCreateNestedManyWithoutAssignedToInput
   }
 
   export type UserCreateOrConnectWithoutEmailTemplatesInput = {
@@ -83747,6 +88409,7 @@ export namespace Prisma {
     UserPermission?: UserPermissionUpdateManyWithoutUserNestedInput
     receivedPermissions?: DriveFilePermissionUpdateManyWithoutUserNestedInput
     addressedMatches?: CommandMatchUpdateManyWithoutUserNestedInput
+    AuditStep?: AuditStepUpdateManyWithoutAssignedToNestedInput
   }
 
   export type UserUncheckedUpdateWithoutEmailTemplatesInput = {
@@ -83790,6 +88453,7 @@ export namespace Prisma {
     UserPermission?: UserPermissionUncheckedUpdateManyWithoutUserNestedInput
     receivedPermissions?: DriveFilePermissionUncheckedUpdateManyWithoutUserNestedInput
     addressedMatches?: CommandMatchUncheckedUpdateManyWithoutUserNestedInput
+    AuditStep?: AuditStepUncheckedUpdateManyWithoutAssignedToNestedInput
   }
 
   export type NotificationReadCreateWithoutNotificationInput = {
@@ -83897,6 +88561,7 @@ export namespace Prisma {
     UserPermission?: UserPermissionCreateNestedManyWithoutUserInput
     receivedPermissions?: DriveFilePermissionCreateNestedManyWithoutUserInput
     addressedMatches?: CommandMatchCreateNestedManyWithoutUserInput
+    AuditStep?: AuditStepCreateNestedManyWithoutAssignedToInput
   }
 
   export type UserUncheckedCreateWithoutNotificationReadInput = {
@@ -83940,6 +88605,7 @@ export namespace Prisma {
     UserPermission?: UserPermissionUncheckedCreateNestedManyWithoutUserInput
     receivedPermissions?: DriveFilePermissionUncheckedCreateNestedManyWithoutUserInput
     addressedMatches?: CommandMatchUncheckedCreateNestedManyWithoutUserInput
+    AuditStep?: AuditStepUncheckedCreateNestedManyWithoutAssignedToInput
   }
 
   export type UserCreateOrConnectWithoutNotificationReadInput = {
@@ -84032,6 +88698,7 @@ export namespace Prisma {
     UserPermission?: UserPermissionUpdateManyWithoutUserNestedInput
     receivedPermissions?: DriveFilePermissionUpdateManyWithoutUserNestedInput
     addressedMatches?: CommandMatchUpdateManyWithoutUserNestedInput
+    AuditStep?: AuditStepUpdateManyWithoutAssignedToNestedInput
   }
 
   export type UserUncheckedUpdateWithoutNotificationReadInput = {
@@ -84075,6 +88742,7 @@ export namespace Prisma {
     UserPermission?: UserPermissionUncheckedUpdateManyWithoutUserNestedInput
     receivedPermissions?: DriveFilePermissionUncheckedUpdateManyWithoutUserNestedInput
     addressedMatches?: CommandMatchUncheckedUpdateManyWithoutUserNestedInput
+    AuditStep?: AuditStepUncheckedUpdateManyWithoutAssignedToNestedInput
   }
 
   export type EmailTemplateCreateWithoutSavedQueryInput = {
@@ -84250,6 +88918,7 @@ export namespace Prisma {
     UserPermission?: UserPermissionCreateNestedManyWithoutUserInput
     receivedPermissions?: DriveFilePermissionCreateNestedManyWithoutUserInput
     addressedMatches?: CommandMatchCreateNestedManyWithoutUserInput
+    AuditStep?: AuditStepCreateNestedManyWithoutAssignedToInput
   }
 
   export type UserUncheckedCreateWithoutTicketCommentsInput = {
@@ -84293,6 +88962,7 @@ export namespace Prisma {
     UserPermission?: UserPermissionUncheckedCreateNestedManyWithoutUserInput
     receivedPermissions?: DriveFilePermissionUncheckedCreateNestedManyWithoutUserInput
     addressedMatches?: CommandMatchUncheckedCreateNestedManyWithoutUserInput
+    AuditStep?: AuditStepUncheckedCreateNestedManyWithoutAssignedToInput
   }
 
   export type UserCreateOrConnectWithoutTicketCommentsInput = {
@@ -84405,6 +89075,7 @@ export namespace Prisma {
     UserPermission?: UserPermissionUpdateManyWithoutUserNestedInput
     receivedPermissions?: DriveFilePermissionUpdateManyWithoutUserNestedInput
     addressedMatches?: CommandMatchUpdateManyWithoutUserNestedInput
+    AuditStep?: AuditStepUpdateManyWithoutAssignedToNestedInput
   }
 
   export type UserUncheckedUpdateWithoutTicketCommentsInput = {
@@ -84448,6 +89119,7 @@ export namespace Prisma {
     UserPermission?: UserPermissionUncheckedUpdateManyWithoutUserNestedInput
     receivedPermissions?: DriveFilePermissionUncheckedUpdateManyWithoutUserNestedInput
     addressedMatches?: CommandMatchUncheckedUpdateManyWithoutUserNestedInput
+    AuditStep?: AuditStepUncheckedUpdateManyWithoutAssignedToNestedInput
   }
 
   export type UserCreateWithoutAssignedTicketsInput = {
@@ -84490,6 +89162,7 @@ export namespace Prisma {
     UserPermission?: UserPermissionCreateNestedManyWithoutUserInput
     receivedPermissions?: DriveFilePermissionCreateNestedManyWithoutUserInput
     addressedMatches?: CommandMatchCreateNestedManyWithoutUserInput
+    AuditStep?: AuditStepCreateNestedManyWithoutAssignedToInput
   }
 
   export type UserUncheckedCreateWithoutAssignedTicketsInput = {
@@ -84533,6 +89206,7 @@ export namespace Prisma {
     UserPermission?: UserPermissionUncheckedCreateNestedManyWithoutUserInput
     receivedPermissions?: DriveFilePermissionUncheckedCreateNestedManyWithoutUserInput
     addressedMatches?: CommandMatchUncheckedCreateNestedManyWithoutUserInput
+    AuditStep?: AuditStepUncheckedCreateNestedManyWithoutAssignedToInput
   }
 
   export type UserCreateOrConnectWithoutAssignedTicketsInput = {
@@ -84580,6 +89254,7 @@ export namespace Prisma {
     UserPermission?: UserPermissionCreateNestedManyWithoutUserInput
     receivedPermissions?: DriveFilePermissionCreateNestedManyWithoutUserInput
     addressedMatches?: CommandMatchCreateNestedManyWithoutUserInput
+    AuditStep?: AuditStepCreateNestedManyWithoutAssignedToInput
   }
 
   export type UserUncheckedCreateWithoutCreatedTicketsInput = {
@@ -84623,6 +89298,7 @@ export namespace Prisma {
     UserPermission?: UserPermissionUncheckedCreateNestedManyWithoutUserInput
     receivedPermissions?: DriveFilePermissionUncheckedCreateNestedManyWithoutUserInput
     addressedMatches?: CommandMatchUncheckedCreateNestedManyWithoutUserInput
+    AuditStep?: AuditStepUncheckedCreateNestedManyWithoutAssignedToInput
   }
 
   export type UserCreateOrConnectWithoutCreatedTicketsInput = {
@@ -84765,6 +89441,7 @@ export namespace Prisma {
     UserPermission?: UserPermissionUpdateManyWithoutUserNestedInput
     receivedPermissions?: DriveFilePermissionUpdateManyWithoutUserNestedInput
     addressedMatches?: CommandMatchUpdateManyWithoutUserNestedInput
+    AuditStep?: AuditStepUpdateManyWithoutAssignedToNestedInput
   }
 
   export type UserUncheckedUpdateWithoutAssignedTicketsInput = {
@@ -84808,6 +89485,7 @@ export namespace Prisma {
     UserPermission?: UserPermissionUncheckedUpdateManyWithoutUserNestedInput
     receivedPermissions?: DriveFilePermissionUncheckedUpdateManyWithoutUserNestedInput
     addressedMatches?: CommandMatchUncheckedUpdateManyWithoutUserNestedInput
+    AuditStep?: AuditStepUncheckedUpdateManyWithoutAssignedToNestedInput
   }
 
   export type UserUpsertWithoutCreatedTicketsInput = {
@@ -84861,6 +89539,7 @@ export namespace Prisma {
     UserPermission?: UserPermissionUpdateManyWithoutUserNestedInput
     receivedPermissions?: DriveFilePermissionUpdateManyWithoutUserNestedInput
     addressedMatches?: CommandMatchUpdateManyWithoutUserNestedInput
+    AuditStep?: AuditStepUpdateManyWithoutAssignedToNestedInput
   }
 
   export type UserUncheckedUpdateWithoutCreatedTicketsInput = {
@@ -84904,6 +89583,7 @@ export namespace Prisma {
     UserPermission?: UserPermissionUncheckedUpdateManyWithoutUserNestedInput
     receivedPermissions?: DriveFilePermissionUncheckedUpdateManyWithoutUserNestedInput
     addressedMatches?: CommandMatchUncheckedUpdateManyWithoutUserNestedInput
+    AuditStep?: AuditStepUncheckedUpdateManyWithoutAssignedToNestedInput
   }
 
   export type devicesUpsertWithoutSupportTicketInput = {
@@ -85064,6 +89744,7 @@ export namespace Prisma {
     UserPermission?: UserPermissionCreateNestedManyWithoutUserInput
     receivedPermissions?: DriveFilePermissionCreateNestedManyWithoutUserInput
     addressedMatches?: CommandMatchCreateNestedManyWithoutUserInput
+    AuditStep?: AuditStepCreateNestedManyWithoutAssignedToInput
   }
 
   export type UserUncheckedCreateWithoutTicketAttachmentInput = {
@@ -85107,6 +89788,7 @@ export namespace Prisma {
     UserPermission?: UserPermissionUncheckedCreateNestedManyWithoutUserInput
     receivedPermissions?: DriveFilePermissionUncheckedCreateNestedManyWithoutUserInput
     addressedMatches?: CommandMatchUncheckedCreateNestedManyWithoutUserInput
+    AuditStep?: AuditStepUncheckedCreateNestedManyWithoutAssignedToInput
   }
 
   export type UserCreateOrConnectWithoutTicketAttachmentInput = {
@@ -85229,6 +89911,7 @@ export namespace Prisma {
     UserPermission?: UserPermissionUpdateManyWithoutUserNestedInput
     receivedPermissions?: DriveFilePermissionUpdateManyWithoutUserNestedInput
     addressedMatches?: CommandMatchUpdateManyWithoutUserNestedInput
+    AuditStep?: AuditStepUpdateManyWithoutAssignedToNestedInput
   }
 
   export type UserUncheckedUpdateWithoutTicketAttachmentInput = {
@@ -85272,6 +89955,7 @@ export namespace Prisma {
     UserPermission?: UserPermissionUncheckedUpdateManyWithoutUserNestedInput
     receivedPermissions?: DriveFilePermissionUncheckedUpdateManyWithoutUserNestedInput
     addressedMatches?: CommandMatchUncheckedUpdateManyWithoutUserNestedInput
+    AuditStep?: AuditStepUncheckedUpdateManyWithoutAssignedToNestedInput
   }
 
   export type EmailTemplateCreateWithoutAlertConditionInput = {
@@ -85511,6 +90195,7 @@ export namespace Prisma {
     UserPermission?: UserPermissionCreateNestedManyWithoutUserInput
     receivedPermissions?: DriveFilePermissionCreateNestedManyWithoutUserInput
     addressedMatches?: CommandMatchCreateNestedManyWithoutUserInput
+    AuditStep?: AuditStepCreateNestedManyWithoutAssignedToInput
   }
 
   export type UserUncheckedCreateWithoutFeedbackInput = {
@@ -85554,6 +90239,7 @@ export namespace Prisma {
     UserPermission?: UserPermissionUncheckedCreateNestedManyWithoutUserInput
     receivedPermissions?: DriveFilePermissionUncheckedCreateNestedManyWithoutUserInput
     addressedMatches?: CommandMatchUncheckedCreateNestedManyWithoutUserInput
+    AuditStep?: AuditStepUncheckedCreateNestedManyWithoutAssignedToInput
   }
 
   export type UserCreateOrConnectWithoutFeedbackInput = {
@@ -85631,6 +90317,7 @@ export namespace Prisma {
     UserPermission?: UserPermissionUpdateManyWithoutUserNestedInput
     receivedPermissions?: DriveFilePermissionUpdateManyWithoutUserNestedInput
     addressedMatches?: CommandMatchUpdateManyWithoutUserNestedInput
+    AuditStep?: AuditStepUpdateManyWithoutAssignedToNestedInput
   }
 
   export type UserUncheckedUpdateWithoutFeedbackInput = {
@@ -85674,6 +90361,7 @@ export namespace Prisma {
     UserPermission?: UserPermissionUncheckedUpdateManyWithoutUserNestedInput
     receivedPermissions?: DriveFilePermissionUncheckedUpdateManyWithoutUserNestedInput
     addressedMatches?: CommandMatchUncheckedUpdateManyWithoutUserNestedInput
+    AuditStep?: AuditStepUncheckedUpdateManyWithoutAssignedToNestedInput
   }
 
   export type FeedbackRecipientUpsertWithWhereUniqueWithoutFeedbackInput = {
@@ -85756,6 +90444,7 @@ export namespace Prisma {
     UserPermission?: UserPermissionCreateNestedManyWithoutUserInput
     receivedPermissions?: DriveFilePermissionCreateNestedManyWithoutUserInput
     addressedMatches?: CommandMatchCreateNestedManyWithoutUserInput
+    AuditStep?: AuditStepCreateNestedManyWithoutAssignedToInput
   }
 
   export type UserUncheckedCreateWithoutFeedbackRecipientInput = {
@@ -85799,6 +90488,7 @@ export namespace Prisma {
     UserPermission?: UserPermissionUncheckedCreateNestedManyWithoutUserInput
     receivedPermissions?: DriveFilePermissionUncheckedCreateNestedManyWithoutUserInput
     addressedMatches?: CommandMatchUncheckedCreateNestedManyWithoutUserInput
+    AuditStep?: AuditStepUncheckedCreateNestedManyWithoutAssignedToInput
   }
 
   export type UserCreateOrConnectWithoutFeedbackRecipientInput = {
@@ -85887,6 +90577,7 @@ export namespace Prisma {
     UserPermission?: UserPermissionUpdateManyWithoutUserNestedInput
     receivedPermissions?: DriveFilePermissionUpdateManyWithoutUserNestedInput
     addressedMatches?: CommandMatchUpdateManyWithoutUserNestedInput
+    AuditStep?: AuditStepUpdateManyWithoutAssignedToNestedInput
   }
 
   export type UserUncheckedUpdateWithoutFeedbackRecipientInput = {
@@ -85930,6 +90621,7 @@ export namespace Prisma {
     UserPermission?: UserPermissionUncheckedUpdateManyWithoutUserNestedInput
     receivedPermissions?: DriveFilePermissionUncheckedUpdateManyWithoutUserNestedInput
     addressedMatches?: CommandMatchUncheckedUpdateManyWithoutUserNestedInput
+    AuditStep?: AuditStepUncheckedUpdateManyWithoutAssignedToNestedInput
   }
 
   export type RolePermissionCreateWithoutPagePermissionInput = {
@@ -86117,6 +90809,7 @@ export namespace Prisma {
     emailTemplates?: UserEmailTemplateCreateNestedManyWithoutUserInput
     receivedPermissions?: DriveFilePermissionCreateNestedManyWithoutUserInput
     addressedMatches?: CommandMatchCreateNestedManyWithoutUserInput
+    AuditStep?: AuditStepCreateNestedManyWithoutAssignedToInput
   }
 
   export type UserUncheckedCreateWithoutUserPermissionInput = {
@@ -86160,6 +90853,7 @@ export namespace Prisma {
     emailTemplates?: UserEmailTemplateUncheckedCreateNestedManyWithoutUserInput
     receivedPermissions?: DriveFilePermissionUncheckedCreateNestedManyWithoutUserInput
     addressedMatches?: CommandMatchUncheckedCreateNestedManyWithoutUserInput
+    AuditStep?: AuditStepUncheckedCreateNestedManyWithoutAssignedToInput
   }
 
   export type UserCreateOrConnectWithoutUserPermissionInput = {
@@ -86244,6 +90938,7 @@ export namespace Prisma {
     emailTemplates?: UserEmailTemplateUpdateManyWithoutUserNestedInput
     receivedPermissions?: DriveFilePermissionUpdateManyWithoutUserNestedInput
     addressedMatches?: CommandMatchUpdateManyWithoutUserNestedInput
+    AuditStep?: AuditStepUpdateManyWithoutAssignedToNestedInput
   }
 
   export type UserUncheckedUpdateWithoutUserPermissionInput = {
@@ -86287,6 +90982,7 @@ export namespace Prisma {
     emailTemplates?: UserEmailTemplateUncheckedUpdateManyWithoutUserNestedInput
     receivedPermissions?: DriveFilePermissionUncheckedUpdateManyWithoutUserNestedInput
     addressedMatches?: CommandMatchUncheckedUpdateManyWithoutUserNestedInput
+    AuditStep?: AuditStepUncheckedUpdateManyWithoutAssignedToNestedInput
   }
 
   export type ProjectCreateWithoutProjectTypeInput = {
@@ -86598,6 +91294,7 @@ export namespace Prisma {
     UserPermission?: UserPermissionCreateNestedManyWithoutUserInput
     receivedPermissions?: DriveFilePermissionCreateNestedManyWithoutUserInput
     addressedMatches?: CommandMatchCreateNestedManyWithoutUserInput
+    AuditStep?: AuditStepCreateNestedManyWithoutAssignedToInput
   }
 
   export type UserUncheckedCreateWithoutProjectAssignmentInput = {
@@ -86641,6 +91338,7 @@ export namespace Prisma {
     UserPermission?: UserPermissionUncheckedCreateNestedManyWithoutUserInput
     receivedPermissions?: DriveFilePermissionUncheckedCreateNestedManyWithoutUserInput
     addressedMatches?: CommandMatchUncheckedCreateNestedManyWithoutUserInput
+    AuditStep?: AuditStepUncheckedCreateNestedManyWithoutAssignedToInput
   }
 
   export type UserCreateOrConnectWithoutProjectAssignmentInput = {
@@ -86729,6 +91427,7 @@ export namespace Prisma {
     UserPermission?: UserPermissionUpdateManyWithoutUserNestedInput
     receivedPermissions?: DriveFilePermissionUpdateManyWithoutUserNestedInput
     addressedMatches?: CommandMatchUpdateManyWithoutUserNestedInput
+    AuditStep?: AuditStepUpdateManyWithoutAssignedToNestedInput
   }
 
   export type UserUncheckedUpdateWithoutProjectAssignmentInput = {
@@ -86772,6 +91471,7 @@ export namespace Prisma {
     UserPermission?: UserPermissionUncheckedUpdateManyWithoutUserNestedInput
     receivedPermissions?: DriveFilePermissionUncheckedUpdateManyWithoutUserNestedInput
     addressedMatches?: CommandMatchUncheckedUpdateManyWithoutUserNestedInput
+    AuditStep?: AuditStepUncheckedUpdateManyWithoutAssignedToNestedInput
   }
 
   export type TeamLocationCreateWithoutLocationInput = {
@@ -86893,6 +91593,7 @@ export namespace Prisma {
     UserPermission?: UserPermissionCreateNestedManyWithoutUserInput
     receivedPermissions?: DriveFilePermissionCreateNestedManyWithoutUserInput
     addressedMatches?: CommandMatchCreateNestedManyWithoutUserInput
+    AuditStep?: AuditStepCreateNestedManyWithoutAssignedToInput
   }
 
   export type UserUncheckedCreateWithoutDriveFolderInput = {
@@ -86936,6 +91637,7 @@ export namespace Prisma {
     UserPermission?: UserPermissionUncheckedCreateNestedManyWithoutUserInput
     receivedPermissions?: DriveFilePermissionUncheckedCreateNestedManyWithoutUserInput
     addressedMatches?: CommandMatchUncheckedCreateNestedManyWithoutUserInput
+    AuditStep?: AuditStepUncheckedCreateNestedManyWithoutAssignedToInput
   }
 
   export type UserCreateOrConnectWithoutDriveFolderInput = {
@@ -87063,6 +91765,7 @@ export namespace Prisma {
     UserPermission?: UserPermissionUpdateManyWithoutUserNestedInput
     receivedPermissions?: DriveFilePermissionUpdateManyWithoutUserNestedInput
     addressedMatches?: CommandMatchUpdateManyWithoutUserNestedInput
+    AuditStep?: AuditStepUpdateManyWithoutAssignedToNestedInput
   }
 
   export type UserUncheckedUpdateWithoutDriveFolderInput = {
@@ -87106,6 +91809,7 @@ export namespace Prisma {
     UserPermission?: UserPermissionUncheckedUpdateManyWithoutUserNestedInput
     receivedPermissions?: DriveFilePermissionUncheckedUpdateManyWithoutUserNestedInput
     addressedMatches?: CommandMatchUncheckedUpdateManyWithoutUserNestedInput
+    AuditStep?: AuditStepUncheckedUpdateManyWithoutAssignedToNestedInput
   }
 
   export type DriveFolderUpsertWithoutChildrenInput = {
@@ -87218,6 +91922,7 @@ export namespace Prisma {
     UserPermission?: UserPermissionCreateNestedManyWithoutUserInput
     receivedPermissions?: DriveFilePermissionCreateNestedManyWithoutUserInput
     addressedMatches?: CommandMatchCreateNestedManyWithoutUserInput
+    AuditStep?: AuditStepCreateNestedManyWithoutAssignedToInput
   }
 
   export type UserUncheckedCreateWithoutDriveFileInput = {
@@ -87261,6 +91966,7 @@ export namespace Prisma {
     UserPermission?: UserPermissionUncheckedCreateNestedManyWithoutUserInput
     receivedPermissions?: DriveFilePermissionUncheckedCreateNestedManyWithoutUserInput
     addressedMatches?: CommandMatchUncheckedCreateNestedManyWithoutUserInput
+    AuditStep?: AuditStepUncheckedCreateNestedManyWithoutAssignedToInput
   }
 
   export type UserCreateOrConnectWithoutDriveFileInput = {
@@ -87376,6 +92082,7 @@ export namespace Prisma {
     UserPermission?: UserPermissionUpdateManyWithoutUserNestedInput
     receivedPermissions?: DriveFilePermissionUpdateManyWithoutUserNestedInput
     addressedMatches?: CommandMatchUpdateManyWithoutUserNestedInput
+    AuditStep?: AuditStepUpdateManyWithoutAssignedToNestedInput
   }
 
   export type UserUncheckedUpdateWithoutDriveFileInput = {
@@ -87419,6 +92126,7 @@ export namespace Prisma {
     UserPermission?: UserPermissionUncheckedUpdateManyWithoutUserNestedInput
     receivedPermissions?: DriveFilePermissionUncheckedUpdateManyWithoutUserNestedInput
     addressedMatches?: CommandMatchUncheckedUpdateManyWithoutUserNestedInput
+    AuditStep?: AuditStepUncheckedUpdateManyWithoutAssignedToNestedInput
   }
 
   export type DriveFilePermissionUpsertWithWhereUniqueWithoutFileInput = {
@@ -87507,6 +92215,7 @@ export namespace Prisma {
     UserPermission?: UserPermissionCreateNestedManyWithoutUserInput
     receivedPermissions?: DriveFilePermissionCreateNestedManyWithoutUserInput
     addressedMatches?: CommandMatchCreateNestedManyWithoutUserInput
+    AuditStep?: AuditStepCreateNestedManyWithoutAssignedToInput
   }
 
   export type UserUncheckedCreateWithoutGrantedPermissionsInput = {
@@ -87550,6 +92259,7 @@ export namespace Prisma {
     UserPermission?: UserPermissionUncheckedCreateNestedManyWithoutUserInput
     receivedPermissions?: DriveFilePermissionUncheckedCreateNestedManyWithoutUserInput
     addressedMatches?: CommandMatchUncheckedCreateNestedManyWithoutUserInput
+    AuditStep?: AuditStepUncheckedCreateNestedManyWithoutAssignedToInput
   }
 
   export type UserCreateOrConnectWithoutGrantedPermissionsInput = {
@@ -87597,6 +92307,7 @@ export namespace Prisma {
     UserPermission?: UserPermissionCreateNestedManyWithoutUserInput
     receivedPermissions?: DriveFilePermissionCreateNestedManyWithoutUserInput
     addressedMatches?: CommandMatchCreateNestedManyWithoutUserInput
+    AuditStep?: AuditStepCreateNestedManyWithoutAssignedToInput
   }
 
   export type UserUncheckedCreateWithoutDriveFilePermissionInput = {
@@ -87640,6 +92351,7 @@ export namespace Prisma {
     UserPermission?: UserPermissionUncheckedCreateNestedManyWithoutUserInput
     receivedPermissions?: DriveFilePermissionUncheckedCreateNestedManyWithoutUserInput
     addressedMatches?: CommandMatchUncheckedCreateNestedManyWithoutUserInput
+    AuditStep?: AuditStepUncheckedCreateNestedManyWithoutAssignedToInput
   }
 
   export type UserCreateOrConnectWithoutDriveFilePermissionInput = {
@@ -87687,6 +92399,7 @@ export namespace Prisma {
     emailTemplates?: UserEmailTemplateCreateNestedManyWithoutUserInput
     UserPermission?: UserPermissionCreateNestedManyWithoutUserInput
     addressedMatches?: CommandMatchCreateNestedManyWithoutUserInput
+    AuditStep?: AuditStepCreateNestedManyWithoutAssignedToInput
   }
 
   export type UserUncheckedCreateWithoutReceivedPermissionsInput = {
@@ -87730,6 +92443,7 @@ export namespace Prisma {
     emailTemplates?: UserEmailTemplateUncheckedCreateNestedManyWithoutUserInput
     UserPermission?: UserPermissionUncheckedCreateNestedManyWithoutUserInput
     addressedMatches?: CommandMatchUncheckedCreateNestedManyWithoutUserInput
+    AuditStep?: AuditStepUncheckedCreateNestedManyWithoutAssignedToInput
   }
 
   export type UserCreateOrConnectWithoutReceivedPermissionsInput = {
@@ -87824,6 +92538,7 @@ export namespace Prisma {
     UserPermission?: UserPermissionUpdateManyWithoutUserNestedInput
     receivedPermissions?: DriveFilePermissionUpdateManyWithoutUserNestedInput
     addressedMatches?: CommandMatchUpdateManyWithoutUserNestedInput
+    AuditStep?: AuditStepUpdateManyWithoutAssignedToNestedInput
   }
 
   export type UserUncheckedUpdateWithoutGrantedPermissionsInput = {
@@ -87867,6 +92582,7 @@ export namespace Prisma {
     UserPermission?: UserPermissionUncheckedUpdateManyWithoutUserNestedInput
     receivedPermissions?: DriveFilePermissionUncheckedUpdateManyWithoutUserNestedInput
     addressedMatches?: CommandMatchUncheckedUpdateManyWithoutUserNestedInput
+    AuditStep?: AuditStepUncheckedUpdateManyWithoutAssignedToNestedInput
   }
 
   export type UserUpsertWithoutDriveFilePermissionInput = {
@@ -87920,6 +92636,7 @@ export namespace Prisma {
     UserPermission?: UserPermissionUpdateManyWithoutUserNestedInput
     receivedPermissions?: DriveFilePermissionUpdateManyWithoutUserNestedInput
     addressedMatches?: CommandMatchUpdateManyWithoutUserNestedInput
+    AuditStep?: AuditStepUpdateManyWithoutAssignedToNestedInput
   }
 
   export type UserUncheckedUpdateWithoutDriveFilePermissionInput = {
@@ -87963,6 +92680,7 @@ export namespace Prisma {
     UserPermission?: UserPermissionUncheckedUpdateManyWithoutUserNestedInput
     receivedPermissions?: DriveFilePermissionUncheckedUpdateManyWithoutUserNestedInput
     addressedMatches?: CommandMatchUncheckedUpdateManyWithoutUserNestedInput
+    AuditStep?: AuditStepUncheckedUpdateManyWithoutAssignedToNestedInput
   }
 
   export type UserUpsertWithWhereUniqueWithoutReceivedPermissionsInput = {
@@ -88154,6 +92872,7 @@ export namespace Prisma {
     UserPermission?: UserPermissionCreateNestedManyWithoutUserInput
     receivedPermissions?: DriveFilePermissionCreateNestedManyWithoutUserInput
     addressedMatches?: CommandMatchCreateNestedManyWithoutUserInput
+    AuditStep?: AuditStepCreateNestedManyWithoutAssignedToInput
   }
 
   export type UserUncheckedCreateWithoutTeamLeaderInput = {
@@ -88197,6 +92916,7 @@ export namespace Prisma {
     UserPermission?: UserPermissionUncheckedCreateNestedManyWithoutUserInput
     receivedPermissions?: DriveFilePermissionUncheckedCreateNestedManyWithoutUserInput
     addressedMatches?: CommandMatchUncheckedCreateNestedManyWithoutUserInput
+    AuditStep?: AuditStepUncheckedCreateNestedManyWithoutAssignedToInput
   }
 
   export type UserCreateOrConnectWithoutTeamLeaderInput = {
@@ -88289,6 +93009,7 @@ export namespace Prisma {
     UserPermission?: UserPermissionUpdateManyWithoutUserNestedInput
     receivedPermissions?: DriveFilePermissionUpdateManyWithoutUserNestedInput
     addressedMatches?: CommandMatchUpdateManyWithoutUserNestedInput
+    AuditStep?: AuditStepUpdateManyWithoutAssignedToNestedInput
   }
 
   export type UserUncheckedUpdateWithoutTeamLeaderInput = {
@@ -88332,6 +93053,7 @@ export namespace Prisma {
     UserPermission?: UserPermissionUncheckedUpdateManyWithoutUserNestedInput
     receivedPermissions?: DriveFilePermissionUncheckedUpdateManyWithoutUserNestedInput
     addressedMatches?: CommandMatchUncheckedUpdateManyWithoutUserNestedInput
+    AuditStep?: AuditStepUncheckedUpdateManyWithoutAssignedToNestedInput
   }
 
   export type TeamCreateWithoutMembersInput = {
@@ -88402,6 +93124,7 @@ export namespace Prisma {
     UserPermission?: UserPermissionCreateNestedManyWithoutUserInput
     receivedPermissions?: DriveFilePermissionCreateNestedManyWithoutUserInput
     addressedMatches?: CommandMatchCreateNestedManyWithoutUserInput
+    AuditStep?: AuditStepCreateNestedManyWithoutAssignedToInput
   }
 
   export type UserUncheckedCreateWithoutTeamMemberInput = {
@@ -88445,6 +93168,7 @@ export namespace Prisma {
     UserPermission?: UserPermissionUncheckedCreateNestedManyWithoutUserInput
     receivedPermissions?: DriveFilePermissionUncheckedCreateNestedManyWithoutUserInput
     addressedMatches?: CommandMatchUncheckedCreateNestedManyWithoutUserInput
+    AuditStep?: AuditStepUncheckedCreateNestedManyWithoutAssignedToInput
   }
 
   export type UserCreateOrConnectWithoutTeamMemberInput = {
@@ -88537,6 +93261,7 @@ export namespace Prisma {
     UserPermission?: UserPermissionUpdateManyWithoutUserNestedInput
     receivedPermissions?: DriveFilePermissionUpdateManyWithoutUserNestedInput
     addressedMatches?: CommandMatchUpdateManyWithoutUserNestedInput
+    AuditStep?: AuditStepUpdateManyWithoutAssignedToNestedInput
   }
 
   export type UserUncheckedUpdateWithoutTeamMemberInput = {
@@ -88580,6 +93305,7 @@ export namespace Prisma {
     UserPermission?: UserPermissionUncheckedUpdateManyWithoutUserNestedInput
     receivedPermissions?: DriveFilePermissionUncheckedUpdateManyWithoutUserNestedInput
     addressedMatches?: CommandMatchUncheckedUpdateManyWithoutUserNestedInput
+    AuditStep?: AuditStepUncheckedUpdateManyWithoutAssignedToNestedInput
   }
 
   export type locationCreateWithoutTeamLocationInput = {
@@ -88716,6 +93442,397 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     leaders?: TeamLeaderUncheckedUpdateManyWithoutTeamNestedInput
     members?: TeamMemberUncheckedUpdateManyWithoutTeamNestedInput
+  }
+
+  export type AuditStepCreateWithoutWorkflowInput = {
+    title: string
+    description?: string | null
+    position: number
+    status?: $Enums.StepStatus
+    dueDate?: Date | string | null
+    assignedTo?: UserCreateNestedOneWithoutAuditStepInput
+    logs?: StepLogCreateNestedManyWithoutStepInput
+  }
+
+  export type AuditStepUncheckedCreateWithoutWorkflowInput = {
+    id?: number
+    title: string
+    description?: string | null
+    position: number
+    status?: $Enums.StepStatus
+    assignedToId?: number | null
+    dueDate?: Date | string | null
+    logs?: StepLogUncheckedCreateNestedManyWithoutStepInput
+  }
+
+  export type AuditStepCreateOrConnectWithoutWorkflowInput = {
+    where: AuditStepWhereUniqueInput
+    create: XOR<AuditStepCreateWithoutWorkflowInput, AuditStepUncheckedCreateWithoutWorkflowInput>
+  }
+
+  export type AuditStepCreateManyWorkflowInputEnvelope = {
+    data: AuditStepCreateManyWorkflowInput | AuditStepCreateManyWorkflowInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type AuditStepUpsertWithWhereUniqueWithoutWorkflowInput = {
+    where: AuditStepWhereUniqueInput
+    update: XOR<AuditStepUpdateWithoutWorkflowInput, AuditStepUncheckedUpdateWithoutWorkflowInput>
+    create: XOR<AuditStepCreateWithoutWorkflowInput, AuditStepUncheckedCreateWithoutWorkflowInput>
+  }
+
+  export type AuditStepUpdateWithWhereUniqueWithoutWorkflowInput = {
+    where: AuditStepWhereUniqueInput
+    data: XOR<AuditStepUpdateWithoutWorkflowInput, AuditStepUncheckedUpdateWithoutWorkflowInput>
+  }
+
+  export type AuditStepUpdateManyWithWhereWithoutWorkflowInput = {
+    where: AuditStepScalarWhereInput
+    data: XOR<AuditStepUpdateManyMutationInput, AuditStepUncheckedUpdateManyWithoutWorkflowInput>
+  }
+
+  export type UserCreateWithoutAuditStepInput = {
+    username?: string | null
+    password: string
+    email?: string | null
+    role?: UserCreateroleInput | string[]
+    Mobile?: number | null
+    PrimaryContact?: string | null
+    MobileContact?: number | null
+    Relationship?: string | null
+    SecondContact?: string | null
+    SecondMobile?: number | null
+    SecondRelationship?: string | null
+    Remarks?: string | null
+    ndafile?: string | null
+    ndasubmissiondate?: Date | string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    location?: UserCreatelocationInput | string[]
+    ActivityLog?: ActivityLogCreateNestedManyWithoutUserInput
+    CommandMatch?: CommandMatchCreateNestedManyWithoutAddressedByUserInput
+    devices?: DeviceUserCreateNestedManyWithoutUserInput
+    DriveFile?: DriveFileCreateNestedManyWithoutOwnerInput
+    grantedPermissions?: DriveFilePermissionCreateNestedManyWithoutGranterInput
+    DriveFilePermission?: DriveFilePermissionCreateNestedManyWithoutUserInput
+    DriveFolder?: DriveFolderCreateNestedManyWithoutOwnerInput
+    Feedback?: FeedbackCreateNestedManyWithoutSenderInput
+    FeedbackRecipient?: FeedbackRecipientCreateNestedManyWithoutUserInput
+    GroupMember?: GroupMemberCreateNestedManyWithoutUserInput
+    Message?: MessageCreateNestedManyWithoutSenderInput
+    NotificationRead?: NotificationReadCreateNestedManyWithoutUserInput
+    ProjectAssignment?: ProjectAssignmentCreateNestedManyWithoutUserInput
+    assignedTickets?: SupportTicketCreateNestedManyWithoutAssignedToInput
+    createdTickets?: SupportTicketCreateNestedManyWithoutCreatedByInput
+    TeamLeader?: TeamLeaderCreateNestedManyWithoutUserInput
+    TeamMember?: TeamMemberCreateNestedManyWithoutUserInput
+    TicketAttachment?: TicketAttachmentCreateNestedManyWithoutUploaderInput
+    ticketComments?: TicketCommentCreateNestedManyWithoutUserInput
+    emailTemplates?: UserEmailTemplateCreateNestedManyWithoutUserInput
+    UserPermission?: UserPermissionCreateNestedManyWithoutUserInput
+    receivedPermissions?: DriveFilePermissionCreateNestedManyWithoutUserInput
+    addressedMatches?: CommandMatchCreateNestedManyWithoutUserInput
+  }
+
+  export type UserUncheckedCreateWithoutAuditStepInput = {
+    id?: number
+    username?: string | null
+    password: string
+    email?: string | null
+    role?: UserCreateroleInput | string[]
+    Mobile?: number | null
+    PrimaryContact?: string | null
+    MobileContact?: number | null
+    Relationship?: string | null
+    SecondContact?: string | null
+    SecondMobile?: number | null
+    SecondRelationship?: string | null
+    Remarks?: string | null
+    ndafile?: string | null
+    ndasubmissiondate?: Date | string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    location?: UserCreatelocationInput | string[]
+    ActivityLog?: ActivityLogUncheckedCreateNestedManyWithoutUserInput
+    CommandMatch?: CommandMatchUncheckedCreateNestedManyWithoutAddressedByUserInput
+    devices?: DeviceUserUncheckedCreateNestedManyWithoutUserInput
+    DriveFile?: DriveFileUncheckedCreateNestedManyWithoutOwnerInput
+    grantedPermissions?: DriveFilePermissionUncheckedCreateNestedManyWithoutGranterInput
+    DriveFilePermission?: DriveFilePermissionUncheckedCreateNestedManyWithoutUserInput
+    DriveFolder?: DriveFolderUncheckedCreateNestedManyWithoutOwnerInput
+    Feedback?: FeedbackUncheckedCreateNestedManyWithoutSenderInput
+    FeedbackRecipient?: FeedbackRecipientUncheckedCreateNestedManyWithoutUserInput
+    GroupMember?: GroupMemberUncheckedCreateNestedManyWithoutUserInput
+    Message?: MessageUncheckedCreateNestedManyWithoutSenderInput
+    NotificationRead?: NotificationReadUncheckedCreateNestedManyWithoutUserInput
+    ProjectAssignment?: ProjectAssignmentUncheckedCreateNestedManyWithoutUserInput
+    assignedTickets?: SupportTicketUncheckedCreateNestedManyWithoutAssignedToInput
+    createdTickets?: SupportTicketUncheckedCreateNestedManyWithoutCreatedByInput
+    TeamLeader?: TeamLeaderUncheckedCreateNestedManyWithoutUserInput
+    TeamMember?: TeamMemberUncheckedCreateNestedManyWithoutUserInput
+    TicketAttachment?: TicketAttachmentUncheckedCreateNestedManyWithoutUploaderInput
+    ticketComments?: TicketCommentUncheckedCreateNestedManyWithoutUserInput
+    emailTemplates?: UserEmailTemplateUncheckedCreateNestedManyWithoutUserInput
+    UserPermission?: UserPermissionUncheckedCreateNestedManyWithoutUserInput
+    receivedPermissions?: DriveFilePermissionUncheckedCreateNestedManyWithoutUserInput
+    addressedMatches?: CommandMatchUncheckedCreateNestedManyWithoutUserInput
+  }
+
+  export type UserCreateOrConnectWithoutAuditStepInput = {
+    where: UserWhereUniqueInput
+    create: XOR<UserCreateWithoutAuditStepInput, UserUncheckedCreateWithoutAuditStepInput>
+  }
+
+  export type AuditWorkflowCreateWithoutStepsInput = {
+    name: string
+    description?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type AuditWorkflowUncheckedCreateWithoutStepsInput = {
+    id?: number
+    name: string
+    description?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type AuditWorkflowCreateOrConnectWithoutStepsInput = {
+    where: AuditWorkflowWhereUniqueInput
+    create: XOR<AuditWorkflowCreateWithoutStepsInput, AuditWorkflowUncheckedCreateWithoutStepsInput>
+  }
+
+  export type StepLogCreateWithoutStepInput = {
+    message: string
+    createdBy: string
+    createdAt?: Date | string
+  }
+
+  export type StepLogUncheckedCreateWithoutStepInput = {
+    id?: number
+    message: string
+    createdBy: string
+    createdAt?: Date | string
+  }
+
+  export type StepLogCreateOrConnectWithoutStepInput = {
+    where: StepLogWhereUniqueInput
+    create: XOR<StepLogCreateWithoutStepInput, StepLogUncheckedCreateWithoutStepInput>
+  }
+
+  export type StepLogCreateManyStepInputEnvelope = {
+    data: StepLogCreateManyStepInput | StepLogCreateManyStepInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type UserUpsertWithoutAuditStepInput = {
+    update: XOR<UserUpdateWithoutAuditStepInput, UserUncheckedUpdateWithoutAuditStepInput>
+    create: XOR<UserCreateWithoutAuditStepInput, UserUncheckedCreateWithoutAuditStepInput>
+    where?: UserWhereInput
+  }
+
+  export type UserUpdateToOneWithWhereWithoutAuditStepInput = {
+    where?: UserWhereInput
+    data: XOR<UserUpdateWithoutAuditStepInput, UserUncheckedUpdateWithoutAuditStepInput>
+  }
+
+  export type UserUpdateWithoutAuditStepInput = {
+    username?: NullableStringFieldUpdateOperationsInput | string | null
+    password?: StringFieldUpdateOperationsInput | string
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    role?: UserUpdateroleInput | string[]
+    Mobile?: NullableIntFieldUpdateOperationsInput | number | null
+    PrimaryContact?: NullableStringFieldUpdateOperationsInput | string | null
+    MobileContact?: NullableIntFieldUpdateOperationsInput | number | null
+    Relationship?: NullableStringFieldUpdateOperationsInput | string | null
+    SecondContact?: NullableStringFieldUpdateOperationsInput | string | null
+    SecondMobile?: NullableIntFieldUpdateOperationsInput | number | null
+    SecondRelationship?: NullableStringFieldUpdateOperationsInput | string | null
+    Remarks?: NullableStringFieldUpdateOperationsInput | string | null
+    ndafile?: NullableStringFieldUpdateOperationsInput | string | null
+    ndasubmissiondate?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    location?: UserUpdatelocationInput | string[]
+    ActivityLog?: ActivityLogUpdateManyWithoutUserNestedInput
+    CommandMatch?: CommandMatchUpdateManyWithoutAddressedByUserNestedInput
+    devices?: DeviceUserUpdateManyWithoutUserNestedInput
+    DriveFile?: DriveFileUpdateManyWithoutOwnerNestedInput
+    grantedPermissions?: DriveFilePermissionUpdateManyWithoutGranterNestedInput
+    DriveFilePermission?: DriveFilePermissionUpdateManyWithoutUserNestedInput
+    DriveFolder?: DriveFolderUpdateManyWithoutOwnerNestedInput
+    Feedback?: FeedbackUpdateManyWithoutSenderNestedInput
+    FeedbackRecipient?: FeedbackRecipientUpdateManyWithoutUserNestedInput
+    GroupMember?: GroupMemberUpdateManyWithoutUserNestedInput
+    Message?: MessageUpdateManyWithoutSenderNestedInput
+    NotificationRead?: NotificationReadUpdateManyWithoutUserNestedInput
+    ProjectAssignment?: ProjectAssignmentUpdateManyWithoutUserNestedInput
+    assignedTickets?: SupportTicketUpdateManyWithoutAssignedToNestedInput
+    createdTickets?: SupportTicketUpdateManyWithoutCreatedByNestedInput
+    TeamLeader?: TeamLeaderUpdateManyWithoutUserNestedInput
+    TeamMember?: TeamMemberUpdateManyWithoutUserNestedInput
+    TicketAttachment?: TicketAttachmentUpdateManyWithoutUploaderNestedInput
+    ticketComments?: TicketCommentUpdateManyWithoutUserNestedInput
+    emailTemplates?: UserEmailTemplateUpdateManyWithoutUserNestedInput
+    UserPermission?: UserPermissionUpdateManyWithoutUserNestedInput
+    receivedPermissions?: DriveFilePermissionUpdateManyWithoutUserNestedInput
+    addressedMatches?: CommandMatchUpdateManyWithoutUserNestedInput
+  }
+
+  export type UserUncheckedUpdateWithoutAuditStepInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    username?: NullableStringFieldUpdateOperationsInput | string | null
+    password?: StringFieldUpdateOperationsInput | string
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    role?: UserUpdateroleInput | string[]
+    Mobile?: NullableIntFieldUpdateOperationsInput | number | null
+    PrimaryContact?: NullableStringFieldUpdateOperationsInput | string | null
+    MobileContact?: NullableIntFieldUpdateOperationsInput | number | null
+    Relationship?: NullableStringFieldUpdateOperationsInput | string | null
+    SecondContact?: NullableStringFieldUpdateOperationsInput | string | null
+    SecondMobile?: NullableIntFieldUpdateOperationsInput | number | null
+    SecondRelationship?: NullableStringFieldUpdateOperationsInput | string | null
+    Remarks?: NullableStringFieldUpdateOperationsInput | string | null
+    ndafile?: NullableStringFieldUpdateOperationsInput | string | null
+    ndasubmissiondate?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    location?: UserUpdatelocationInput | string[]
+    ActivityLog?: ActivityLogUncheckedUpdateManyWithoutUserNestedInput
+    CommandMatch?: CommandMatchUncheckedUpdateManyWithoutAddressedByUserNestedInput
+    devices?: DeviceUserUncheckedUpdateManyWithoutUserNestedInput
+    DriveFile?: DriveFileUncheckedUpdateManyWithoutOwnerNestedInput
+    grantedPermissions?: DriveFilePermissionUncheckedUpdateManyWithoutGranterNestedInput
+    DriveFilePermission?: DriveFilePermissionUncheckedUpdateManyWithoutUserNestedInput
+    DriveFolder?: DriveFolderUncheckedUpdateManyWithoutOwnerNestedInput
+    Feedback?: FeedbackUncheckedUpdateManyWithoutSenderNestedInput
+    FeedbackRecipient?: FeedbackRecipientUncheckedUpdateManyWithoutUserNestedInput
+    GroupMember?: GroupMemberUncheckedUpdateManyWithoutUserNestedInput
+    Message?: MessageUncheckedUpdateManyWithoutSenderNestedInput
+    NotificationRead?: NotificationReadUncheckedUpdateManyWithoutUserNestedInput
+    ProjectAssignment?: ProjectAssignmentUncheckedUpdateManyWithoutUserNestedInput
+    assignedTickets?: SupportTicketUncheckedUpdateManyWithoutAssignedToNestedInput
+    createdTickets?: SupportTicketUncheckedUpdateManyWithoutCreatedByNestedInput
+    TeamLeader?: TeamLeaderUncheckedUpdateManyWithoutUserNestedInput
+    TeamMember?: TeamMemberUncheckedUpdateManyWithoutUserNestedInput
+    TicketAttachment?: TicketAttachmentUncheckedUpdateManyWithoutUploaderNestedInput
+    ticketComments?: TicketCommentUncheckedUpdateManyWithoutUserNestedInput
+    emailTemplates?: UserEmailTemplateUncheckedUpdateManyWithoutUserNestedInput
+    UserPermission?: UserPermissionUncheckedUpdateManyWithoutUserNestedInput
+    receivedPermissions?: DriveFilePermissionUncheckedUpdateManyWithoutUserNestedInput
+    addressedMatches?: CommandMatchUncheckedUpdateManyWithoutUserNestedInput
+  }
+
+  export type AuditWorkflowUpsertWithoutStepsInput = {
+    update: XOR<AuditWorkflowUpdateWithoutStepsInput, AuditWorkflowUncheckedUpdateWithoutStepsInput>
+    create: XOR<AuditWorkflowCreateWithoutStepsInput, AuditWorkflowUncheckedCreateWithoutStepsInput>
+    where?: AuditWorkflowWhereInput
+  }
+
+  export type AuditWorkflowUpdateToOneWithWhereWithoutStepsInput = {
+    where?: AuditWorkflowWhereInput
+    data: XOR<AuditWorkflowUpdateWithoutStepsInput, AuditWorkflowUncheckedUpdateWithoutStepsInput>
+  }
+
+  export type AuditWorkflowUpdateWithoutStepsInput = {
+    name?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type AuditWorkflowUncheckedUpdateWithoutStepsInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    name?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type StepLogUpsertWithWhereUniqueWithoutStepInput = {
+    where: StepLogWhereUniqueInput
+    update: XOR<StepLogUpdateWithoutStepInput, StepLogUncheckedUpdateWithoutStepInput>
+    create: XOR<StepLogCreateWithoutStepInput, StepLogUncheckedCreateWithoutStepInput>
+  }
+
+  export type StepLogUpdateWithWhereUniqueWithoutStepInput = {
+    where: StepLogWhereUniqueInput
+    data: XOR<StepLogUpdateWithoutStepInput, StepLogUncheckedUpdateWithoutStepInput>
+  }
+
+  export type StepLogUpdateManyWithWhereWithoutStepInput = {
+    where: StepLogScalarWhereInput
+    data: XOR<StepLogUpdateManyMutationInput, StepLogUncheckedUpdateManyWithoutStepInput>
+  }
+
+  export type StepLogScalarWhereInput = {
+    AND?: StepLogScalarWhereInput | StepLogScalarWhereInput[]
+    OR?: StepLogScalarWhereInput[]
+    NOT?: StepLogScalarWhereInput | StepLogScalarWhereInput[]
+    id?: IntFilter<"StepLog"> | number
+    stepId?: IntFilter<"StepLog"> | number
+    message?: StringFilter<"StepLog"> | string
+    createdBy?: StringFilter<"StepLog"> | string
+    createdAt?: DateTimeFilter<"StepLog"> | Date | string
+  }
+
+  export type AuditStepCreateWithoutLogsInput = {
+    title: string
+    description?: string | null
+    position: number
+    status?: $Enums.StepStatus
+    dueDate?: Date | string | null
+    assignedTo?: UserCreateNestedOneWithoutAuditStepInput
+    workflow: AuditWorkflowCreateNestedOneWithoutStepsInput
+  }
+
+  export type AuditStepUncheckedCreateWithoutLogsInput = {
+    id?: number
+    title: string
+    description?: string | null
+    position: number
+    status?: $Enums.StepStatus
+    assignedToId?: number | null
+    dueDate?: Date | string | null
+    workflowId: number
+  }
+
+  export type AuditStepCreateOrConnectWithoutLogsInput = {
+    where: AuditStepWhereUniqueInput
+    create: XOR<AuditStepCreateWithoutLogsInput, AuditStepUncheckedCreateWithoutLogsInput>
+  }
+
+  export type AuditStepUpsertWithoutLogsInput = {
+    update: XOR<AuditStepUpdateWithoutLogsInput, AuditStepUncheckedUpdateWithoutLogsInput>
+    create: XOR<AuditStepCreateWithoutLogsInput, AuditStepUncheckedCreateWithoutLogsInput>
+    where?: AuditStepWhereInput
+  }
+
+  export type AuditStepUpdateToOneWithWhereWithoutLogsInput = {
+    where?: AuditStepWhereInput
+    data: XOR<AuditStepUpdateWithoutLogsInput, AuditStepUncheckedUpdateWithoutLogsInput>
+  }
+
+  export type AuditStepUpdateWithoutLogsInput = {
+    title?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    position?: IntFieldUpdateOperationsInput | number
+    status?: EnumStepStatusFieldUpdateOperationsInput | $Enums.StepStatus
+    dueDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    assignedTo?: UserUpdateOneWithoutAuditStepNestedInput
+    workflow?: AuditWorkflowUpdateOneRequiredWithoutStepsNestedInput
+  }
+
+  export type AuditStepUncheckedUpdateWithoutLogsInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    title?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    position?: IntFieldUpdateOperationsInput | number
+    status?: EnumStepStatusFieldUpdateOperationsInput | $Enums.StepStatus
+    assignedToId?: NullableIntFieldUpdateOperationsInput | number | null
+    dueDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    workflowId?: IntFieldUpdateOperationsInput | number
   }
 
   export type DeviceUserCreateManyDeviceInput = {
@@ -89018,6 +94135,7 @@ export namespace Prisma {
     emailTemplates?: UserEmailTemplateUpdateManyWithoutUserNestedInput
     UserPermission?: UserPermissionUpdateManyWithoutUserNestedInput
     receivedPermissions?: DriveFilePermissionUpdateManyWithoutUserNestedInput
+    AuditStep?: AuditStepUpdateManyWithoutAssignedToNestedInput
   }
 
   export type UserUncheckedUpdateWithoutAddressedMatchesInput = {
@@ -89061,6 +94179,7 @@ export namespace Prisma {
     emailTemplates?: UserEmailTemplateUncheckedUpdateManyWithoutUserNestedInput
     UserPermission?: UserPermissionUncheckedUpdateManyWithoutUserNestedInput
     receivedPermissions?: DriveFilePermissionUncheckedUpdateManyWithoutUserNestedInput
+    AuditStep?: AuditStepUncheckedUpdateManyWithoutAssignedToNestedInput
   }
 
   export type UserUncheckedUpdateManyWithoutAddressedMatchesInput = {
@@ -89466,6 +94585,16 @@ export namespace Prisma {
   export type UserPermissionCreateManyUserInput = {
     id?: number
     pagePermissionId: number
+  }
+
+  export type AuditStepCreateManyAssignedToInput = {
+    id?: number
+    title: string
+    description?: string | null
+    position: number
+    status?: $Enums.StepStatus
+    dueDate?: Date | string | null
+    workflowId: number
   }
 
   export type ActivityLogUpdateWithoutUserInput = {
@@ -90058,6 +95187,37 @@ export namespace Prisma {
     emailSent?: BoolFieldUpdateOperationsInput | boolean
   }
 
+  export type AuditStepUpdateWithoutAssignedToInput = {
+    title?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    position?: IntFieldUpdateOperationsInput | number
+    status?: EnumStepStatusFieldUpdateOperationsInput | $Enums.StepStatus
+    dueDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    workflow?: AuditWorkflowUpdateOneRequiredWithoutStepsNestedInput
+    logs?: StepLogUpdateManyWithoutStepNestedInput
+  }
+
+  export type AuditStepUncheckedUpdateWithoutAssignedToInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    title?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    position?: IntFieldUpdateOperationsInput | number
+    status?: EnumStepStatusFieldUpdateOperationsInput | $Enums.StepStatus
+    dueDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    workflowId?: IntFieldUpdateOperationsInput | number
+    logs?: StepLogUncheckedUpdateManyWithoutStepNestedInput
+  }
+
+  export type AuditStepUncheckedUpdateManyWithoutAssignedToInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    title?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    position?: IntFieldUpdateOperationsInput | number
+    status?: EnumStepStatusFieldUpdateOperationsInput | $Enums.StepStatus
+    dueDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    workflowId?: IntFieldUpdateOperationsInput | number
+  }
+
   export type GroupMemberCreateManyGroupInput = {
     id?: number
     userId: number
@@ -90623,6 +95783,7 @@ export namespace Prisma {
     emailTemplates?: UserEmailTemplateUpdateManyWithoutUserNestedInput
     UserPermission?: UserPermissionUpdateManyWithoutUserNestedInput
     addressedMatches?: CommandMatchUpdateManyWithoutUserNestedInput
+    AuditStep?: AuditStepUpdateManyWithoutAssignedToNestedInput
   }
 
   export type UserUncheckedUpdateWithoutReceivedPermissionsInput = {
@@ -90666,6 +95827,7 @@ export namespace Prisma {
     emailTemplates?: UserEmailTemplateUncheckedUpdateManyWithoutUserNestedInput
     UserPermission?: UserPermissionUncheckedUpdateManyWithoutUserNestedInput
     addressedMatches?: CommandMatchUncheckedUpdateManyWithoutUserNestedInput
+    AuditStep?: AuditStepUncheckedUpdateManyWithoutAssignedToNestedInput
   }
 
   export type UserUncheckedUpdateManyWithoutReceivedPermissionsInput = {
@@ -90744,6 +95906,74 @@ export namespace Prisma {
   export type TeamMemberUncheckedUpdateManyWithoutTeamInput = {
     id?: IntFieldUpdateOperationsInput | number
     userId?: IntFieldUpdateOperationsInput | number
+  }
+
+  export type AuditStepCreateManyWorkflowInput = {
+    id?: number
+    title: string
+    description?: string | null
+    position: number
+    status?: $Enums.StepStatus
+    assignedToId?: number | null
+    dueDate?: Date | string | null
+  }
+
+  export type AuditStepUpdateWithoutWorkflowInput = {
+    title?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    position?: IntFieldUpdateOperationsInput | number
+    status?: EnumStepStatusFieldUpdateOperationsInput | $Enums.StepStatus
+    dueDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    assignedTo?: UserUpdateOneWithoutAuditStepNestedInput
+    logs?: StepLogUpdateManyWithoutStepNestedInput
+  }
+
+  export type AuditStepUncheckedUpdateWithoutWorkflowInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    title?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    position?: IntFieldUpdateOperationsInput | number
+    status?: EnumStepStatusFieldUpdateOperationsInput | $Enums.StepStatus
+    assignedToId?: NullableIntFieldUpdateOperationsInput | number | null
+    dueDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    logs?: StepLogUncheckedUpdateManyWithoutStepNestedInput
+  }
+
+  export type AuditStepUncheckedUpdateManyWithoutWorkflowInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    title?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    position?: IntFieldUpdateOperationsInput | number
+    status?: EnumStepStatusFieldUpdateOperationsInput | $Enums.StepStatus
+    assignedToId?: NullableIntFieldUpdateOperationsInput | number | null
+    dueDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type StepLogCreateManyStepInput = {
+    id?: number
+    message: string
+    createdBy: string
+    createdAt?: Date | string
+  }
+
+  export type StepLogUpdateWithoutStepInput = {
+    message?: StringFieldUpdateOperationsInput | string
+    createdBy?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type StepLogUncheckedUpdateWithoutStepInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    message?: StringFieldUpdateOperationsInput | string
+    createdBy?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type StepLogUncheckedUpdateManyWithoutStepInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    message?: StringFieldUpdateOperationsInput | string
+    createdBy?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
 

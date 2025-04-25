@@ -645,6 +645,33 @@ exports.Prisma.TeamLocationScalarFieldEnum = {
   locationId: 'locationId'
 };
 
+exports.Prisma.AuditWorkflowScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  description: 'description',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.AuditStepScalarFieldEnum = {
+  id: 'id',
+  title: 'title',
+  description: 'description',
+  position: 'position',
+  status: 'status',
+  assignedToId: 'assignedToId',
+  dueDate: 'dueDate',
+  workflowId: 'workflowId'
+};
+
+exports.Prisma.StepLogScalarFieldEnum = {
+  id: 'id',
+  stepId: 'stepId',
+  message: 'message',
+  createdBy: 'createdBy',
+  createdAt: 'createdAt'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -670,7 +697,13 @@ exports.Prisma.JsonNullValueFilter = {
   JsonNull: Prisma.JsonNull,
   AnyNull: Prisma.AnyNull
 };
-
+exports.StepStatus = exports.$Enums.StepStatus = {
+  PENDING: 'PENDING',
+  IN_PROGRESS: 'IN_PROGRESS',
+  REVIEW: 'REVIEW',
+  COMPLETED: 'COMPLETED',
+  REJECTED: 'REJECTED'
+};
 
 exports.Prisma.ModelName = {
   logs: 'logs',
@@ -723,7 +756,10 @@ exports.Prisma.ModelName = {
   Team: 'Team',
   TeamLeader: 'TeamLeader',
   TeamMember: 'TeamMember',
-  TeamLocation: 'TeamLocation'
+  TeamLocation: 'TeamLocation',
+  AuditWorkflow: 'AuditWorkflow',
+  AuditStep: 'AuditStep',
+  StepLog: 'StepLog'
 };
 
 /**

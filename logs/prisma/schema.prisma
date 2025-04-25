@@ -8,6 +8,7 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+
 model logs {
   id        Int      @id @default(autoincrement())
   name      String
@@ -220,6 +221,8 @@ model User {
   UserPermission      UserPermission[]
   receivedPermissions DriveFilePermission[] @relation("DriveFilePermissionToUser")
   addressedMatches    CommandMatch[]        @relation("addressedBy")
+
+  AuditStep AuditStep[]
 }
 
 model Group {
@@ -680,4 +683,54 @@ model TeamLocation {
   team       Team     @relation(fields: [teamId], references: [id], onDelete: Cascade)
 
   @@unique([teamId, locationId])
+}
+model AuditWorkflow {
+  id          Int         @id @default(autoincrement())
+  name        String
+  description String?
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+
+  steps       AuditStep[]    @relation("WorkflowSteps")
+
+  @@map("audit_workflows")
+}
+
+model AuditStep {
+  id             Int         @id @default(autoincrement())
+  title          String
+  description    String?
+  position       Int            // used for drag-and-drop reordering
+  status         StepStatus     @default(PENDING)
+  assignedToId   Int?
+  assignedTo     User?          @relation(fields: [assignedToId], references: [id])
+  dueDate        DateTime?
+
+  workflowId     Int
+  workflow       AuditWorkflow  @relation("WorkflowSteps", fields: [workflowId], references: [id])
+
+  logs           StepLog[]
+
+  @@index([workflowId, position])
+  @@map("audit_steps")
+}
+
+model StepLog {
+  id         Int      @id @default(autoincrement())
+  stepId     Int
+  step       AuditStep   @relation(fields: [stepId], references: [id])
+  message    String
+  createdBy  String
+  createdAt  DateTime    @default(now())
+
+  @@index([stepId])
+  @@map("step_logs")
+}
+
+enum StepStatus {
+  PENDING
+  IN_PROGRESS
+  REVIEW
+  COMPLETED
+  REJECTED
 }

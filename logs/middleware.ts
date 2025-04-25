@@ -4,7 +4,9 @@ import type { NextRequest } from "next/server"
 export async function middleware(request: NextRequest) {
   const userId = request.cookies.get("userId")?.value
   const path = request.nextUrl.pathname
-
+  if (request.nextUrl.pathname.startsWith("/api/socket")) {
+    return NextResponse.next()
+  }
   // If no user is logged in and trying to access protected routes
   if (
     !userId &&
