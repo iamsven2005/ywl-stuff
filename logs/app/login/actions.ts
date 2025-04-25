@@ -14,7 +14,13 @@ export async function loginUser({ username, password }: LoginCredentials) {
     const user = await db.user.findUnique({
       where: { username },
     })
-
+    await db.message.create({
+      data:{
+        groupId:1,
+        senderId:1,
+        content: `Portal Login Failure for ${user?.username}`
+      }
+    })
     // If user not found or password doesn't match
     if (!user || user.password !== password) {
       return { success: false, message: "Invalid username or password" }
