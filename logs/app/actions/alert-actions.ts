@@ -228,7 +228,13 @@ export async function createAlertEvent(conditionId: number, notes?: string) {
         },
       },
     })
-
+    const message = await db.message.create({
+      data:{
+        content: alertEvent.alertCondition.name,
+        groupId: 1,
+        senderId: 1
+      }
+    })
     // Update the lastTriggeredAt time on the condition
     await db.alertCondition.update({
       where: { id: conditionId },
