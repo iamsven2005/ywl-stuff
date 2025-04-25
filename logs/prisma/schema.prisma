@@ -7,12 +7,6 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
-model Room {
-  id        String   @id @default(cuid())
-  name      String
-  createdAt DateTime @default(now())
-  // Add more fields if needed, like participants, status, etc.
-}
 
 model logs {
   id        Int      @id @default(autoincrement())
@@ -186,7 +180,7 @@ model EmailTemplate {
 
 model User {
   id                  Int                   @id @default(autoincrement())
-  username            String?                @unique
+  username            String?               @unique
   password            String
   email               String?               @unique
   role                String[]
@@ -201,7 +195,7 @@ model User {
   ndafile             String?
   ndasubmissiondate   DateTime              @default(now())
   createdAt           DateTime              @default(now())
-  updatedAt           DateTime              @updatedAt @default(now())
+  updatedAt           DateTime              @default(now()) @updatedAt
   location            String[]
   ActivityLog         ActivityLog[]
   CommandMatch        CommandMatch[]
@@ -224,6 +218,7 @@ model User {
   ticketComments      TicketComment[]
   emailTemplates      UserEmailTemplate[]
   UserPermission      UserPermission[]
+  audit_steps         audit_steps[]
   receivedPermissions DriveFilePermission[] @relation("DriveFilePermissionToUser")
   addressedMatches    CommandMatch[]        @relation("addressedBy")
 }
@@ -572,7 +567,7 @@ model ldapuser {
   memberOf               String?
   servicePrincipalName   String?
   showInAdvancedViewOnly Boolean?
-  id                    Int      @id @default(autoincrement())
+  id                     Int      @id @default(autoincrement())
 }
 
 model DriveFolder {
@@ -686,4 +681,48 @@ model TeamLocation {
   team       Team     @relation(fields: [teamId], references: [id], onDelete: Cascade)
 
   @@unique([teamId, locationId])
+}
+
+model audit_steps {
+  id              Int             @id @default(autoincrement())
+  title           String
+  description     String?
+  position        Int
+  status          StepStatus      @default(PENDING)
+  assignedToId    Int?
+  dueDate         DateTime?
+  workflowId      Int
+  User            User?           @relation(fields: [assignedToId], references: [id])
+  audit_workflows audit_workflows @relation(fields: [workflowId], references: [id])
+  step_logs       step_logs[]
+
+  @@index([workflowId, position])
+}
+
+model audit_workflows {
+  id          Int           @id @default(autoincrement())
+  name        String
+  description String?
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime
+  audit_steps audit_steps[]
+}
+
+model step_logs {
+  id          Int         @id @default(autoincrement())
+  stepId      Int
+  message     String
+  createdBy   String
+  createdAt   DateTime    @default(now())
+  audit_steps audit_steps @relation(fields: [stepId], references: [id])
+
+  @@index([stepId])
+}
+
+enum StepStatus {
+  PENDING
+  IN_PROGRESS
+  REVIEW
+  COMPLETED
+  REJECTED
 }
