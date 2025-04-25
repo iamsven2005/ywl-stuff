@@ -230,7 +230,7 @@ export async function createAlertEvent(conditionId: number, notes?: string) {
     })
     const message = await db.message.create({
       data:{
-        content: alertEvent.alertCondition.name,
+        content: `${alertEvent.alertCondition.name} alert activated at ${alertEvent.alertCondition.thresholdValue}`,
         groupId: 1,
         senderId: 1
       }
