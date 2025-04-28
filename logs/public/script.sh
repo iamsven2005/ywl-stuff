@@ -3,7 +3,8 @@
 # Define Paths and URLs
 DESKTOP="$HOME/Desktop"
 PYTHON_FILES=("pid.py" "sensors.py" "scan.py" "auth-log.py", "disk.py")
-SCRIPT_URL="http://192.168.1.26:3000/script.sh"
+DB_HOST="192.168.1.26"
+SCRIPT_URL="http://$DB_HOST:3000/script.sh"
 GDM_POSTSESSION="/etc/gdm3/PostSession/Default"
 HOST_FILE="$HOME/.hostname_config"
 BASH_PROFILE="$HOME/.bash_profile"
@@ -11,20 +12,20 @@ BASH_PROFILE="$HOME/.bash_profile"
 # Define Database Credentials
 DB_USER="admin"
 DB_PASSWORD="host-machine"
-DB_HOST="192.168.1.26"
+DB_HOST="$DB_HOST"
 DB_NAME="logs_database"
 
 # 1️⃣ Download Python files to Desktop
 # 1️⃣ Download Python files to Desktop
 for file in "${PYTHON_FILES[@]}"; do
     echo "Downloading $file..."
-    curl -fsSL -o "$DESKTOP/$file" "http://192.168.1.26:3000/$file"
+    curl -fsSL -o "$DESKTOP/$file" "http://$DB_HOST:3000/$file"
 
     # Check if the file was downloaded successfully
     if [[ ! -s "$DESKTOP/$file" ]]; then
         echo "Error: Failed to download $file. Retrying..."
         sleep 2
-        curl -fsSL -o "$DESKTOP/$file" "http://192.168.1.26:3000/$file"
+        curl -fsSL -o "$DESKTOP/$file" "http://$DB_HOST:3000/$file"
 
         # If still empty, remove the file to avoid corrupted scripts
         if [[ ! -s "$DESKTOP/$file" ]]; then
