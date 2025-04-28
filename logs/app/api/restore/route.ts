@@ -23,6 +23,20 @@ function getLatestSQLFile(folder: string): string | null {
   return files.length > 0 ? path.join(folder, files[0].name) : null
 }
 
+function runCommand(command: string): Promise<void> {
+  return new Promise((resolve, reject) => {
+    exec(command, (error, stdout, stderr) => {
+      if (error) {
+        console.error("Command failed:", stderr)
+        reject(stderr)
+      } else {
+        console.log("Command success:", stdout)
+        resolve()
+      }
+    })
+  })
+}
+
 export async function POST() {
   try {
     const backupDir = fs.existsSync(BACKUP_FOLDER) ? BACKUP_FOLDER : FALLBACK_FOLDER
@@ -32,30 +46,25 @@ export async function POST() {
       return NextResponse.json({ success: false, message: "No .sql backup file found" }, { status: 404 })
     }
 
-const dropSchema = `psql -h 192.168.1.26 -U admin -d logs_database -c 'DROP SCHEMA IF EXISTS logs CASCADE;'`
-const restoreCommand = `PGPASSFILE=~/.pgpass pg_restore -h 192.168.1.26 -U admin -d logs_database -v "${latestBackup}"`
-    return new Promise((resolve, reject) => {
-      exec(dropSchema, (dropErr, dropOut, dropErrOut) => {
-  if (dropErr) {
-    console.error("Drop schema failed:", dropErrOut)
-    reject(NextResponse.json({ success: false, message: "Schema drop failed", dropErrOut }))
-  } else {
-    console.log("Schema dropped successfully")
-    exec(restoreCommand, (error, stdout, stderr) => {
-      if (error) {
-        console.error("Restore error:", stderr)
-        reject(NextResponse.json({ success: false, message: "Restore failed", stderr }))
-      } else {
-        resolve(NextResponse.json({ success: true, fileRestored: latestBackup }))
-      }
-    })
-  }
-})
+    const targets = [
+      { host: "192.168.1.26", port: "5432" },
+      { host: "192.168.1.26", port: "5433" },
+    ]
 
-    })
+    for (const target of targets) {
+      const dropSchema = `psql -h ${target.host} -p ${target.port} -U admin -d logs_database -c 'DROP SCHEMA IF EXISTS logs CASCADE;'`
+      const restoreCommand = `PGPASSFILE=~/.pgpass psql -h ${target.host} -p ${target.port} -U admin -d logs_database -f "${latestBackup}"`
+
+      console.log(`Dropping schema on port ${target.port}...`)
+      await runCommand(dropSchema)
+
+      console.log(`Restoring backup on port ${target.port}...`)
+      await runCommand(restoreCommand)
+    }
+
+    return NextResponse.json({ success: true, fileRestored: latestBackup })
   } catch (error) {
     console.error("Restore process failed:", error)
-    return NextResponse.json({ success: false, message: "Restore process crashed" }, { status: 500 })
+    return NextResponse.json({ success: false, message: "Restore process crashed", error }, { status: 500 })
   }
 }
-

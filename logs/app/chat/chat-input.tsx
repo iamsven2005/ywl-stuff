@@ -72,7 +72,7 @@ export function ChatInput({ groupId }: { groupId: number }) {
       // Reset state
       setMessage("")
       setSelectedFiles([])
-
+f
       toast.success(
         selectedFiles.length === 1
           ? "File uploaded successfully"

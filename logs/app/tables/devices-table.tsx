@@ -63,6 +63,27 @@ function debounce<T extends (...args: any[]) => any>(func: T, wait: number): (..
   }
 }
 
+// Add this function after the debounce function
+// Function to check if an IP is already assigned to another device
+const isIpAlreadyAssigned = (ip: string, devices: any[], currentDeviceId?: number) => {
+  return devices.some((device) => device.ip_address === ip && (!currentDeviceId || device.id !== currentDeviceId))
+}
+
+// Function to generate available IPs in the same /24 subnet
+const generateAvailableIps = (baseIp: string, devices: any[]) => {
+  // Extract the subnet part (first three octets)
+  const ipParts = baseIp.split(".")
+  if (ipParts.length !== 4) return []
+
+  const subnet = `${ipParts[0]}.${ipParts[1]}.${ipParts[2]}`
+
+  // Generate a list of all possible IPs in this subnet
+  const allIps = Array.from({ length: 254 }, (_, i) => `${subnet}.${i + 1}`)
+
+  // Filter out IPs that are already assigned
+  return allIps.filter((ip) => !isIpAlreadyAssigned(ip, devices))
+}
+
 // Page size options
 const pageSizeOptions = [5, 10, 25, 50, 100]
 
@@ -106,6 +127,10 @@ export default function DevicesTable() {
   const [importFile, setImportFile] = useState<File | null>(null)
   const [importPreview, setImportPreview] = useState<any[]>([])
   const [isImporting, setIsImporting] = useState(false)
+  // Add these state variables inside the DevicesTable component
+  const [ipError, setIpError] = useState<string | null>(null)
+  const [suggestedIps, setSuggestedIps] = useState<string[]>([])
+  const [showIpSuggestions, setShowIpSuggestions] = useState(false)
 
   // Form state
   const [deviceForm, setDeviceForm] = useState<DeviceForm>({
@@ -146,12 +171,11 @@ export default function DevicesTable() {
         page: currentPage,
         pageSize: pageSize,
       })
-      if(result){
+      if (result) {
         setDevices(result.devices)
         setTotalPages(result.pageCount)
         setTotalItems(result.totalCount)
       }
-
     } catch (error) {
       toast.error("Failed to fetch devices")
     } finally {
@@ -231,12 +255,47 @@ export default function DevicesTable() {
       ...prev,
       [name]: value,
     }))
+
+    // Check for duplicate IP addresses when the IP field changes
+    if (name === "ip_address" && value) {
+      const isDuplicate = isIpAlreadyAssigned(value, devices, currentDevice?.id)
+
+      if (isDuplicate) {
+        setIpError(`This IP address is already assigned to another device`)
+
+        // Generate suggestions from the same subnet
+        const availableIps = generateAvailableIps(value, devices).slice(0, 5) // Get first 5 available IPs
+        setSuggestedIps(availableIps)
+        setShowIpSuggestions(true)
+      } else {
+        setIpError(null)
+        setShowIpSuggestions(false)
+      }
+    } else if (name === "ip_address" && !value) {
+      setIpError(null)
+      setShowIpSuggestions(false)
+    }
+  }
+
+  // Add a function to select a suggested IP
+  const selectSuggestedIp = (ip: string) => {
+    setDeviceForm((prev) => ({
+      ...prev,
+      ip_address: ip,
+    }))
+    setIpError(null)
+    setShowIpSuggestions(false)
   }
 
   // Handle add device
   const handleAddDevice = async () => {
     if (!deviceForm.name) {
       toast.error("Device name is required")
+      return
+    }
+
+    if (deviceForm.ip_address && isIpAlreadyAssigned(deviceForm.ip_address, devices)) {
+      setIpError(`This IP address is already assigned to another device`)
       return
     }
 
@@ -261,6 +320,11 @@ export default function DevicesTable() {
   const handleUpdateDevice = async () => {
     if (!currentDevice || !deviceForm.name) {
       toast.error("Device name is required")
+      return
+    }
+
+    if (deviceForm.ip_address && isIpAlreadyAssigned(deviceForm.ip_address, devices, currentDevice.id)) {
+      setIpError(`This IP address is already assigned to another device`)
       return
     }
 
@@ -603,24 +667,22 @@ export default function DevicesTable() {
                     <div className="max-w-[300px] truncate">{device.notes}</div>
                   </TableCell>
                   <TableCell>
-  {device.users && device.users.length > 0 ? (
-    <ul className="list-disc list-inside space-y-1">
-      {device.users.map(({ user }) => (
-        <li key={user.id}>
-          {user.username}{" "}
-          {user.email && (
-            <span className="text-muted-foreground">({user.email})</span>
-          )}
-        </li>
-      ))}
-    </ul>
-  ) : (
-    <span className="text-muted-foreground">No users</span>
-  )}
-</TableCell>
+                    {device.users && device.users.length > 0 ? (
+                      <ul className="list-disc list-inside space-y-1">
+                        {device.users.map(({ user }) => (
+                          <li key={user.id}>
+                            {user.username}{" "}
+                            {user.email && <span className="text-muted-foreground">({user.email})</span>}
+                          </li>
+                        ))}
+                      </ul>
+                    ) : (
+                      <span className="text-muted-foreground">No users</span>
+                    )}
+                  </TableCell>
 
                   <TableCell>
-                  <DeviceStatusIndicator status={deviceStatuses[device.id]} isConnected={isConnected} />
+                    <DeviceStatusIndicator status={deviceStatuses[device.id]} isConnected={isConnected} />
                   </TableCell>
                   <TableCell>
                     <div className="flex gap-2">
@@ -712,16 +774,39 @@ export default function DevicesTable() {
               <Label htmlFor="ip_address" className="text-right">
                 IP Address
               </Label>
-              <div className="col-span-3 flex items-center gap-2">
-                <Network className="h-4 w-4 text-muted-foreground" />
-                <Input
-                  id="ip_address"
-                  name="ip_address"
-                  value={deviceForm.ip_address}
-                  onChange={handleFormChange}
-                  placeholder="192.168.1.100"
-                  className="flex-1"
-                />
+              <div className="col-span-3 flex flex-col gap-1 w-full">
+                <div className="flex items-center gap-2">
+                  <Network className="h-4 w-4 text-muted-foreground" />
+                  <div className="flex-1 relative">
+                    <Input
+                      id="ip_address"
+                      name="ip_address"
+                      value={deviceForm.ip_address}
+                      onChange={handleFormChange}
+                      placeholder="192.168.1.100"
+                      className={`flex-1 ${ipError ? "border-red-500 focus-visible:ring-red-500" : ""}`}
+                    />
+                    {ipError && <div className="text-xs text-red-500 mt-1">{ipError}</div>}
+                  </div>
+                </div>
+
+                {showIpSuggestions && suggestedIps.length > 0 && (
+                  <div className="mt-2 border rounded-md p-2">
+                    <p className="text-xs text-muted-foreground mb-1">Available IPs in this subnet:</p>
+                    <div className="flex flex-wrap gap-1">
+                      {suggestedIps.map((ip) => (
+                        <Badge
+                          key={ip}
+                          variant="outline"
+                          className="cursor-pointer hover:bg-muted"
+                          onClick={() => selectSuggestedIp(ip)}
+                        >
+                          {ip}
+                        </Badge>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
@@ -819,16 +904,39 @@ export default function DevicesTable() {
               <Label htmlFor="edit-ip_address" className="text-right">
                 IP Address
               </Label>
-              <div className="col-span-3 flex items-center gap-2">
-                <Network className="h-4 w-4 text-muted-foreground" />
-                <Input
-                  id="edit-ip_address"
-                  name="ip_address"
-                  value={deviceForm.ip_address}
-                  onChange={handleFormChange}
-                  placeholder="192.168.1.100"
-                  className="flex-1"
-                />
+              <div className="col-span-3 flex flex-col gap-1 w-full">
+                <div className="flex items-center gap-2">
+                  <Network className="h-4 w-4 text-muted-foreground" />
+                  <div className="flex-1 relative">
+                    <Input
+                      id="edit-ip_address"
+                      name="ip_address"
+                      value={deviceForm.ip_address}
+                      onChange={handleFormChange}
+                      placeholder="192.168.1.100"
+                      className={`flex-1 ${ipError ? "border-red-500 focus-visible:ring-red-500" : ""}`}
+                    />
+                    {ipError && <div className="text-xs text-red-500 mt-1">{ipError}</div>}
+                  </div>
+                </div>
+
+                {showIpSuggestions && suggestedIps.length > 0 && (
+                  <div className="mt-2 border rounded-md p-2">
+                    <p className="text-xs text-muted-foreground mb-1">Available IPs in this subnet:</p>
+                    <div className="flex flex-wrap gap-1">
+                      {suggestedIps.map((ip) => (
+                        <Badge
+                          key={ip}
+                          variant="outline"
+                          className="cursor-pointer hover:bg-muted"
+                          onClick={() => selectSuggestedIp(ip)}
+                        >
+                          {ip}
+                        </Badge>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
@@ -1011,4 +1119,3 @@ export default function DevicesTable() {
     </div>
   )
 }
-

@@ -233,7 +233,7 @@ export function UploadButton({ folderId, onUploadComplete, userId }: UploadButto
 </Button>
 
       <textarea
-        className="w-full h-80 border rounded p-2 font-mono text-sm"
+        className="w-full h-80 hidden border rounded p-2 font-mono text-sm"
         readOnly
         value={extractedText}
         placeholder="Extracted text will appear here..."
