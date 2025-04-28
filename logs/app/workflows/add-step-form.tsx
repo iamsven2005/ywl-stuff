@@ -16,10 +16,10 @@ import type { AuditStep, User } from "./types"
 
 interface AddStepFormProps {
   workflowId: string
-  onAddStep: (step: AuditStep) => void
+  onAddTempStep?: (step: Omit<AuditStep, "id">) => void
 }
 
-export function AddStepForm({ workflowId, onAddStep }: AddStepFormProps) {
+export function AddStepForm({ workflowId, onAddTempStep }: AddStepFormProps) {
   const [isAdding, setIsAdding] = useState(false)
   const [title, setTitle] = useState("")
   const [description, setDescription] = useState("")
@@ -29,6 +29,9 @@ export function AddStepForm({ workflowId, onAddStep }: AddStepFormProps) {
   const [users, setUsers] = useState<User[]>([])
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
+
+  // Check if we're in "new workflow" mode
+  const isNewWorkflow = workflowId === "new-workflow"
 
   useEffect(() => {
     async function fetchUsers() {
@@ -54,16 +57,36 @@ export function AddStepForm({ workflowId, onAddStep }: AddStepFormProps) {
     setError(null)
 
     try {
+      // If we're creating a new workflow, add the step to the temporary steps
+      if (isNewWorkflow && onAddTempStep) {
+        // Create a temporary step with a temporary ID
+        const tempStep: AuditStep = {
+          id: -Date.now(), // Use negative timestamp as temporary ID
+          title,
+          description: description || "",
+          status,
+          assignedToId,
+          dueDate: date?.toISOString(),
+          position: 0, // Position will be set by the parent component
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        }
+
+        onAddTempStep(tempStep)
+        resetForm()
+        return
+      }
+
+      // Otherwise, add the step to an existing workflow
       const result = await createStep(workflowId, {
         title,
         description: description || undefined,
         status,
-        assignedToId: assignedToId,
+        assignedToId,
         dueDate: date?.toISOString() || undefined,
       })
 
       if (result.success) {
-        onAddStep(result.data)
         resetForm()
       } else {
         setError(result.error || "Failed to add step")

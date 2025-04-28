@@ -55,10 +55,6 @@ export default function NewWorkflowPage() {
     setSteps(updatedItems)
   }
 
-  const handleAddStep = (newStep: AuditStep) => {
-    setSteps([...steps, { ...newStep, position: steps.length }])
-  }
-
   const handleUpdateStep = (updatedStep: AuditStep) => {
     setSteps(steps.map((step) => (step.id === updatedStep.id ? updatedStep : step)))
   }
@@ -71,6 +67,15 @@ export default function NewWorkflowPage() {
       position: index,
     }))
     setSteps(reorderedSteps)
+  }
+
+  const handleAddTempStep = (step: AuditStep) => {
+    // Add the new step with the correct position
+    const newStep = {
+      ...step,
+      position: steps.length,
+    }
+    setSteps([...steps, newStep])
   }
 
   const handleCreateWorkflow = async () => {
@@ -94,15 +99,20 @@ export default function NewWorkflowPage() {
         return
       }
 
-      // Then add steps if there are any
+      const workflowId = workflowResult.data.id.toString()
+
+      // Then create all the steps if there are any
       if (steps.length > 0) {
-        for (const step of steps) {
-          await createStep(workflowResult.data.id.toString(), {
+        // Create steps in sequence to maintain order
+        for (let i = 0; i < steps.length; i++) {
+          const step = steps[i]
+          await createStep(workflowId, {
             title: step.title,
             description: step.description,
             status: step.status,
-            assignedToId: step.assignedToId ? step.assignedToId.toString() : null,
+            assignedToId: step.assignedToId,
             dueDate: step.dueDate,
+            position: step.position,
           })
         }
       }
@@ -112,7 +122,7 @@ export default function NewWorkflowPage() {
         description: "Your new workflow has been created successfully.",
       })
 
-      router.push("/workflows")
+      router.push(`/workflows/${workflowId}`)
     } catch (err) {
       console.error("Error creating workflow:", err)
       setError("An unexpected error occurred")
@@ -207,7 +217,7 @@ export default function NewWorkflowPage() {
               </div>
             )}
 
-            <AddStepForm workflowId="new-workflow" onAddStep={handleAddStep} />
+            <AddStepForm workflowId="new-workflow" onAddTempStep={handleAddTempStep} />
           </CardContent>
         </Card>
 

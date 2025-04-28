@@ -11,7 +11,6 @@ import { ArrowLeft, GripVertical } from "lucide-react"
 import {
   getWorkflowById,
   updateWorkflow,
-  createStep,
   updateStep,
   deleteStep,
   reorderSteps,
@@ -107,27 +106,6 @@ export default function EditWorkflowPage() {
     } catch (err) {
       console.error("Error reordering steps:", err)
       // If there's an error, we could fetch the steps again to reset to server state
-    }
-  }
-
-  const handleAddStep = async (newStep: AuditStep) => {
-    try {
-      const result = await createStep(workflow.id.toString(), {
-        title: newStep.title,
-        description: newStep.description,
-        status: newStep.status,
-        assignedToId: newStep.assignedToId,
-        dueDate: newStep.dueDate,
-      })
-
-      if (result.success) {
-        setSteps([...steps, result.data])
-      } else {
-        setError(result.error || "Failed to add step")
-      }
-    } catch (err) {
-      console.error("Error adding step:", err)
-      setError("An unexpected error occurred")
     }
   }
 
@@ -264,7 +242,7 @@ export default function EditWorkflowPage() {
               </Droppable>
             </DragDropContext>
 
-            <AddStepForm workflowId={workflow.id.toString()} onAddStep={handleAddStep} />
+            <AddStepForm workflowId={workflow.id.toString()} />
           </CardContent>
         </Card>
 
