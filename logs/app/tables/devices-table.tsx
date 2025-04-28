@@ -556,6 +556,17 @@ export default function DevicesTable() {
       setIsImporting(false)
     }
   }
+  const baseIp = "192.168.1.0" // define your network base, example 192.168.1.0/24
+
+  // Generate all 256 possible IPs in /24 subnet (1-254 usable)
+  const subnetParts = baseIp.split(".")
+  const subnetPrefix = `${subnetParts[0]}.${subnetParts[1]}.${subnetParts[2]}`
+  const allIps = Array.from({ length: 254 }, (_, i) => `${subnetPrefix}.${i + 1}`) // 1 to 254
+  
+  // Remove already assigned IPs
+  const assignedIps = devices.map(device => device.ip_address).filter(Boolean)
+  const availableIps = allIps.filter(ip => !assignedIps.includes(ip))
+  
   return (
     <div className="space-y-4">
       <div className="flex flex-col sm:flex-row gap-4 justify-between">
@@ -747,6 +758,23 @@ export default function DevicesTable() {
             </PaginationItem>
           </PaginationContent>
         </Pagination>
+ {/* Available IPs Sidebar */}
+ <div className="lg:col-span-1 space-y-4">
+    <div className="border rounded-md p-4">
+      <h2 className="font-semibold mb-2">Available IPs</h2>
+      {availableIps.length > 0 ? (
+        <div className="flex flex-col gap-2 max-h-[600px] overflow-y-auto">
+          {availableIps.slice(0, 256).map((ip) => ( // Limit to 256 shown
+            <Badge key={ip} variant="outline" className="font-mono w-full justify-center">
+              {ip}
+            </Badge>
+          ))}
+        </div>
+      ) : (
+        <p className="text-muted-foreground text-sm">No available IPs</p>
+      )}
+    </div>
+  </div>
       </div>
 
       {/* Add Device Modal */}
