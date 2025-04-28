@@ -645,7 +645,15 @@ exports.Prisma.TeamLocationScalarFieldEnum = {
   locationId: 'locationId'
 };
 
-exports.Prisma.Audit_stepsScalarFieldEnum = {
+exports.Prisma.AuditWorkflowScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  description: 'description',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.AuditStepScalarFieldEnum = {
   id: 'id',
   title: 'title',
   description: 'description',
@@ -656,15 +664,7 @@ exports.Prisma.Audit_stepsScalarFieldEnum = {
   workflowId: 'workflowId'
 };
 
-exports.Prisma.Audit_workflowsScalarFieldEnum = {
-  id: 'id',
-  name: 'name',
-  description: 'description',
-  createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
-};
-
-exports.Prisma.Step_logsScalarFieldEnum = {
+exports.Prisma.StepLogScalarFieldEnum = {
   id: 'id',
   stepId: 'stepId',
   message: 'message',
@@ -757,9 +757,9 @@ exports.Prisma.ModelName = {
   TeamLeader: 'TeamLeader',
   TeamMember: 'TeamMember',
   TeamLocation: 'TeamLocation',
-  audit_steps: 'audit_steps',
-  audit_workflows: 'audit_workflows',
-  step_logs: 'step_logs'
+  AuditWorkflow: 'AuditWorkflow',
+  AuditStep: 'AuditStep',
+  StepLog: 'StepLog'
 };
 
 /**

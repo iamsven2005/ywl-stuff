@@ -218,7 +218,7 @@ model User {
   ticketComments      TicketComment[]
   emailTemplates      UserEmailTemplate[]
   UserPermission      UserPermission[]
-  audit_steps         audit_steps[]
+  audit_steps         AuditStep[]
   receivedPermissions DriveFilePermission[] @relation("DriveFilePermissionToUser")
   addressedMatches    CommandMatch[]        @relation("addressedBy")
 }
@@ -683,46 +683,47 @@ model TeamLocation {
   @@unique([teamId, locationId])
 }
 
-model audit_steps {
-  id              Int             @id @default(autoincrement())
-  title           String
-  description     String?
-  position        Int
-  status          StepStatus      @default(PENDING)
-  assignedToId    Int?
-  dueDate         DateTime?
-  workflowId      Int
-  User            User?           @relation(fields: [assignedToId], references: [id])
-  audit_workflows audit_workflows @relation(fields: [workflowId], references: [id])
-  step_logs       step_logs[]
-
-  @@index([workflowId, position])
-}
-
-model audit_workflows {
-  id          Int           @id @default(autoincrement())
-  name        String
-  description String?
-  createdAt   DateTime      @default(now())
-  updatedAt   DateTime
-  audit_steps audit_steps[]
-}
-
-model step_logs {
-  id          Int         @id @default(autoincrement())
-  stepId      Int
-  message     String
-  createdBy   String
-  createdAt   DateTime    @default(now())
-  audit_steps audit_steps @relation(fields: [stepId], references: [id])
-
-  @@index([stepId])
-}
-
 enum StepStatus {
   PENDING
   IN_PROGRESS
   REVIEW
   COMPLETED
   REJECTED
+}
+
+// Models
+model AuditWorkflow {
+  id          Int           @id @default(autoincrement())
+  name        String
+  description String?
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+  steps       AuditStep[]    @relation("WorkflowSteps")
+}
+
+model AuditStep {
+  id             Int          @id @default(autoincrement())
+  title          String
+  description    String?
+  position       Int
+  status         StepStatus   @default(PENDING)
+  assignedToId   Int?          // Can be null
+  dueDate        DateTime?
+  workflowId     Int
+  workflow       AuditWorkflow @relation("WorkflowSteps", fields: [workflowId], references: [id])
+  assignedTo     User?         @relation(fields: [assignedToId], references: [id])
+  logs           StepLog[]     @relation("StepLogs")
+
+  @@index([workflowId, position])
+}
+
+model StepLog {
+  id         Int        @id @default(autoincrement())
+  stepId     Int
+  message    String
+  createdBy  String
+  createdAt  DateTime   @default(now())
+  step       AuditStep  @relation("StepLogs", fields: [stepId], references: [id])
+
+  @@index([stepId])
 }

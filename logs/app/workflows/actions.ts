@@ -331,7 +331,7 @@ export async function updateStep(workflowId: string, stepId: string, data: Parti
 
     // Handle assignedToId
     if (data.assignedToId !== undefined) {
-      if (data.assignedToId === null || data.assignedToId === "") {
+      if (data.assignedToId === null) {
         updateData.assignedToId = null
       } else {
         const parsedAssignedToId = Number.parseInt(data.assignedToId.toString())
