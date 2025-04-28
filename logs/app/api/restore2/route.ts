@@ -6,7 +6,7 @@ import os from "os"
 
 // Constants
 const DATABASE_URL = "postgresql://admin:host-machine@192.168.1.26:5433/logs_database"
-const BACKUP_FOLDER = "/mnt/userdocuments/sven.tan/MyDocs"
+const BACKUP_FOLDER = "/mnt/userdocuments/sven.tan/MyDocs/vector"
 const FALLBACK_FOLDER = path.join(os.tmpdir(), "database_backups")
 
 function getLatestSQLFile(folder: string): string | null {
