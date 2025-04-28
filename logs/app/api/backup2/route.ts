@@ -10,7 +10,7 @@ import os from "os"
 
 // Database connection details
 
-const DATABASE_URL = "postgresql://admin:host-machine@192.168.1.26:5432/logs_database"
+const DATABASE_URL = "postgresql://admin:host-machine@192.168.1.26:5433/logs_database"
 
 const BACKUP_FOLDER = "/mnt/userdocuments/sven.tan/MyDocs" // NAS location
 
