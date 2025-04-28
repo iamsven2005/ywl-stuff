@@ -1,81 +1,48 @@
 import { NextResponse } from "next/server"
-
 import { exec } from "child_process"
-
+import path from "path"
+import os from "os"
 import fs from "fs"
 
-import path from "path"
+// Constants
+const BACKUP_FOLDER = "/mnt/userdocuments/sven.tan/MyDocs"
+const FALLBACK_FOLDER = path.join(os.tmpdir(), "database_backups")
 
-import os from "os"
-
-// Database connection details
-
-const DATABASE_URL = "postgresql://admin:host-machine@192.168.1.26:5432/logs_database"
-
-const BACKUP_FOLDER = "/mnt/userdocuments/sven.tan/MyDocs" // NAS location
-
-const FALLBACK_FOLDER = path.join(os.tmpdir(), "database_backups") // Fallback
+function runCommand(command: string): Promise<void> {
+  return new Promise((resolve, reject) => {
+    exec(command, (error, stdout, stderr) => {
+      if (error) {
+        console.error("Command failed:", stderr)
+        reject(stderr)
+      } else {
+        console.log("Command success:", stdout)
+        resolve()
+      }
+    })
+  })
+}
 
 export async function POST() {
-
   try {
-
-    // Ensure backup folder exists
-
-    if (!fs.existsSync(BACKUP_FOLDER)) {
-
-      console.warn("NAS backup folder not found. Using fallback:", FALLBACK_FOLDER)
-
-      if (!fs.existsSync(FALLBACK_FOLDER)) fs.mkdirSync(FALLBACK_FOLDER, { recursive: true })
-
-    }
-
-    // Generate filename with timestamp
+    const backupDir = fs.existsSync(BACKUP_FOLDER) ? BACKUP_FOLDER : FALLBACK_FOLDER
 
     const timestamp = new Date().toISOString().replace(/[:.]/g, "-")
+    const mainBackupPath = path.join(backupDir, `backup_main_${timestamp}.sql`)
+    const pgvectorBackupPath = path.join(backupDir, `backup_pgvector_${timestamp}.sql`)
 
-    const fileName = `backup-${timestamp}.sql`
+    // Commands
+    const backupMain = `PGPASSFILE=~/.pgpass pg_dump -h 192.168.1.26 -p 5432 -U admin -d logs_database -f "${mainBackupPath}"`
+    const backupPgvector = `PGPASSFILE=~/.pgpass pg_dump -h 192.168.1.26 -p 5433 -U admin -d logs_database -f "${pgvectorBackupPath}"`
 
-    const filePath = fs.existsSync(BACKUP_FOLDER)
+    console.log("Backing up main DB...")
+    await runCommand(backupMain)
 
-      ? path.join(BACKUP_FOLDER, fileName)
+    console.log("Backing up pgvector DB...")
+    await runCommand(backupPgvector)
 
-      : path.join(FALLBACK_FOLDER, fileName)
-
-    // Construct pg_dump command with .pgpass for authentication
-
-    const dumpCommand = `PGPASSFILE=~/.pgpass pg_dump -h 192.168.1.26 -U admin -d logs_database -F c -b -v -f "${filePath}"`
-
-    // Execute backup command
-
-    return new Promise((resolve, reject) => {
-
-      exec(dumpCommand, (error, stdout, stderr) => {
-
-        if (error) {
-
-          console.error("Backup error:", stderr)
-
-          reject(NextResponse.json({ success: false, message: "Backup failed" }, { status: 500 }))
-
-        } else {
-
-          console.log("Backup successful:", stdout)
-
-          resolve(NextResponse.json({ success: true, filePath }))
-
-        }
-
-      })
-
-    })
-
+    return NextResponse.json({ success: true, mainBackup: mainBackupPath, pgvectorBackup: pgvectorBackupPath })
   } catch (error) {
-
     console.error("Backup process failed:", error)
-
-    return NextResponse.json({ success: false, message: "Backup failed" }, { status: 500 })
-
+    return NextResponse.json({ success: false, message: "Backup process crashed", error }, { status: 500 })
   }
-
 }
