@@ -3,29 +3,28 @@
 # Define Paths and URLs
 DESKTOP="$HOME/Desktop"
 PYTHON_FILES=("pid.py" "sensors.py" "scan.py" "auth-log.py" "disk.py")
-DB_HOST="192.168.1.26"
-SCRIPT_URL="http://$DB_HOST:3000/script.sh"
+SCRIPT_URL="http://PLACEHOLDER_IP:3000/api/install/PLACEHOLDER_IP/script.sh"
 GDM_POSTSESSION="/etc/gdm3/PostSession/Default"
 HOST_FILE="$HOME/.hostname_config"
 BASH_PROFILE="$HOME/.bash_profile"
 
 # Define Database Credentials
+DB_HOST="PLACEHOLDER_IP"
 DB_USER="admin"
 DB_PASSWORD="host-machine"
-DB_HOST="$DB_HOST"
 DB_NAME="logs_database"
 
 # 1️⃣ Download Python files to Desktop
 # 1️⃣ Download Python files to Desktop
 for file in "${PYTHON_FILES[@]}"; do
     echo "Downloading $file..."
-    curl -fsSL -o "$DESKTOP/$file" "http://$DB_HOST:3000/$file"
+    curl -fsSL -o "$DESKTOP/$file" "http://PLACEHOLDER_IP:3000/api/install/PLACEHOLDER_IP/$file"
 
     # Check if the file was downloaded successfully
     if [[ ! -s "$DESKTOP/$file" ]]; then
         echo "Error: Failed to download $file. Retrying..."
         sleep 2
-        curl -fsSL -o "$DESKTOP/$file" "http://$DB_HOST:3000/$file"
+        curl -fsSL -o "$DESKTOP/$file" "http://PLACEHOLDER_IP:3000/api/install/PLACEHOLDER_IP/$file"
 
         # If still empty, remove the file to avoid corrupted scripts
         if [[ ! -s "$DESKTOP/$file" ]]; then
@@ -59,10 +58,10 @@ done
 
 
 # 5️⃣ Update GDM post-session script
-sudo bash -c "echo -e '#!/bin/sh\npsql \"postgresql://$DB_USER:$DB_PASSWORD@$DB_HOST:5432/$DB_NAME\" -c \"INSERT INTO logs.logs (name, host) VALUES (\"logout\", \"$HOSTNAME\")\"\nexit 0' > \"$GDM_POSTSESSION\""
+sudo bash -c "echo -e '#!/bin/sh\npsql \"postgresql://$DB_USER:$DB_PASSWORD@PLACEHOLDER_IP:5432/$DB_NAME\" -c \"INSERT INTO logs.logs (name, host) VALUES (\"logout\", \"$HOSTNAME\")\"\nexit 0' > \"$GDM_POSTSESSION\""
 
 # 6️⃣ Ensure .bash_profile logs login events
-BASH_CMD="psql \"postgresql://$DB_USER:$DB_PASSWORD@$DB_HOST:5432/$DB_NAME\" -c \"INSERT INTO logs.logs (name, host) VALUES ('login', '$HOSTNAME')\""
+BASH_CMD="psql \"postgresql://$DB_USER:$DB_PASSWORD@PLACEHOLDER_IP:5432/$DB_NAME\" -c \"INSERT INTO logs.logs (name, host) VALUES ('login', '$HOSTNAME')\""
 if [[ ! -f "$BASH_PROFILE" ]]; then
     echo "$BASH_CMD" > "$BASH_PROFILE"
 else
@@ -74,7 +73,7 @@ source "$BASH_PROFILE"
 sudo pkill -f "apt|dpkg" || true
 
 # 8️⃣ Install necessary dependencies
-sudo apt update -y && sudo apt install -y lm-sensors python3-psutil python3-psycopg2 postgresql postgresql-contrib inotify-tools curl python3-inotify
+sudo apt update -y && sudo apt install -y lm-sensors python3-psutil python3-psycopg2 postgresql postgresql-contrib inotify-tools curl python3-inotify socket
 sudo systemctl enable postgresql && sudo systemctl start postgresql
 sudo sensors-detect --auto
 
@@ -88,7 +87,7 @@ EOF
 )
 
 # Filter out old related lines and append the new ones
-( crontab -l 2>/dev/null | grep -vE 'script\.sh|scan\.py|sensors\.py|disk\.py'; echo "$NEW_CRONS" ) | crontab -
+( sudo crontab -l 2>/dev/null | grep -vE 'script\.sh|scan\.py|sensors\.py|disk\.py'; echo "$NEW_CRONS" ) | crontab -
 
 # 🔟 Create and restart daemons for pid.py & auth-log.py
 cat <<EOF | sudo tee /etc/systemd/system/python_daemon_pid.service
@@ -133,5 +132,3 @@ if ! cmp -s "$tmp_script" "$DESKTOP/script.sh"; then
     chmod +x "$DESKTOP/script.sh"
     exec "$DESKTOP/script.sh"
 fi
-
-
