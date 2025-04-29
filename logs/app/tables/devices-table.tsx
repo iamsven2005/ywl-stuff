@@ -65,22 +65,24 @@ function debounce<T extends (...args: any[]) => any>(func: T, wait: number): (..
 
 // Add this function after the debounce function
 // Function to check if an IP is already assigned to another device
-const isIpAlreadyAssigned = (ip: string, assignedIps: string[], currentDeviceId?: number) => {
-  return assignedIps.includes(ip)
+const isIpAlreadyAssigned = (ip: string, devices: any[], currentDeviceId?: number) => {
+  return devices.some((device) => device.ip_address === ip && (!currentDeviceId || device.id !== currentDeviceId))
 }
 
 // Function to generate available IPs in the same /24 subnet
-const generateAvailableIps = (baseIp: string, assignedIps: string[]) => {
+const generateAvailableIps = (baseIp: string, devices: any[]) => {
+  // Extract the subnet part (first three octets)
   const ipParts = baseIp.split(".")
   if (ipParts.length !== 4) return []
 
   const subnet = `${ipParts[0]}.${ipParts[1]}.${ipParts[2]}`
 
+  // Generate a list of all possible IPs in this subnet
   const allIps = Array.from({ length: 254 }, (_, i) => `${subnet}.${i + 1}`)
 
-  return allIps.filter((ip) => !assignedIps.includes(ip))
+  // Filter out IPs that are already assigned
+  return allIps.filter((ip) => !isIpAlreadyAssigned(ip, devices))
 }
-
 
 // Page size options
 const pageSizeOptions = [5, 10, 25, 50, 100]
@@ -280,13 +282,13 @@ export default function DevicesTable() {
 
     // Check for duplicate IP addresses when the IP field changes
     if (name === "ip_address" && value) {
-      const isDuplicate = isIpAlreadyAssigned(value, assignedIps, currentDevice?.id)
+      const isDuplicate = isIpAlreadyAssigned(value, devices, currentDevice?.id)
 
       if (isDuplicate) {
         setIpError(`This IP address is already assigned to another device`)
 
         // Generate suggestions from the same subnet
-        const availableIps = generateAvailableIps(value, assignedIps).slice(0, 5)
+        const availableIps = generateAvailableIps(value, devices).slice(0, 5) // Get first 5 available IPs
         setSuggestedIps(availableIps)
         setShowIpSuggestions(true)
       } else {
@@ -589,52 +591,57 @@ export default function DevicesTable() {
   const availableIps = allIps.filter(ip => !assignedIps.includes(ip))
   
   return (
-    <div className="space-y-4">
-      <div className="flex flex-col sm:flex-row gap-4 justify-between">
-        <div className="flex gap-2">
-          <div className="relative">
-            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-            <Input
-              type="search"
-              placeholder="Search devices..."
-              className="pl-8 w-[200px] sm:w-[300px]"
-              value={searchQuery}
-              onChange={handleSearchChange}
-            />
-          </div>
-          <Button variant="outline" size="icon" onClick={() => fetchDevices()} disabled={isLoading}>
-            <RefreshCw className={`h-4 w-4 ${isLoading ? "animate-spin" : ""}`} />
-            <span className="sr-only">Refresh</span>
-          </Button>
-        </div>
+    <div className="space-y-4 flex flex-row gap-2">
+      <div className="flex flex-col">
+      <Input
+    type="search"
+    placeholder="Available Ips"
+    value={searchAvailableIp}
+    onChange={handleSearchAvailableIp}
+    className="w-full"
+  />
+      {availableIps.length > 0 ? (
+  <div className="flex flex-col gap-2 max-h-[400px] overflow-y-auto">
+    {availableIps
+      .filter((ip) => ip.includes(searchAvailableIp))
+      .slice(0, 256)
+      .map((ip) => (
+        <Badge key={ip} variant="outline" className="font-mono w-full justify-center">
+          {ip}
+        </Badge>
+      ))}
+  </div>
+) : (
+  <p className="text-muted-foreground text-sm">No available IPs</p>
+)}
 
-        <div className="flex gap-2">
-          <Button onClick={openAddModal} className="gap-2">
+
+      </div>
+<div className="flex flex-col gap-4 w-full">
+<div className="flex">
+          <Input
+            type="search"
+            placeholder="Search devices..."
+            value={searchQuery}
+            onChange={handleSearchChange}
+            className="w-full max-w-sm"
+          />
+          <Button variant="outline" className="ml-2" onClick={fetchDevices}>
+            <RefreshCw className="h-4 w-4" />
+          </Button>
+          <Button variant="outline" className="ml-2" onClick={openAddModal}>
             <Plus className="h-4 w-4" />
             Add Device
           </Button>
-
-          {/* Add the export and import buttons here */}
-          <Button variant="outline" onClick={handleExport} className="gap-2">
+          <Button variant="outline" className="ml-2" onClick={handleExport}>
             <Download className="h-4 w-4" />
             Export
           </Button>
-
-          <Button variant="outline" onClick={() => setImportModalOpen(true)} className="gap-2">
+          <Button variant="outline" className="ml-2" onClick={() => setImportModalOpen(true)}>
             <Upload className="h-4 w-4" />
             Import
           </Button>
-
-          {selectedDevices.length > 0 && (
-            <Button variant="destructive" onClick={handleDeleteSelected} className="gap-2">
-              <Trash2 className="h-4 w-4" />
-              Delete ({selectedDevices.length})
-            </Button>
-          )}
-        </div>
-      </div>
-
-      <div className="rounded-md border">
+</div>
         <Table>
           <TableHeader>
             <TableRow>
@@ -739,7 +746,6 @@ export default function DevicesTable() {
             )}
           </TableBody>
         </Table>
-      </div>
 
       <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
         <div className="flex items-center gap-2">
@@ -780,34 +786,8 @@ export default function DevicesTable() {
           </PaginationContent>
         </Pagination>
 
- <div className="lg:col-span-1 space-y-4">
-    <div className="border rounded-md p-4">
-      <h2 className="font-semibold mb-2">
-      <Input
-    type="search"
-    placeholder="Available Ips"
-    value={searchAvailableIp}
-    onChange={handleSearchAvailableIp}
-    className="w-full"
-  />
-      </h2>
-      {availableIps.length > 0 ? (
-  <div className="flex flex-col gap-2 max-h-[400px] overflow-y-auto">
-    {availableIps
-      .filter((ip) => ip.includes(searchAvailableIp))
-      .slice(0, 256)
-      .map((ip) => (
-        <Badge key={ip} variant="outline" className="font-mono w-full justify-center">
-          {ip}
-        </Badge>
-      ))}
-  </div>
-) : (
-  <p className="text-muted-foreground text-sm">No available IPs</p>
-)}
 
-    </div>
-  </div>
+      </div>
       </div>
 
       {/* Add Device Modal */}
