@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Run arp-scan
-scan_results=$(sudo arp-scan --interface=eno01 --localnet)
+scan_results=$(sudo arp-scan --interface=enp1s0 --localnet)
 
 # Extract lines with valid MACs
 echo "$scan_results" | grep -E "([0-9a-f]{2}:){5}[0-9a-f]{2}" | while read -r line; do
