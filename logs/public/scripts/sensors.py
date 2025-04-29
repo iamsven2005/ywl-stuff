@@ -1,18 +1,13 @@
 import os
-import psycopg2
-from datetime import datetime
-import re  # ✅ Import regex module to clean sensor values
+import re
+import socket
+import requests
 
-# PostgreSQL connection details
-DB_CONFIG = {
-    "dbname": "logs_database",
-    "user": "admin",
-    "password": "host-machine",
-    "host": "PLACEHOLDER_IP",
-    "port": 5432
-}
+# --- Config ---
+API_ENDPOINT = "http://PLACEHOLDER_IP:3000/api/sensors"  # Replace with your backend server IP
+DEVICE_HOST = socket.gethostname()
 
-# Function to extract sensor data
+# --- Function to extract sensor data ---
 def get_sensors_data():
     sensor_data = []
     sensors_output = os.popen("sensors").read()
@@ -23,19 +18,19 @@ def get_sensors_data():
             sensor_name = parts[0].strip()
             value_part = parts[1].strip()
 
-            # Skip non-numeric sensor names (e.g., "ISA adapter")
+            # Skip non-numeric sensor outputs
             if not any(char.isdigit() for char in value_part):
-                continue  # ✅ Skip invalid data
+                continue
 
-            # ✅ Extract only the first numeric value (ignores additional text like "high =", "crit =", etc.)
+            # Extract only the first numeric value
             match = re.search(r"[-+]?\d*\.?\d+", value_part)
             if not match:
                 print(f"Skipping invalid sensor value: {value_part}")
                 continue
 
-            cleaned_value = float(match.group())  # ✅ Convert extracted value to float
+            cleaned_value = float(match.group())
 
-            # Determine value type
+            # Determine sensor value type
             if "°C" in value_part:
                 value_type = "temperature"
             elif "RPM" in value_part:
@@ -45,38 +40,32 @@ def get_sensors_data():
             elif "W" in value_part:
                 value_type = "power"
             else:
-                value_type = "unknown"  # ✅ Handle unknown sensor types
+                value_type = "unknown"
 
-            sensor_data.append((sensor_name, value_type, cleaned_value))
+            sensor_data.append({
+                "host": DEVICE_HOST,
+                "sensor_name": sensor_name,
+                "value_type": value_type,
+                "value": cleaned_value,
+            })
 
     return sensor_data
 
-# Function to store data in PostgreSQL
-def store_sensor_data():
+# --- Post sensor data to API ---
+def post_sensor_data():
+    sensor_data = get_sensors_data()
+
+    if not sensor_data:
+        print("⚠️ No valid sensors found")
+        return
+
     try:
-        host = "__DEVICE_HOST__"  # ✅ Fixed invalid string quotes
-        conn = psycopg2.connect(**DB_CONFIG)
-        cursor = conn.cursor()
-
-        sensor_data = get_sensors_data()
-
-        for sensor_name, value_type, value in sensor_data:
-            cursor.execute(
-                """
-                INSERT INTO logs.system_metrics (sensor_name, value_type, value, host)
-                VALUES (%s, %s, %s, %s)
-                """,
-                (sensor_name, value_type, value, host)
-            )
-
-        conn.commit()
-        cursor.close()
-        conn.close()
-        print("Sensor data logged successfully.")
-
+        res = requests.post(API_ENDPOINT, json={"sensors": sensor_data}, timeout=5)
+        res.raise_for_status()
+        print("✅ Sensor data posted successfully:", res.json())
     except Exception as e:
-        print(f"Database Error: {e}")
+        print("❌ Failed to post sensor data:", e)
 
-# Run the function
+# --- Entry point ---
 if __name__ == "__main__":
-    store_sensor_data()
+    post_sensor_data()
