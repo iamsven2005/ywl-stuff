@@ -1,16 +1,10 @@
 import subprocess
-import psycopg2
-from datetime import datetime
 import socket
+import requests
 
-# --- PostgreSQL connection config ---
-DB_CONFIG = {
-    "dbname": "logs_database",
-    "user": "admin",
-    "password": "host-machine",
-    "host": "PLACEHOLDER_IP",
-    "port": "5432"
-}
+# --- Config ---
+API_ENDPOINT = "http://PLACEHOLDER_IP:3000/api/disk"
+DEVICE_HOST = socket.gethostname()
 
 # --- Convert human-readable sizes to GB ---
 def to_gb(size_str):
@@ -40,6 +34,7 @@ def parse_df_output():
             device, size, used, avail, use_percent, mount = parts[:6]
             if device.startswith('/dev/'):  # Only physical disks
                 parsed_disks.append({
+                    "host": DEVICE_HOST,
                     "name": device,
                     "label": mount,
                     "totalGB": to_gb(size),
@@ -49,9 +44,8 @@ def parse_df_output():
 
     return parsed_disks
 
-# --- Log disk usage to PostgreSQL ---
-def log_disk_usage():
-    hostname = socket.gethostname()
+# --- Post disk usage data ---
+def post_disk_usage():
     disks = parse_df_output()
 
     if not disks:
@@ -59,31 +53,12 @@ def log_disk_usage():
         return
 
     try:
-        conn = psycopg2.connect(**DB_CONFIG)
-        cursor = conn.cursor()
-
-        for disk in disks:
-            cursor.execute("""
-                INSERT INTO logs.diskmetric (host, name, label, totalGB, usedGB, freeGB)
-                VALUES (%s, %s, %s, %s, %s, %s)
-            """, (
-                hostname,
-                disk["name"],
-                disk["label"],
-                disk["totalGB"],
-                disk["usedGB"],
-                disk["freeGB"],
-            ))
-            print(f"✅ Logged {disk['name']} at {disk['label']} ({disk['usedGB']}/{disk['totalGB']} GB)")
-
-        conn.commit()
-        cursor.close()
-        conn.close()
-        print("✅ All disk usage saved.\n")
-
+        response = requests.post(API_ENDPOINT, json={"disks": disks}, timeout=5)
+        response.raise_for_status()
+        print("✅ Disks posted successfully:", response.json())
     except Exception as e:
-        print("❌ DB Error:", e)
+        print("❌ API Post Error:", e)
 
 # --- Entry point ---
 if __name__ == "__main__":
-    log_disk_usage()
+    post_disk_usage()
