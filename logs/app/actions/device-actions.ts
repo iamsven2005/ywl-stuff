@@ -8,6 +8,19 @@ interface GetDevicesParams {
   page?: number
   pageSize?: number
 }
+export async function getAllDeviceIps() {
+  try {
+    const devices = await db.devices.findMany({
+      select: {
+        ip_address: true,
+      },
+    })
+    return devices.map((d) => d.ip_address).filter(Boolean)
+  } catch (error) {
+    console.error("Error fetching device IPs:", error)
+    return []
+  }
+}
 
 // Update the getDevices function to include user information
 export async function getDevices({ search = "", page = 1, pageSize = 10 }: GetDevicesParams) {

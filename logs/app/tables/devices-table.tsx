@@ -47,7 +47,7 @@ import { toast } from "sonner"
 import type { devices } from "@prisma/client"
 // Add the import for export utilities at the top of the file
 import * as XLSX from "xlsx"
-import { addDevice, deleteDevice, getDevices, updateDevice } from "../actions/device-actions"
+import { addDevice, deleteDevice, getAllDeviceIps, getDevices, updateDevice } from "../actions/device-actions"
 import { exportToExcel, generateDeviceImportTemplate, prepareDevicesForExport } from "../export-utils"
 import { DeviceStatusIndicator } from "@/components/device-status-indicator"
 // Import the DeviceStatusIndicator component
@@ -146,7 +146,22 @@ export default function DevicesTable() {
   const [pageSize, setPageSize] = useState(10)
   const [totalPages, setTotalPages] = useState(1)
   const [totalItems, setTotalItems] = useState(0)
+  const [assignedIps, setAssignedIps] = useState<string[]>([])
 
+  useEffect(() => {
+    const fetchAllIps = async () => {
+      try {
+        const ips = await getAllDeviceIps()
+        if(ips){
+          setAssignedIps(ips)
+        }
+      } catch (error) {
+        console.error("Failed to fetch IPs", error)
+      }
+    }
+  
+    fetchAllIps()
+  }, [])
   // Apply debounced search
   const debouncedSearch = debounce((value: string) => {
     setDebouncedSearchQuery(value)
@@ -564,7 +579,6 @@ export default function DevicesTable() {
   const allIps = Array.from({ length: 254 }, (_, i) => `${subnetPrefix}.${i + 1}`) // 1 to 254
   
   // Remove already assigned IPs
-  const assignedIps = devices.map(device => device.ip_address).filter(Boolean)
   const availableIps = allIps.filter(ip => !assignedIps.includes(ip))
   
   return (
