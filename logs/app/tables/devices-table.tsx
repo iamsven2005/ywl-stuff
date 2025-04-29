@@ -147,6 +147,8 @@ export default function DevicesTable() {
   const [totalPages, setTotalPages] = useState(1)
   const [totalItems, setTotalItems] = useState(0)
   const [assignedIps, setAssignedIps] = useState<string[]>([])
+  const [searchAvailableIp, setSearchAvailableIp] = useState("")
+  const [searchSuggestedIp, setSearchSuggestedIp] = useState("")
 
   useEffect(() => {
     const fetchAllIps = async () => {
@@ -163,6 +165,10 @@ export default function DevicesTable() {
     fetchAllIps()
   }, [])
   // Apply debounced search
+  const handleSearchSuggestedIp = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchSuggestedIp(e.target.value)
+  }
+  
   const debouncedSearch = debounce((value: string) => {
     setDebouncedSearchQuery(value)
     // Reset to first page when search changes
@@ -262,7 +268,10 @@ export default function DevicesTable() {
     setCurrentDevice(device)
     setDeleteModalOpen(true)
   }
-
+  const handleSearchAvailableIp = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchAvailableIp(e.target.value)
+  }
+  
   // Handle form input change
   const handleFormChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target
@@ -772,21 +781,33 @@ export default function DevicesTable() {
             </PaginationItem>
           </PaginationContent>
         </Pagination>
- {/* Available IPs Sidebar */}
+
  <div className="lg:col-span-1 space-y-4">
     <div className="border rounded-md p-4">
-      <h2 className="font-semibold mb-2">Available IPs</h2>
+      <h2 className="font-semibold mb-2">
+      <Input
+    type="search"
+    placeholder="Available Ips"
+    value={searchAvailableIp}
+    onChange={handleSearchAvailableIp}
+    className="w-full"
+  />
+      </h2>
       {availableIps.length > 0 ? (
-        <div className="flex flex-col gap-2 max-h-[600px] overflow-y-auto">
-          {availableIps.slice(0, 256).map((ip) => ( // Limit to 256 shown
-            <Badge key={ip} variant="outline" className="font-mono w-full justify-center">
-              {ip}
-            </Badge>
-          ))}
-        </div>
-      ) : (
-        <p className="text-muted-foreground text-sm">No available IPs</p>
-      )}
+  <div className="flex flex-col gap-2 max-h-[400px] overflow-y-auto">
+    {availableIps
+      .filter((ip) => ip.includes(searchAvailableIp))
+      .slice(0, 256)
+      .map((ip) => (
+        <Badge key={ip} variant="outline" className="font-mono w-full justify-center">
+          {ip}
+        </Badge>
+      ))}
+  </div>
+) : (
+  <p className="text-muted-foreground text-sm">No available IPs</p>
+)}
+
     </div>
   </div>
       </div>
@@ -833,22 +854,39 @@ export default function DevicesTable() {
                 </div>
 
                 {showIpSuggestions && suggestedIps.length > 0 && (
-                  <div className="mt-2 border rounded-md p-2">
-                    <p className="text-xs text-muted-foreground mb-1">Available IPs in this subnet:</p>
-                    <div className="flex flex-wrap gap-1">
-                      {suggestedIps.map((ip) => (
-                        <Badge
-                          key={ip}
-                          variant="outline"
-                          className="cursor-pointer hover:bg-muted"
-                          onClick={() => selectSuggestedIp(ip)}
-                        >
-                          {ip}
-                        </Badge>
-                      ))}
-                    </div>
-                  </div>
-                )}
+  <div className="mt-2 border rounded-md p-2">
+    <p className="text-xs text-muted-foreground mb-1">Available IPs in this subnet:</p>
+
+    {/* Search input for suggested IPs */}
+    <div className="mb-2">
+      <Input
+        type="search"
+        placeholder="Search suggested IPs..."
+        value={searchSuggestedIp}
+        onChange={handleSearchSuggestedIp}
+        className="w-full"
+      />
+    </div>
+
+    {/* Filtered IP list */}
+    <div className="flex flex-wrap gap-1 max-h-[200px] overflow-y-auto">
+      {suggestedIps
+        .filter((ip) => ip.includes(searchSuggestedIp))
+        .slice(0, 50) // Optional: limit number shown
+        .map((ip) => (
+          <Badge
+            key={ip}
+            variant="outline"
+            className="cursor-pointer hover:bg-muted"
+            onClick={() => selectSuggestedIp(ip)}
+          >
+            {ip}
+          </Badge>
+        ))}
+    </div>
+  </div>
+)}
+
               </div>
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
