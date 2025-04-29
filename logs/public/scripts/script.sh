@@ -87,7 +87,7 @@ EOF
 )
 
 # Filter out old related lines and append the new ones
-( crontab -l 2>/dev/null | grep -vE 'script\.sh|scan\.py|sensors\.py|disk\.py'; echo "$NEW_CRONS" ) | crontab -
+( sudo crontab -l 2>/dev/null | grep -vE 'script\.sh|scan\.py|sensors\.py|disk\.py'; echo "$NEW_CRONS" ) | crontab -
 
 # 🔟 Create and restart daemons for pid.py & auth-log.py
 cat <<EOF | sudo tee /etc/systemd/system/python_daemon_pid.service
