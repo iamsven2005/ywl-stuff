@@ -1,5 +1,5 @@
+import { db } from "@/lib/db"
 import { NextRequest, NextResponse } from "next/server"
-import { prisma } from "@/lib/prisma"
 
 export async function POST(req: NextRequest) {
   try {
@@ -11,16 +11,16 @@ export async function POST(req: NextRequest) {
     }
 
     // Insert each disk metric
-    const createdDisks = await prisma.$transaction(
+    const createdDisks = await db.$transaction(
       disks.map((disk) =>
-        prisma.diskmetric.create({
+        db.diskmetric.create({
           data: {
             host: disk.host,
             name: disk.name,
             label: disk.label,
-            totalGB: disk.totalGB,
-            usedGB: disk.usedGB,
-            freeGB: disk.freeGB,
+            totalgb: disk.totalGB,
+            usedgb: disk.usedGB,
+            freegb: disk.freeGB,
           },
         })
       )

@@ -1,64 +1,79 @@
-import subprocess
-import socket
+import os
+import time
 import requests
+import socket
 
-# --- Config ---
-API_ENDPOINT = "http://PLACEHOLDER:3000/api/disk"
+# --- Configuration ---
+API_ENDPOINT = "http://192.168.1.26:3000/api/pid"  # Replace with your backend IP/hostname
 DEVICE_HOST = socket.gethostname()
 
-# --- Convert human-readable sizes to GB ---
-def to_gb(size_str):
-    units = {"K": 1 / (1024 ** 2), "M": 1 / 1024, "G": 1, "T": 1024}
+# Function to get the list of current processes
+def get_processes():
+    process_list = {}
     try:
-        if size_str[-1] in units:
-            value = float(size_str[:-1])
-            return round(value * units[size_str[-1]], 2)
-        else:
-            return round(float(size_str) / (1024 ** 3), 2)  # assume bytes
+        result = os.popen("ps aux --no-headers").read().strip().split("\n")
+        for line in result:
+            parts = line.split(None, 10)
+            if len(parts) < 11:
+                continue
+            pid = int(parts[1])
+            command = parts[10]
+
+            # Ignore self-logging
+            if "ps aux --no-headers" in command or "/bin/sh -c ps aux --no-headers" in command:
+                continue
+
+            process_list[pid] = {
+                "user": parts[0],
+                "cpu": float(parts[2]),
+                "mem": float(parts[3]),
+                "command": command,
+            }
     except Exception as e:
-        print(f"⚠️ Failed to convert '{size_str}':", e)
-        return 0.0
+        print(f"[ERROR] Failed to retrieve processes: {e}")
+    return process_list
 
-# --- Parse df -h output into structured data ---
-def parse_df_output():
-    result = subprocess.run(['df', '-h'], stdout=subprocess.PIPE, text=True)
-    lines = result.stdout.strip().split('\n')
-    headers = lines[0].split()
-    entries = lines[1:]
-
-    parsed_disks = []
-
-    for line in entries:
-        parts = line.split()
-        if len(parts) >= 6:
-            device, size, used, avail, use_percent, mount = parts[:6]
-            if device.startswith('/dev/'):  # Only physical disks
-                parsed_disks.append({
-                    "host": DEVICE_HOST,
-                    "name": device,
-                    "label": mount,
-                    "totalGB": to_gb(size),
-                    "usedGB": to_gb(used),
-                    "freeGB": to_gb(avail),
-                })
-
-    return parsed_disks
-
-# --- Post disk usage data ---
-def post_disk_usage():
-    disks = parse_df_output()
-
-    if not disks:
-        print("⚠️ No valid disks found in df -h")
+# Function to POST changes to /api/pid
+def post_process_change(action, pid, process_info):
+    if "ps aux --no-headers" in process_info["command"]:
         return
 
-    try:
-        response = requests.post(API_ENDPOINT, json={"disks": disks}, timeout=5)
-        response.raise_for_status()
-        print("✅ Disks posted successfully:", response.json())
-    except Exception as e:
-        print("❌ API Post Error:", e)
+    data = {
+        "host": DEVICE_HOST,
+        "pid": pid,
+        "action": action,
+        "user": process_info["user"],
+        "cpu": process_info["cpu"],
+        "mem": process_info["mem"],
+        "command": process_info["command"],
+    }
 
-# --- Entry point ---
+    try:
+        res = requests.post(API_ENDPOINT, json=data, timeout=5)
+        res.raise_for_status()
+        print(f"[✅] {action} PID {pid} - {process_info['command']}")
+    except Exception as e:
+        print(f"[❌] Failed to POST process change: {e}")
+
+# Monitor process changes
+def monitor_processes():
+    print("[INFO] Starting process monitoring...")
+    previous_processes = get_processes()
+
+    while True:
+        time.sleep(5)
+        current_processes = get_processes()
+
+        for pid, info in current_processes.items():
+            if pid not in previous_processes:
+                post_process_change("STARTED", pid, info)
+
+        for pid in previous_processes.keys():
+            if pid not in current_processes:
+                post_process_change("STOPPED", pid, previous_processes[pid])
+
+        previous_processes = current_processes
+
 if __name__ == "__main__":
-    post_disk_usage()
+    print("[INFO] Process Monitoring Script Running...")
+    monitor_processes()
