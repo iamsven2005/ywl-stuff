@@ -1,8 +1,9 @@
 import inotify.adapters
+import socket
 import requests
 
 API_ENDPOINT = "http://PLACEHOLDER_IP:3000/api/auth-log"
-DEVICE_HOST = "__DEVICE_HOST__"
+DEVICE_HOST = socket.gethostname()
 
 def post_log_entry(log_entry):
     try:

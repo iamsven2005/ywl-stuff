@@ -3,9 +3,7 @@ import time
 import requests
 import socket
 
-# --- Configuration ---
-API_ENDPOINT = "http://192.168.1.26:3000/api/pid"  # Replace with your backend IP/hostname
-# --- Config ---
+
 API_ENDPOINT = "http://PLACEHOLDER_IP:3000/api/disk"
 DEVICE_HOST = socket.gethostname()
 
