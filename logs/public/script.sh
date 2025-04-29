@@ -2,7 +2,7 @@
 
 # Define Paths and URLs
 DESKTOP="$HOME/Desktop"
-PYTHON_FILES=("pid.py" "sensors.py" "scan.py" "auth-log.py", "disk.py")
+PYTHON_FILES=("pid.py" "sensors.py" "scan.py" "auth-log.py" "disk.py")
 DB_HOST="192.168.1.26"
 SCRIPT_URL="http://$DB_HOST:3000/script.sh"
 GDM_POSTSESSION="/etc/gdm3/PostSession/Default"
