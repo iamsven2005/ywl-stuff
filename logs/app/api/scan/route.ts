@@ -1,6 +1,13 @@
 import { db } from "@/lib/db"
 import { NextRequest, NextResponse } from "next/server"
 
+// Safely handle BigInt serialization
+function safeJson(data: any) {
+  return JSON.parse(
+    JSON.stringify(data, (_, value) => (typeof value === "bigint" ? value.toString() : value))
+  )
+}
+
 export async function POST(req: NextRequest) {
   try {
     const {
@@ -27,7 +34,7 @@ export async function POST(req: NextRequest) {
       },
     })
 
-    return NextResponse.json({ success: true, data: record }, { status: 201 })
+    return NextResponse.json(safeJson({ success: true, data: record }), { status: 201 })
   } catch (error) {
     console.error("Error saving memory usage:", error)
     return NextResponse.json({ error: "Internal server error" }, { status: 500 })
