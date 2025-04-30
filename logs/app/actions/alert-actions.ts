@@ -277,6 +277,7 @@ export async function createAlertEvent(conditionId: number, notes?: string) {
 export async function resolveAlertEvent(id: number, notes?: string) {
   try {
     // First, get the current alert event to access its notes
+    
     const currentAlert = await db.alertEvent.findUnique({
       where: { id },
       select: { notes: true },
@@ -450,6 +451,10 @@ export async function evaluateAlertCondition(conditionId: number) {
     } else if (condition.sourceTable === "logs") {
       // For general system logs
       data = await evaluateSystemLogsCondition(condition)
+      shouldTrigger = data.shouldTrigger
+    } else if (condition.sourceTable === "UserActivity") {
+      // For general system logs
+      data = await evaluateActivityLogsCondition(condition)
       shouldTrigger = data.shouldTrigger
     }
 
@@ -657,15 +662,111 @@ async function evaluateAuthLogsCondition(condition: any) {
     throw error
   }
 }
+async function evaluateActivityLogsCondition(condition: any) {
+  try {
+    const timeWindow = condition.timeWindowMin || 5 // Default to 5 minutes if not specified
+    const startTime = new Date(Date.now() - timeWindow * 60 * 1000 * 100) // 100x larger window for testing
 
+    console.log(
+      `Evaluating logs condition: ${condition.name}, field: ${condition.fieldName}, comparator: ${condition.comparator}, value: "${condition.thresholdValue}"`,
+    )
+    console.log(`Time window: ${timeWindow} minutes, start time: ${startTime.toISOString()}`)
+
+    // Query the logs table with no timestamp filter for debugging
+    const systemLogs = await db.activityLog.findMany({
+      orderBy: {
+        timestamp: "desc",
+      },
+    })
+
+    console.log(`Found ${systemLogs.length} total logs in database`)
+
+    // Log all commands for debugging
+    systemLogs.forEach((log) => {
+      console.log(`Log command: "${log.details || "null"}", timestamp: ${log.timestamp}`)
+    })
+
+    if (systemLogs.length === 0) {
+      return { shouldTrigger: false, reason: "No system logs found in database" }
+    }
+
+    // Check if the condition is met
+    let violationCount = 0
+    let latestViolation = null
+
+    for (const log of systemLogs) {
+      let conditionMet = false
+
+      // For system logs, we can check various fields
+      if (condition.fieldName === "action") {
+        // Check if command contains the threshold value
+        if (log.actionType) {
+          const logCommand = String(log.actionType).trim().toLowerCase()
+          const thresholdValue = String(condition.thresholdValue).trim().toLowerCase()
+
+          if (condition.comparator === "contains") {
+            conditionMet = logCommand.includes(thresholdValue)
+            console.log(`Checking command: "${logCommand}" contains "${thresholdValue}" = ${conditionMet}`)
+          } else if (condition.comparator === "not_contains") {
+            conditionMet = !logCommand.includes(thresholdValue)
+          } else if (condition.comparator === "equals") {
+            conditionMet = logCommand === thresholdValue
+          }
+        }
+      } else if (condition.fieldName === "command") {
+        // Check if command contains the threshold value
+        if (log.details) {
+          const logCommand = String(log.details).trim().toLowerCase()
+          const thresholdValue = String(condition.thresholdValue).trim().toLowerCase()
+
+          if (condition.comparator === "contains") {
+            conditionMet = logCommand.includes(thresholdValue)
+            console.log(`Checking command: "${logCommand}" contains "${thresholdValue}" = ${conditionMet}`)
+          } else if (condition.comparator === "not_contains") {
+            conditionMet = !logCommand.includes(thresholdValue)
+          } else if (condition.comparator === "equals") {
+            conditionMet = logCommand === thresholdValue
+          }
+        }
+      }
+      if (conditionMet) {
+        violationCount++
+        console.log(`Found matching log: ${JSON.stringify(log)}`)
+        if (!latestViolation) {
+          latestViolation = log
+        }
+      }
+    }
+
+    console.log(`Found ${violationCount} violations for condition: ${condition.name}`)
+
+    // If count threshold is specified, check if we've exceeded it
+    if (condition.countThreshold) {
+      return {
+        shouldTrigger: violationCount >= condition.countThreshold,
+        reason:
+          violationCount >= condition.countThreshold
+            ? `Found ${violationCount} matching logs (limit: ${condition.countThreshold})`
+            : `Found ${violationCount} matching logs, but below limit of ${condition.countThreshold}`,
+        latestViolation,
+      }
+    }
+
+    // Otherwise, trigger if any violation was found
+    return {
+      shouldTrigger: violationCount > 0,
+      reason: violationCount > 0 ? `Found ${violationCount} matching logs` : "No matching logs found",
+      latestViolation,
+    }
+  } catch (error) {
+    console.error("Error evaluating system logs condition:", error)
+    throw error
+  }
+}
 // Helper function to evaluate system logs conditions
 async function evaluateSystemLogsCondition(condition: any) {
   try {
-    // Get the time window for the condition
     const timeWindow = condition.timeWindowMin || 5 // Default to 5 minutes if not specified
-
-    // For testing purposes, use a much larger time window to catch older logs
-    // This helps when testing with existing data
     const startTime = new Date(Date.now() - timeWindow * 60 * 1000 * 100) // 100x larger window for testing
 
     console.log(

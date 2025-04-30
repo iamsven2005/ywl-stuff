@@ -345,7 +345,7 @@ export function AlertConditionsTable({ initialAlertConditions }: { initialAlertC
             <AlertDialogAction
               onClick={() => deleteId && handleDelete(deleteId)}
               disabled={isDeleting}
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              className="bg-destructive  hover:bg-destructive/90"
             >
               {isDeleting ? "Deleting..." : "Delete"}
             </AlertDialogAction>

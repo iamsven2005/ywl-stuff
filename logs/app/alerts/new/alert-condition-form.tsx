@@ -91,6 +91,11 @@ const getAvailableFields = (table: string) => {
         { value: "mem", label: "Memory Usage" },
         { value: "pid", label: "Process ID" },
       ]
+      case "UserActivity":
+        return [
+          { value: "action", label: "Action" },
+          { value: "command", label: "Details" },
+        ]
     default:
       return []
   }
@@ -100,7 +105,8 @@ const getAvailableFields = (table: string) => {
 const isTextBasedField = (table: string, field: string) => {
   return (
     (table === "auth" && ["action", "command", "ipAddress", "piuser"].includes(field)) ||
-    (table === "logs" && ["action", "command"].includes(field))
+    (table === "logs" && ["action", "command"].includes(field)) ||
+    (table === "UserActivity" && ["action", "command"].includes(field))
   )
 }
 
@@ -130,7 +136,6 @@ export function AlertConditionForm({ emailTemplates, initialData, isEditing = fa
   const router = useRouter()
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [sourceTable, setSourceTable] = useState(initialData?.sourceTable || "system_metrics")
   const [isTextBasedCondition, setIsTextBasedCondition] = useState(
     initialData ? isTextBasedField(initialData.sourceTable, initialData.fieldName) : false,
   )
@@ -152,22 +157,9 @@ export function AlertConditionForm({ emailTemplates, initialData, isEditing = fa
       emailTemplateId: initialData?.emailTemplateId || null,
     },
   })
+  const fieldName = form.watch("fieldName");
+  const sourceTable = form.watch("sourceTable");
 
-  // Update available fields when source table changes
-  useEffect(() => {
-    const currentTable = form.getValues("sourceTable")
-    setSourceTable(currentTable)
-
-    // Reset field name when source table changes
-    form.setValue("fieldName", "")
-    form.setValue("comparator", "")
-
-    // Check if we need to update the isTextBasedCondition state
-    const fieldName = form.getValues("fieldName")
-    if (fieldName) {
-      setIsTextBasedCondition(isTextBasedField(currentTable, fieldName))
-    }
-  }, [form.watch("sourceTable")])
 
   // Update available comparators when field name changes
   useEffect(() => {
@@ -291,7 +283,6 @@ export function AlertConditionForm({ emailTemplates, initialData, isEditing = fa
           form.setValue("emailTemplateId", data.emailTemplateId ? Number.parseInt(data.emailTemplateId) : null)
 
           // Update state based on imported data
-          setSourceTable(data.sourceTable)
           setIsTextBasedCondition(isTextBasedField(data.sourceTable, data.fieldName))
 
           toast.success("Alert condition imported successfully")
@@ -400,6 +391,8 @@ export function AlertConditionForm({ emailTemplates, initialData, isEditing = fa
                     <SelectItem value="system_metrics">System Metrics</SelectItem>
                     <SelectItem value="auth">Auth Logs</SelectItem>
                     <SelectItem value="logs">System Logs</SelectItem>
+                    <SelectItem value="UserActivity">User Activity</SelectItem>
+
                   </SelectContent>
                 </Select>
                 <FormDescription>The data source to monitor</FormDescription>
@@ -448,9 +441,9 @@ export function AlertConditionForm({ emailTemplates, initialData, isEditing = fa
               <FormItem>
                 <FormLabel>Comparator</FormLabel>
                 <Select
-                  onValueChange={field.onChange}
-                  defaultValue={field.value}
-                  disabled={!form.getValues("fieldName")}
+  onValueChange={field.onChange}
+  defaultValue={field.value}
+  disabled={!fieldName}
                 >
                   <FormControl>
                     <SelectTrigger>
