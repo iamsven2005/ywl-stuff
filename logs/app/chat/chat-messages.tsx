@@ -178,7 +178,34 @@ export function ChatMessages({ groupId, id }: { groupId: number, id:number }) {
       .toUpperCase()
       .substring(0, 2)
   }
-
+  const parseWhatsAppStyle = (text: string) => {
+    const escapeHtml = (unsafe: string) =>
+      unsafe
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+  
+    const escaped = escapeHtml(text)
+  
+    // Apply WhatsApp-style formatting
+    const formatted = escaped
+      .replace(/\*(.*?)\*/g, "<strong>$1</strong>")           // *bold*
+      .replace(/_(.*?)_/g, "<em>$1</em>")                      // _italic_
+      .replace(/~(.*?)~/g, "<s>$1</s>")                        // ~strikethrough~
+      .replace(/`(.*?)`/g, "<code class='bg-gray-100 px-1 rounded text-sm'>$1</code>") // `code`
+  
+    // Convert links
+    const withLinks = formatted.replace(
+      /(https?:\/\/[^\s]+)/g,
+      (url) =>
+        `<a href="${url}" target="_blank" rel="noopener noreferrer" class="underline text-blue-500 hover:text-blue-700">${url}</a>`
+    )
+  
+    return withLinks
+  }
+  
   return (
     <div className="flex-1 flex flex-col overflow-hidden">
       <div className="border-b p-4 flex justify-between items-center">
@@ -278,7 +305,10 @@ export function ChatMessages({ groupId, id }: { groupId: number, id:number }) {
                                   isCurrentUser ? "bg-primary text-primary-foreground ml-auto" : "bg-gray-100"
                                 }`}
                               >
-                                <div className="break-words whitespace-pre-wrap">{message.content}</div>
+                                <div className="break-words whitespace-pre-wrap"><p
+  className="break-words"
+  dangerouslySetInnerHTML={{ __html: parseWhatsAppStyle(message.content) }}
+/></div>
 
                                 {hasFileAttachment && (
                                   <div
