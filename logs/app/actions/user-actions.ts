@@ -83,6 +83,7 @@ export async function addUser({
   role, 
   location, 
   Remarks,
+  Pay,
 }: {
   username: string
   email: string | null
@@ -90,6 +91,8 @@ export async function addUser({
   role: string[]
   location: string[]
   Remarks: string | null
+  Pay?: number | null
+
 }) {
   const user = await db.user.create({
     data: {
@@ -98,7 +101,8 @@ export async function addUser({
       password,
       role, // ✅ this is now a string[]
       location,
-      Remarks
+      Remarks,
+      Pay
     },
   })
   const folder = await db.driveFolder.create({
@@ -129,6 +133,7 @@ export async function updateUser({
   role,
   location,
   Remarks,
+  Pay,
 }: {
   id: number
   username: string
@@ -137,6 +142,8 @@ export async function updateUser({
   role: string[]
   location: string[]
   Remarks: string | null
+  Pay?: number | null
+
 }) {
   const data: Partial<{
     username: string
@@ -145,12 +152,15 @@ export async function updateUser({
     role: string[]
     location: string[]
     Remarks: string | null
+    Pay: number | null
+
   }> = {
     username,
     email,
     Remarks,
     role,
     location,
+    Pay
   }
   
   if (password) {

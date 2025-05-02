@@ -53,3 +53,40 @@ export function generatePassword(length = 12) {
     .sort(() => 0.5 - Math.random())
     .join("")
 }
+
+export function formatRelativeTime(date: Date | string | null | undefined): string {
+  if (!date) return "N/A"
+
+  const d = typeof date === "string" ? new Date(date) : date
+  const now = new Date()
+  const diffInMs = now.getTime() - d.getTime()
+  const diffInDays = Math.floor(diffInMs / (1000 * 60 * 60 * 24))
+
+  if (diffInDays === 0) {
+    return "Today"
+  } else if (diffInDays === 1) {
+    return "Yesterday"
+  } else if (diffInDays < 7) {
+    return `${diffInDays} days ago`
+  } else if (diffInDays < 30) {
+    const weeks = Math.floor(diffInDays / 7)
+    return `${weeks} ${weeks === 1 ? "week" : "weeks"} ago`
+  } else if (diffInDays < 365) {
+    const months = Math.floor(diffInDays / 30)
+    return `${months} ${months === 1 ? "month" : "months"} ago`
+  } else {
+    const years = Math.floor(diffInDays / 365)
+    return `${years} ${years === 1 ? "year" : "years"} ago`
+  }
+}
+
+export function formatCurrency(amount: number | null | undefined): string {
+  if (amount === null || amount === undefined) return "N/A"
+
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
+  }).format(amount)
+}

@@ -264,6 +264,7 @@ exports.Prisma.UserScalarFieldEnum = {
   email: 'email',
   role: 'role',
   Mobile: 'Mobile',
+  Pay: 'Pay',
   PrimaryContact: 'PrimaryContact',
   MobileContact: 'MobileContact',
   Relationship: 'Relationship',
@@ -302,7 +303,8 @@ exports.Prisma.MessageScalarFieldEnum = {
   createdAt: 'createdAt',
   fileAttachment: 'fileAttachment',
   fileOriginalName: 'fileOriginalName',
-  fileType: 'fileType'
+  fileType: 'fileType',
+  isPoll: 'isPoll'
 };
 
 exports.Prisma.UserEmailTemplateScalarFieldEnum = {
@@ -473,6 +475,13 @@ exports.Prisma.ProjectScalarFieldEnum = {
   businessCode: 'businessCode',
   projectCode: 'projectCode',
   name: 'name',
+  description: 'description',
+  location: 'location',
+  startDate: 'startDate',
+  estimatedEndDate: 'estimatedEndDate',
+  actualEndDate: 'actualEndDate',
+  budget: 'budget',
+  status: 'status',
   createDate: 'createDate',
   projectTypeId: 'projectTypeId'
 };
@@ -672,6 +681,171 @@ exports.Prisma.StepLogScalarFieldEnum = {
   createdAt: 'createdAt'
 };
 
+exports.Prisma.CompanyScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  type: 'type',
+  industry: 'industry',
+  address: 'address',
+  phone: 'phone',
+  email: 'email',
+  website: 'website',
+  remarks: 'remarks',
+  specialties: 'specialties',
+  certifications: 'certifications',
+  rating: 'rating',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.ContactPersonScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  title: 'title',
+  email: 'email',
+  phone: 'phone',
+  remarks: 'remarks',
+  expertise: 'expertise',
+  companyId: 'companyId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.CRMInteractionScalarFieldEnum = {
+  id: 'id',
+  title: 'title',
+  notes: 'notes',
+  interactionType: 'interactionType',
+  interactionDate: 'interactionDate',
+  outcome: 'outcome',
+  followUpRequired: 'followUpRequired',
+  followUpDate: 'followUpDate',
+  contactId: 'contactId',
+  companyId: 'companyId',
+  projectId: 'projectId',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.ProjectCompanyLinkScalarFieldEnum = {
+  id: 'id',
+  projectId: 'projectId',
+  companyId: 'companyId',
+  role: 'role',
+  notes: 'notes',
+  startDate: 'startDate',
+  endDate: 'endDate',
+  contractValue: 'contractValue',
+  contractStatus: 'contractStatus',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.BridgeProjectScalarFieldEnum = {
+  id: 'id',
+  projectId: 'projectId',
+  bridgeType: 'bridgeType',
+  spanLength: 'spanLength',
+  width: 'width',
+  height: 'height',
+  loadCapacity: 'loadCapacity',
+  waterway: 'waterway',
+  environmentalConsiderations: 'environmentalConsiderations',
+  trafficImpact: 'trafficImpact',
+  permitNumbers: 'permitNumbers',
+  designDocuments: 'designDocuments',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.BridgePhaseScalarFieldEnum = {
+  id: 'id',
+  bridgeProjectId: 'bridgeProjectId',
+  name: 'name',
+  description: 'description',
+  startDate: 'startDate',
+  endDate: 'endDate',
+  status: 'status',
+  completionPercentage: 'completionPercentage',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.PhaseInspectionScalarFieldEnum = {
+  id: 'id',
+  bridgePhaseId: 'bridgePhaseId',
+  inspectionDate: 'inspectionDate',
+  inspector: 'inspector',
+  result: 'result',
+  notes: 'notes',
+  attachments: 'attachments',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.BridgeMaterialScalarFieldEnum = {
+  id: 'id',
+  bridgeProjectId: 'bridgeProjectId',
+  name: 'name',
+  specification: 'specification',
+  quantity: 'quantity',
+  unit: 'unit',
+  estimatedCost: 'estimatedCost',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.MaterialOrderScalarFieldEnum = {
+  id: 'id',
+  bridgeMaterialId: 'bridgeMaterialId',
+  vendorId: 'vendorId',
+  orderDate: 'orderDate',
+  deliveryDate: 'deliveryDate',
+  status: 'status',
+  quantity: 'quantity',
+  unitPrice: 'unitPrice',
+  totalPrice: 'totalPrice',
+  invoiceNumber: 'invoiceNumber',
+  notes: 'notes',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.BidSubmissionScalarFieldEnum = {
+  id: 'id',
+  bridgeProjectId: 'bridgeProjectId',
+  companyId: 'companyId',
+  submissionDate: 'submissionDate',
+  bidAmount: 'bidAmount',
+  proposedSchedule: 'proposedSchedule',
+  technicalDetails: 'technicalDetails',
+  status: 'status',
+  evaluationScore: 'evaluationScore',
+  evaluationNotes: 'evaluationNotes',
+  attachments: 'attachments',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.PollScalarFieldEnum = {
+  id: 'id',
+  question: 'question',
+  multiSelect: 'multiSelect',
+  messageId: 'messageId',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.PollOptionScalarFieldEnum = {
+  id: 'id',
+  text: 'text',
+  pollId: 'pollId'
+};
+
+exports.Prisma.PollVoteScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  optionId: 'optionId',
+  pollId: 'pollId',
+  createdAt: 'createdAt'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -697,12 +871,70 @@ exports.Prisma.JsonNullValueFilter = {
   JsonNull: Prisma.JsonNull,
   AnyNull: Prisma.AnyNull
 };
+exports.ProjectStatus = exports.$Enums.ProjectStatus = {
+  PLANNING: 'PLANNING',
+  BIDDING: 'BIDDING',
+  DESIGN: 'DESIGN',
+  PERMITTING: 'PERMITTING',
+  CONSTRUCTION: 'CONSTRUCTION',
+  INSPECTION: 'INSPECTION',
+  COMPLETED: 'COMPLETED',
+  ON_HOLD: 'ON_HOLD',
+  CANCELLED: 'CANCELLED'
+};
+
 exports.StepStatus = exports.$Enums.StepStatus = {
   PENDING: 'PENDING',
   IN_PROGRESS: 'IN_PROGRESS',
   REVIEW: 'REVIEW',
   COMPLETED: 'COMPLETED',
   REJECTED: 'REJECTED'
+};
+
+exports.CompanyType = exports.$Enums.CompanyType = {
+  CONTRACTOR: 'CONTRACTOR',
+  VENDOR: 'VENDOR',
+  PARTNER: 'PARTNER',
+  CONSULTANT: 'CONSULTANT',
+  REGULATORY: 'REGULATORY',
+  SUBCONTRACTOR: 'SUBCONTRACTOR'
+};
+
+exports.BridgeType = exports.$Enums.BridgeType = {
+  ARCH: 'ARCH',
+  BEAM: 'BEAM',
+  TRUSS: 'TRUSS',
+  SUSPENSION: 'SUSPENSION',
+  CABLE_STAYED: 'CABLE_STAYED',
+  CANTILEVER: 'CANTILEVER',
+  MOVABLE: 'MOVABLE',
+  CULVERT: 'CULVERT',
+  OTHER: 'OTHER'
+};
+
+exports.PhaseStatus = exports.$Enums.PhaseStatus = {
+  NOT_STARTED: 'NOT_STARTED',
+  IN_PROGRESS: 'IN_PROGRESS',
+  COMPLETED: 'COMPLETED',
+  DELAYED: 'DELAYED',
+  ON_HOLD: 'ON_HOLD'
+};
+
+exports.OrderStatus = exports.$Enums.OrderStatus = {
+  PLANNED: 'PLANNED',
+  ORDERED: 'ORDERED',
+  PARTIALLY_DELIVERED: 'PARTIALLY_DELIVERED',
+  DELIVERED: 'DELIVERED',
+  CANCELLED: 'CANCELLED'
+};
+
+exports.BidStatus = exports.$Enums.BidStatus = {
+  SUBMITTED: 'SUBMITTED',
+  UNDER_REVIEW: 'UNDER_REVIEW',
+  SHORTLISTED: 'SHORTLISTED',
+  ACCEPTED: 'ACCEPTED',
+  REJECTED: 'REJECTED',
+  WITHDRAWN: 'WITHDRAWN'
 };
 
 exports.Prisma.ModelName = {
@@ -759,7 +991,20 @@ exports.Prisma.ModelName = {
   TeamLocation: 'TeamLocation',
   AuditWorkflow: 'AuditWorkflow',
   AuditStep: 'AuditStep',
-  StepLog: 'StepLog'
+  StepLog: 'StepLog',
+  Company: 'Company',
+  ContactPerson: 'ContactPerson',
+  CRMInteraction: 'CRMInteraction',
+  ProjectCompanyLink: 'ProjectCompanyLink',
+  BridgeProject: 'BridgeProject',
+  BridgePhase: 'BridgePhase',
+  PhaseInspection: 'PhaseInspection',
+  BridgeMaterial: 'BridgeMaterial',
+  MaterialOrder: 'MaterialOrder',
+  BidSubmission: 'BidSubmission',
+  Poll: 'Poll',
+  PollOption: 'PollOption',
+  PollVote: 'PollVote'
 };
 
 /**

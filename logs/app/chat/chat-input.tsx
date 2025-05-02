@@ -7,18 +7,19 @@ import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
 import { sendMessage } from "../actions/chat-actions"
 import { toast } from "sonner"
-import { Loader2, Send, Paperclip, X, Upload, Command } from "lucide-react"
+import { Loader2, Send, Paperclip, X, Upload, Command, BarChart3 } from "lucide-react"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
+import { PollCreator } from "./poll-creator"
 
 // Define slash commands
 interface SlashCommand {
   command: string
   description: string
   icon: React.ReactNode
-  action: () => string | Promise<string>
+  action: () => string | Promise<string> | void
 }
 
-export function ChatInput({ groupId }: { groupId: number }) {
+export function ChatInput({ groupId, userId }: { groupId: number; userId: number }) {
   const [message, setMessage] = useState("")
   const [sending, setSending] = useState(false)
   const [uploading, setUploading] = useState(false)
@@ -28,6 +29,7 @@ export function ChatInput({ groupId }: { groupId: number }) {
   const [filteredCommands, setFilteredCommands] = useState<SlashCommand[]>([])
   const [commandInput, setCommandInput] = useState("")
   const [selectedCommandIndex, setSelectedCommandIndex] = useState(0)
+  const [showPollCreator, setShowPollCreator] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const dropZoneRef = useRef<HTMLDivElement>(null)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
@@ -35,6 +37,20 @@ export function ChatInput({ groupId }: { groupId: number }) {
 
   // Define available slash commands
   const slashCommands: SlashCommand[] = [
+    {
+      command: "/poll",
+      description: "Create a voting poll",
+      icon: (
+        <span className="text-blue-500 mr-2">
+          <BarChart3 className="h-4 w-4" />
+        </span>
+      ),
+      action: () => {
+        setShowPollCreator(true)
+        setShowCommands(false)
+        setMessage("")
+      },
+    },
     {
       command: "/password",
       description: "Generate a secure random password",
@@ -228,7 +244,9 @@ export function ChatInput({ groupId }: { groupId: number }) {
   const executeCommand = async (command: SlashCommand) => {
     try {
       const result = await command.action()
-      setMessage(result)
+      if (typeof result === "string") {
+        setMessage(result)
+      }
       setShowCommands(false)
       // Focus the textarea after executing command
       textareaRef.current?.focus()
@@ -396,6 +414,11 @@ export function ChatInput({ groupId }: { groupId: number }) {
     setFilteredCommands(slashCommands)
   }, [])
 
+  const handlePollCreated = (pollId: number) => {
+    toast.success("Poll created successfully")
+    setShowPollCreator(false)
+  }
+
   return (
     <div
       ref={dropZoneRef}
@@ -413,6 +436,17 @@ export function ChatInput({ groupId }: { groupId: number }) {
             <Upload className="h-12 w-12 mx-auto mb-2 text-primary dark:text-blue-400" />
             <p className="text-lg font-medium dark:text-white">Drop files to upload</p>
           </div>
+        </div>
+      )}
+
+      {showPollCreator && (
+        <div className="mb-4">
+          <PollCreator
+            groupId={groupId}
+            senderId={userId}
+            onClose={() => setShowPollCreator(false)}
+            onSuccess={handlePollCreated}
+          />
         </div>
       )}
 
@@ -467,7 +501,7 @@ export function ChatInput({ groupId }: { groupId: number }) {
           value={message}
           onChange={handleMessageChange}
           onKeyDown={handleKeyDown}
-          disabled={sending || uploading}
+          disabled={sending || uploading || showPollCreator}
           rows={1}
         />
 
@@ -516,7 +550,7 @@ export function ChatInput({ groupId }: { groupId: number }) {
             <Button
               variant="outline"
               size="icon"
-              disabled={sending || uploading}
+              disabled={sending || uploading || showPollCreator}
               title="Commands"
               className="dark:bg-gray-700 dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-600"
             >
@@ -533,8 +567,12 @@ export function ChatInput({ groupId }: { groupId: number }) {
                   key={cmd.command}
                   className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer flex items-center"
                   onClick={() => {
-                    setMessage(cmd.command + " ")
-                    textareaRef.current?.focus()
+                    if (cmd.command === "/poll") {
+                      executeCommand(cmd)
+                    } else {
+                      setMessage(cmd.command + " ")
+                      textareaRef.current?.focus()
+                    }
                   }}
                 >
                   {cmd.icon}
@@ -552,7 +590,7 @@ export function ChatInput({ groupId }: { groupId: number }) {
           variant="outline"
           size="icon"
           onClick={handleFileSelect}
-          disabled={sending || uploading}
+          disabled={sending || uploading || showPollCreator}
           title="Attach files"
           className="dark:bg-gray-700 dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-600"
         >
@@ -561,7 +599,7 @@ export function ChatInput({ groupId }: { groupId: number }) {
 
         <Button
           onClick={handleSendMessage}
-          disabled={(!message.trim() && selectedFiles.length === 0) || sending || uploading}
+          disabled={(!message.trim() && selectedFiles.length === 0) || sending || uploading || showPollCreator}
           size="icon"
           className="dark:bg-blue-600 dark:hover:bg-blue-700"
         >

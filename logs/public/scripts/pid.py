@@ -4,7 +4,7 @@ import requests
 import socket
 
 
-API_ENDPOINT = "http://PLACEHOLDER_IP:3000/api/disk"
+API_ENDPOINT = "http://PLACEHOLDER_IP:3000/api/pid"
 DEVICE_HOST = socket.gethostname()
 
 # Function to get the list of current processes

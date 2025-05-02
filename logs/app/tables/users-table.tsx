@@ -99,6 +99,8 @@ interface UserForm {
   devices: number[]
   location: string[]
   Remarks: string
+  pay?: string
+
 }
 
 export default function UsersTable() {
@@ -341,7 +343,9 @@ export default function UsersTable() {
         password: userForm.password,
         Remarks: userForm.Remarks || null,
         role: userForm.role,
-        location: userForm.location
+        location: userForm.location,
+        Pay: userForm.pay ? parseInt(userForm.pay) : null,
+
       })
 
       // Assign devices if any are selected
@@ -378,7 +382,9 @@ export default function UsersTable() {
         password: userForm.password || undefined,
         role: userForm.role,
         location: userForm.location,
-        Remarks: userForm.Remarks || null
+        Remarks: userForm.Remarks || null,
+        Pay: userForm.pay ? parseInt(userForm.pay) : null,
+
       })
       
 
@@ -740,7 +746,8 @@ export default function UsersTable() {
                 />
               </TableHead>
               <TableHead className="w-[200px]">Username</TableHead>
-              <TableHead className="w-[250px]">Email</TableHead>
+              <TableHead className="w-[250px]">Email</TableHead><TableHead>Pay</TableHead>
+              <TableHead className="w-[250px]">Pay</TableHead>
               <TableHead className="w-[150px]">Roles</TableHead>
               <TableHead className="w-[150px]">Created</TableHead>
               <TableHead className="w-[150px]">Updated</TableHead>
@@ -783,6 +790,7 @@ export default function UsersTable() {
                       <span className="text-muted-foreground">—</span>
                     )}
                   </TableCell>
+                  <TableCell>${user.Pay ?? "—"}</TableCell>
                   <TableCell>
   {Array.isArray(user.role) && user.role.length > 0 ? (
     <ScrollableRoles roles={user.role} />
@@ -915,6 +923,25 @@ export default function UsersTable() {
                 />
               </div>
             </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+  <Label htmlFor="pay" className="text-right">Pay ($)</Label>
+  <div className="col-span-3">
+    <Input
+      id="pay"
+      name="pay"
+      type="number"
+      step="0.01"
+      value={userForm.pay || ""}
+      onChange={(e) =>
+        setUserForm((prev) => ({
+          ...prev,
+          pay: e.target.value,
+        }))
+      }
+    />
+  </div>
+</div>
+
             <div className="grid grid-cols-4 items-start gap-4">
               <Label htmlFor="role" className="text-right pt-2">
                 Roles
@@ -1074,6 +1101,24 @@ export default function UsersTable() {
                 />
               </div>
               </div>
+              <div className="grid grid-cols-4 items-center gap-4">
+  <Label htmlFor="pay" className="text-right">Pay ($)</Label>
+  <div className="col-span-3">
+    <Input
+      id="pay"
+      name="pay"
+      type="number"
+      step="0.01"
+      value={userForm.pay || ""}
+      onChange={(e) =>
+        setUserForm((prev) => ({
+          ...prev,
+          pay: e.target.value,
+        }))
+      }
+    />
+  </div>
+</div>
             <div className="grid grid-cols-4 items-start gap-4">
               <Label htmlFor="edit-role" className="text-right pt-2">
                 Roles

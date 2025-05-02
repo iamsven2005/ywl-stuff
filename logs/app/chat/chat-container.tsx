@@ -86,7 +86,7 @@ export function ChatContainer({ id }: { id: number }) {
         </Button>
       </div>
       <ChatMessages groupId={Number.parseInt(groupId)} id={id} />
-      <ChatInput groupId={Number.parseInt(groupId)} />
+      <ChatInput groupId={Number.parseInt(groupId)} userId={id}/>
 
       <ImportExportDialog
         open={isImportExportOpen}

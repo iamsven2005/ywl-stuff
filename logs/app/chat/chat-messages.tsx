@@ -17,12 +17,13 @@ import {
   Check,
   X,
   FileText,
-  Image,
+  ImageIcon,
   File,
   Download,
 } from "lucide-react"
 import { ManageMembersDialog } from "./manage-members-dialog"
 import { MessageSearch } from "./message-search"
+import { PollMessage } from "./poll-message"
 import { toast } from "sonner"
 
 interface Message {
@@ -32,6 +33,7 @@ interface Message {
   groupId: number
   createdAt: Date
   edited?: boolean
+  isPoll?: boolean
   fileAttachment?: string | null
   fileOriginalName?: string | null
   fileType?: string | null
@@ -42,7 +44,7 @@ interface Message {
   }
 }
 
-export function ChatMessages({ groupId, id }: { groupId: number, id:number }) {
+export function ChatMessages({ groupId, id }: { groupId: number; id: number }) {
   const [messages, setMessages] = useState<Message[]>([])
   const [loading, setLoading] = useState(true)
   const [groupName, setGroupName] = useState("")
@@ -149,7 +151,7 @@ export function ChatMessages({ groupId, id }: { groupId: number, id:number }) {
     if (!fileType && !fileName) return <File className="h-5 w-5" />
 
     if (fileType?.startsWith("image/") || fileName?.match(/\.(jpg|jpeg|png|gif|webp)$/i)) {
-      return <Image className="h-5 w-5" />
+      return <ImageIcon className="h-5 w-5" />
     }
 
     if (fileType?.includes("pdf") || fileName?.endsWith(".pdf")) {
@@ -185,27 +187,27 @@ export function ChatMessages({ groupId, id }: { groupId: number, id:number }) {
         .replace(/</g, "&lt;")
         .replace(/>/g, "&gt;")
         .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#039;");
-  
+        .replace(/'/g, "&#039;")
+
     const escaped = escapeHtml(text)
-  
+
     // Apply WhatsApp-style formatting
     const formatted = escaped
-      .replace(/\*(.*?)\*/g, "<strong>$1</strong>")           // *bold*
-      .replace(/_(.*?)_/g, "<em>$1</em>")                      // _italic_
-      .replace(/~(.*?)~/g, "<s>$1</s>")                        // ~strikethrough~
+      .replace(/\*(.*?)\*/g, "<strong>$1</strong>") // *bold*
+      .replace(/_(.*?)_/g, "<em>$1</em>") // _italic_
+      .replace(/~(.*?)~/g, "<s>$1</s>") // ~strikethrough~
       .replace(/`(.*?)`/g, "<code class='bg-gray-100 px-1 rounded text-sm'>$1</code>") // `code`
-  
+
     // Convert links
     const withLinks = formatted.replace(
       /(https?:\/\/[^\s]+)/g,
       (url) =>
-        `<a href="${url}" target="_blank" rel="noopener noreferrer" class="underline text-blue-500 hover:text-blue-700">${url}</a>`
+        `<a href="${url}" target="_blank" rel="noopener noreferrer" class="underline text-blue-500 hover:text-blue-700">${url}</a>`,
     )
-  
+
     return withLinks
   }
-  
+
   return (
     <div className="flex-1 flex flex-col overflow-hidden">
       <div className="border-b p-4 flex justify-between items-center">
@@ -252,9 +254,9 @@ export function ChatMessages({ groupId, id }: { groupId: number, id:number }) {
                 </div>
 
                 {dateMessages.map((message) => {
-                  const isCurrentUser =
-                    message.sender.id === id
+                  const isCurrentUser = message.sender.id === id
                   const hasFileAttachment = !!message.fileAttachment
+                  const isPoll = !!message.isPoll
 
                   return (
                     <div
@@ -262,7 +264,8 @@ export function ChatMessages({ groupId, id }: { groupId: number, id:number }) {
                       className={`mb-4 flex ${isCurrentUser ? "justify-end" : "justify-start"}`}
                       ref={(el) => {
                         messageRefs.current[message.id] = el
-                      }}                    >
+                      }}
+                    >
                       {!isCurrentUser && (
                         <Avatar className="h-8 w-8 mr-2 mt-1">
                           <AvatarFallback>{getInitials(message.sender.username)}</AvatarFallback>
@@ -305,30 +308,38 @@ export function ChatMessages({ groupId, id }: { groupId: number, id:number }) {
                                   isCurrentUser ? "bg-primary text-primary-foreground ml-auto" : "bg-gray-100"
                                 }`}
                               >
-                                <div className="break-words whitespace-pre-wrap"><p
-  className="break-words"
-  dangerouslySetInnerHTML={{ __html: parseWhatsAppStyle(message.content) }}
-/></div>
-
-                                {hasFileAttachment && (
-                                  <div
-                                    className={`mt-2 p-2 rounded-md ${isCurrentUser ? "bg-blue-700" : "bg-gray-200"}`}
-                                  >
-                                    <a
-                                      href={`/api/chat-document/${message.fileAttachment}`}
-                                      target="_blank"
-                                      rel="noopener noreferrer"
-                                      className="flex items-center gap-2"
-                                    >
-                                    {getFileIcon(message.fileType ?? null, message.fileOriginalName ?? null)}
-                                        <span className="text-sm truncate max-w-[200px]">
-                                        {message.fileOriginalName || "Attachment"}
-                                      </span>
-                                      <Download
-                                        className={`h-4 w-4 ${isCurrentUser ? "text-white" : "text-gray-600"}`}
+                                {isPoll ? (
+                                  <PollMessage messageId={message.id} userId={id} />
+                                ) : (
+                                  <>
+                                    <div className="break-words whitespace-pre-wrap">
+                                      <p
+                                        className="break-words"
+                                        dangerouslySetInnerHTML={{ __html: parseWhatsAppStyle(message.content) }}
                                       />
-                                    </a>
-                                  </div>
+                                    </div>
+
+                                    {hasFileAttachment && (
+                                      <div
+                                        className={`mt-2 p-2 rounded-md ${isCurrentUser ? "bg-blue-700" : "bg-gray-200"}`}
+                                      >
+                                        <a
+                                          href={`/api/chat-document/${message.fileAttachment}`}
+                                          target="_blank"
+                                          rel="noopener noreferrer"
+                                          className="flex items-center gap-2"
+                                        >
+                                          {getFileIcon(message.fileType ?? null, message.fileOriginalName ?? null)}
+                                          <span className="text-sm truncate max-w-[200px]">
+                                            {message.fileOriginalName || "Attachment"}
+                                          </span>
+                                          <Download
+                                            className={`h-4 w-4 ${isCurrentUser ? "text-white" : "text-gray-600"}`}
+                                          />
+                                        </a>
+                                      </div>
+                                    )}
+                                  </>
                                 )}
 
                                 <div className="flex items-center justify-end gap-1 mt-1">
@@ -347,7 +358,7 @@ export function ChatMessages({ groupId, id }: { groupId: number, id:number }) {
                                     </Button>
                                   </DropdownMenuTrigger>
                                   <DropdownMenuContent align="end">
-                                    {!hasFileAttachment && (
+                                    {!hasFileAttachment && !isPoll && (
                                       <DropdownMenuItem onClick={() => handleEditMessage(message)}>
                                         <Pencil className="h-4 w-4 mr-2" />
                                         Edit
@@ -388,4 +399,3 @@ export function ChatMessages({ groupId, id }: { groupId: number, id:number }) {
     </div>
   )
 }
-

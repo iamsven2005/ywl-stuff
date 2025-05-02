@@ -138,7 +138,7 @@ const config = {
       "value": "prisma-client-js"
     },
     "output": {
-      "value": "C:\\SYSLOG\\logs\\prisma\\generated\\analytics",
+      "value": "C:\\Users\\sven.tan.YWLSG217\\Desktop\\SYSLOG\\logs\\prisma\\generated\\analytics",
       "fromEnvVar": null
     },
     "config": {
@@ -152,7 +152,7 @@ const config = {
       }
     ],
     "previewFeatures": [],
-    "sourceFilePath": "C:\\SYSLOG\\logs\\prisma\\analytics\\schema.prisma",
+    "sourceFilePath": "C:\\Users\\sven.tan.YWLSG217\\Desktop\\SYSLOG\\logs\\prisma\\analytics\\schema.prisma",
     "isCustomOutput": true
   },
   "relativeEnvPaths": {

@@ -185,6 +185,7 @@ model User {
   email               String?               @unique
   role                String[]
   Mobile              Int?
+  Pay                 Int?
   PrimaryContact      String?
   MobileContact       Int?
   Relationship        String?
@@ -198,6 +199,7 @@ model User {
   updatedAt           DateTime              @default(now()) @updatedAt
   location            String[]
   ActivityLog         ActivityLog[]
+  audit_steps         AuditStep[]
   CommandMatch        CommandMatch[]
   devices             DeviceUser[]
   DriveFile           DriveFile[]
@@ -218,9 +220,9 @@ model User {
   ticketComments      TicketComment[]
   emailTemplates      UserEmailTemplate[]
   UserPermission      UserPermission[]
-  audit_steps         AuditStep[]
   receivedPermissions DriveFilePermission[] @relation("DriveFilePermissionToUser")
   addressedMatches    CommandMatch[]        @relation("addressedBy")
+  PollVote            PollVote[]
 }
 
 model Group {
@@ -254,8 +256,10 @@ model Message {
   fileAttachment   String?
   fileOriginalName String?
   fileType         String?
+  isPoll           Boolean  @default(false)
   group            Group    @relation(fields: [groupId], references: [id])
   sender           User     @relation(fields: [senderId], references: [id])
+  poll             Poll?
 }
 
 model UserEmailTemplate {
@@ -462,15 +466,25 @@ model ProjectType {
 }
 
 model Project {
-  id            Int                 @id @default(autoincrement())
-  businessCode  String
-  projectCode   String
-  name          String
-  createDate    DateTime            @default(now())
-  projectTypeId Int?
-  models        ModelEntry[]
-  projectType   ProjectType?        @relation(fields: [projectTypeId], references: [id])
-  assignments   ProjectAssignment[]
+  id               Int                  @id @default(autoincrement())
+  businessCode     String
+  projectCode      String
+  name             String
+  description      String? // New field
+  location         String? // New field for project location
+  startDate        DateTime? // New field
+  estimatedEndDate DateTime? // New field
+  actualEndDate    DateTime? // New field
+  budget           Decimal? // New field
+  status           ProjectStatus? // New field
+  createDate       DateTime             @default(now())
+  projectTypeId    Int?
+  models           ModelEntry[]
+  projectType      ProjectType?         @relation(fields: [projectTypeId], references: [id])
+  assignments      ProjectAssignment[]
+  companies        ProjectCompanyLink[]
+  interactions     CRMInteraction[]
+  bridgeProject    BridgeProject? // New relation
 }
 
 model ModelEntry {
@@ -683,6 +697,42 @@ model TeamLocation {
   @@unique([teamId, locationId])
 }
 
+model AuditWorkflow {
+  id          Int         @id @default(autoincrement())
+  name        String
+  description String?
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  steps       AuditStep[] @relation("WorkflowSteps")
+}
+
+model AuditStep {
+  id           Int           @id @default(autoincrement())
+  title        String
+  description  String?
+  position     Int
+  status       StepStatus    @default(PENDING)
+  assignedToId Int?
+  dueDate      DateTime?
+  workflowId   Int
+  assignedTo   User?         @relation(fields: [assignedToId], references: [id])
+  workflow     AuditWorkflow @relation("WorkflowSteps", fields: [workflowId], references: [id])
+  logs         StepLog[]     @relation("StepLogs")
+
+  @@index([workflowId, position])
+}
+
+model StepLog {
+  id        Int       @id @default(autoincrement())
+  stepId    Int
+  message   String
+  createdBy String
+  createdAt DateTime  @default(now())
+  step      AuditStep @relation("StepLogs", fields: [stepId], references: [id])
+
+  @@index([stepId])
+}
+
 enum StepStatus {
   PENDING
   IN_PROGRESS
@@ -691,39 +741,264 @@ enum StepStatus {
   REJECTED
 }
 
-// Models
-model AuditWorkflow {
-  id          Int           @id @default(autoincrement())
-  name        String
-  description String?
-  createdAt   DateTime       @default(now())
-  updatedAt   DateTime       @updatedAt
-  steps       AuditStep[]    @relation("WorkflowSteps")
+model Company {
+  id             Int                  @id @default(autoincrement())
+  name           String
+  type           CompanyType // e.g., CONTRACTOR, VENDOR, PARTNER
+  industry       String?
+  address        String?
+  phone          String?
+  email          String?
+  website        String?
+  remarks        String?
+  specialties    String[] // New field for bridge-specific specialties
+  certifications String[] // New field for certifications
+  rating         Float? // New field for vendor/contractor rating
+  createdAt      DateTime             @default(now())
+  updatedAt      DateTime             @updatedAt
+  contacts       ContactPerson[]
+  projects       ProjectCompanyLink[]
+  interactions   CRMInteraction[]
+  bids           BidSubmission[] // New relation
+  materialOrders MaterialOrder[] // New relation
 }
 
-model AuditStep {
-  id             Int          @id @default(autoincrement())
-  title          String
-  description    String?
-  position       Int
-  status         StepStatus   @default(PENDING)
-  assignedToId   Int?          // Can be null
-  dueDate        DateTime?
-  workflowId     Int
-  workflow       AuditWorkflow @relation("WorkflowSteps", fields: [workflowId], references: [id])
-  assignedTo     User?         @relation(fields: [assignedToId], references: [id])
-  logs           StepLog[]     @relation("StepLogs")
-
-  @@index([workflowId, position])
+enum CompanyType {
+  CONTRACTOR
+  VENDOR
+  PARTNER
+  CONSULTANT // New type for engineering consultants
+  REGULATORY // New type for regulatory bodies
+  SUBCONTRACTOR // New type for specialized subcontractors
 }
 
-model StepLog {
-  id         Int        @id @default(autoincrement())
-  stepId     Int
-  message    String
-  createdBy  String
-  createdAt  DateTime   @default(now())
-  step       AuditStep  @relation("StepLogs", fields: [stepId], references: [id])
+model ContactPerson {
+  id           Int              @id @default(autoincrement())
+  name         String
+  title        String?
+  email        String?
+  phone        String?
+  remarks      String?
+  expertise    String? // New field for bridge-specific expertise
+  companyId    Int
+  company      Company          @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime         @updatedAt
+  interactions CRMInteraction[]
+}
 
-  @@index([stepId])
+model CRMInteraction {
+  id               Int            @id @default(autoincrement())
+  title            String
+  notes            String?
+  interactionType  String // e.g., "Call", "Meeting", "Site Visit"
+  interactionDate  DateTime
+  outcome          String? // New field for interaction outcome
+  followUpRequired Boolean        @default(false) // New field
+  followUpDate     DateTime? // New field
+  contactId        Int?
+  contact          ContactPerson? @relation(fields: [contactId], references: [id])
+  companyId        Int?
+  company          Company?       @relation(fields: [companyId], references: [id])
+  projectId        Int?
+  project          Project?       @relation(fields: [projectId], references: [id])
+  createdAt        DateTime       @default(now())
+}
+
+model ProjectCompanyLink {
+  id             Int       @id @default(autoincrement())
+  projectId      Int
+  companyId      Int
+  role           String // e.g., "Main Contractor", "Steel Vendor", "Concrete Supplier"
+  notes          String?
+  startDate      DateTime? // New field for contract start
+  endDate        DateTime? // New field for contract end
+  contractValue  Decimal? // New field for contract value
+  contractStatus String? // New field for contract status
+  createdAt      DateTime  @default(now())
+  project        Project   @relation(fields: [projectId], references: [id])
+  company        Company   @relation(fields: [companyId], references: [id])
+
+  @@unique([projectId, companyId, role])
+}
+
+enum ProjectStatus {
+  PLANNING
+  BIDDING
+  DESIGN
+  PERMITTING
+  CONSTRUCTION
+  INSPECTION
+  COMPLETED
+  ON_HOLD
+  CANCELLED
+}
+
+// New models for bridge building company
+
+model BridgeProject {
+  id                          Int              @id @default(autoincrement())
+  projectId                   Int              @unique
+  project                     Project          @relation(fields: [projectId], references: [id])
+  bridgeType                  BridgeType
+  spanLength                  Float? // in meters
+  width                       Float? // in meters
+  height                      Float? // in meters
+  loadCapacity                Float? // in tons
+  waterway                    String? // name of waterway if applicable
+  environmentalConsiderations String?
+  trafficImpact               String?
+  permitNumbers               String[]
+  designDocuments             String[] // URLs or references to design documents
+  phases                      BridgePhase[]
+  materials                   BridgeMaterial[]
+  bids                        BidSubmission[]
+  createdAt                   DateTime         @default(now())
+  updatedAt                   DateTime         @updatedAt
+}
+
+enum BridgeType {
+  ARCH
+  BEAM
+  TRUSS
+  SUSPENSION
+  CABLE_STAYED
+  CANTILEVER
+  MOVABLE
+  CULVERT
+  OTHER
+}
+
+model BridgePhase {
+  id                   Int               @id @default(autoincrement())
+  bridgeProjectId      Int
+  bridgeProject        BridgeProject     @relation(fields: [bridgeProjectId], references: [id])
+  name                 String // e.g., "Foundation", "Superstructure", "Deck Installation"
+  description          String?
+  startDate            DateTime?
+  endDate              DateTime?
+  status               PhaseStatus
+  completionPercentage Float             @default(0)
+  inspections          PhaseInspection[]
+  createdAt            DateTime          @default(now())
+  updatedAt            DateTime          @updatedAt
+}
+
+enum PhaseStatus {
+  NOT_STARTED
+  IN_PROGRESS
+  COMPLETED
+  DELAYED
+  ON_HOLD
+}
+
+model PhaseInspection {
+  id             Int         @id @default(autoincrement())
+  bridgePhaseId  Int
+  bridgePhase    BridgePhase @relation(fields: [bridgePhaseId], references: [id])
+  inspectionDate DateTime
+  inspector      String
+  result         String // e.g., "Pass", "Fail", "Conditional Pass"
+  notes          String?
+  attachments    String[] // URLs or references to inspection documents
+  createdAt      DateTime    @default(now())
+}
+
+model BridgeMaterial {
+  id              Int             @id @default(autoincrement())
+  bridgeProjectId Int
+  bridgeProject   BridgeProject   @relation(fields: [bridgeProjectId], references: [id])
+  name            String // e.g., "Structural Steel", "Concrete", "Rebar"
+  specification   String? // Technical specifications
+  quantity        Float
+  unit            String // e.g., "tons", "cubic meters"
+  estimatedCost   Decimal?
+  orders          MaterialOrder[]
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+}
+
+model MaterialOrder {
+  id               Int            @id @default(autoincrement())
+  bridgeMaterialId Int
+  bridgeMaterial   BridgeMaterial @relation(fields: [bridgeMaterialId], references: [id])
+  vendorId         Int
+  vendor           Company        @relation(fields: [vendorId], references: [id])
+  orderDate        DateTime
+  deliveryDate     DateTime?
+  status           OrderStatus
+  quantity         Float
+  unitPrice        Decimal
+  totalPrice       Decimal
+  invoiceNumber    String?
+  notes            String?
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
+}
+
+enum OrderStatus {
+  PLANNED
+  ORDERED
+  PARTIALLY_DELIVERED
+  DELIVERED
+  CANCELLED
+}
+
+model BidSubmission {
+  id               Int           @id @default(autoincrement())
+  bridgeProjectId  Int
+  bridgeProject    BridgeProject @relation(fields: [bridgeProjectId], references: [id])
+  companyId        Int
+  company          Company       @relation(fields: [companyId], references: [id])
+  submissionDate   DateTime
+  bidAmount        Decimal
+  proposedSchedule String?
+  technicalDetails String?
+  status           BidStatus
+  evaluationScore  Float?
+  evaluationNotes  String?
+  attachments      String[] // URLs or references to bid documents
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+}
+
+enum BidStatus {
+  SUBMITTED
+  UNDER_REVIEW
+  SHORTLISTED
+  ACCEPTED
+  REJECTED
+  WITHDRAWN
+}
+
+model Poll {
+  id          Int          @id @default(autoincrement())
+  question    String
+  multiSelect Boolean      @default(false)
+  messageId   Int          @unique
+  message     Message      @relation(fields: [messageId], references: [id], onDelete: Cascade)
+  options     PollOption[]
+  votes       PollVote[]
+  createdAt   DateTime     @default(now())
+}
+
+model PollOption {
+  id     Int        @id @default(autoincrement())
+  text   String
+  pollId Int
+  poll   Poll       @relation(fields: [pollId], references: [id], onDelete: Cascade)
+  votes  PollVote[]
+}
+
+model PollVote {
+  id        Int        @id @default(autoincrement())
+  userId    Int
+  optionId  Int
+  pollId    Int
+  createdAt DateTime   @default(now())
+  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  option    PollOption @relation(fields: [optionId], references: [id], onDelete: Cascade)
+  poll      Poll       @relation(fields: [pollId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, optionId, pollId])
 }

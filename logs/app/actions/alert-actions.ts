@@ -475,11 +475,9 @@ export async function evaluateAlertCondition(conditionId: number) {
 // Helper function to evaluate system metrics conditions
 async function evaluateSystemMetricsCondition(condition: any) {
   try {
-    // Get the time window for the condition
-    const timeWindow = condition.timeWindowMin || 5 // Default to 5 minutes if not specified
+    const timeWindow = condition.timeWindowMin || 5 // Default to 5 minutes
     const startTime = new Date(Date.now() - timeWindow * 60 * 1000)
 
-    // Query the system_metrics table
     const metrics = await db.system_metrics.findMany({
       where: {
         timestamp: { gte: startTime },
@@ -491,88 +489,57 @@ async function evaluateSystemMetricsCondition(condition: any) {
     })
 
     if (metrics.length === 0) {
-      return { shouldTrigger: false, reason: "No metrics found in time window" }
+      return {
+        shouldTrigger: false,
+        reason: "No metrics found in time window",
+        violatedIds: [],
+        sourceTable: "system_metrics",
+      }
     }
 
-    // Check if the condition is met
     let violationCount = 0
     let latestViolation = null
+    const violatedIds: number[] = []
 
     for (const metric of metrics) {
-      const thresholdValue = Number.parseFloat(condition.thresholdValue)
+      const thresholdValue = parseFloat(condition.thresholdValue)
       const metricValue = metric.value
-
       let conditionMet = false
+
       switch (condition.comparator) {
-        case ">":
-          conditionMet = metricValue > thresholdValue
-          break
-        case ">=":
-          conditionMet = metricValue >= thresholdValue
-          break
-        case "<":
-          conditionMet = metricValue < thresholdValue
-          break
-        case "<=":
-          conditionMet = metricValue <= thresholdValue
-          break
-        case "==":
-          conditionMet = metricValue === thresholdValue
-          break
-        case "!=":
-          conditionMet = metricValue !== thresholdValue
-          break
+        case ">":  conditionMet = metricValue > thresholdValue; break
+        case ">=": conditionMet = metricValue >= thresholdValue; break
+        case "<":  conditionMet = metricValue < thresholdValue; break
+        case "<=": conditionMet = metricValue <= thresholdValue; break
+        case "==": conditionMet = metricValue === thresholdValue; break
+        case "!=": conditionMet = metricValue !== thresholdValue; break
       }
 
       if (conditionMet) {
         violationCount++
-        if (!latestViolation) {
-          latestViolation = metric
-        }
+        violatedIds.push(metric.id)
+        if (!latestViolation) latestViolation = metric
       }
     }
 
-    // If count threshold is specified, check if we've exceeded it
-    if (condition.countThreshold) {
-      return {
-        shouldTrigger: violationCount >= condition.countThreshold,
-        reason:
-          violationCount >= condition.countThreshold
-            ? `
-  Threshold
-  exceeded
-  $
-  violationCount
-  times (limit: ${condition.countThreshold})`
-            : `
-  Threshold
-  exceeded
-  $
-  violationCount
-  times, but
-  below
-  limit
-  of
-  $
-  condition.countThreshold
-  ;`,
-        latestViolation,
-      }
-    }
+    const shouldTrigger = condition.countThreshold
+      ? violationCount >= condition.countThreshold
+      : violationCount > 0
 
-    // Otherwise, trigger if any violation was found
+    const reason = condition.countThreshold
+      ? shouldTrigger
+        ? `Threshold exceeded ${violationCount} times (limit: ${condition.countThreshold})`
+        : `Threshold exceeded ${violationCount} times, below limit of ${condition.countThreshold}`
+      : violationCount > 0
+        ? `Threshold exceeded ${violationCount} times`
+        : "No threshold violations"
+
     return {
-      shouldTrigger: violationCount > 0,
-      reason:
-        violationCount > 0
-          ? `
-  Threshold
-  exceeded
-  $
-  violationCount
-  times`
-          : "No threshold violations",
+      shouldTrigger,
+      reason,
       latestViolation,
+      violatedIds,
+      sourceTable: "system_metrics",
     }
   } catch (error) {
     console.error("Error evaluating system metrics condition:", error)
@@ -580,22 +547,17 @@ async function evaluateSystemMetricsCondition(condition: any) {
   }
 }
 
-// Helper function to evaluate auth logs conditions
+
 async function evaluateAuthLogsCondition(condition: any) {
   try {
-    // Get the time window for the condition
-    const timeWindow = condition.timeWindowMin || 5 // Default to 5 minutes if not specified
-
-    // For testing purposes, use a much larger time window to catch older logs
-    // This helps when testing with existing data
-    const startTime = new Date(Date.now() - timeWindow * 60 * 1000 * 100) // 100x larger window for testing
+    const timeWindow = condition.timeWindowMin || 5
+    const startTime = new Date(Date.now() - timeWindow * 60 * 1000 * 100) // extended for testing
 
     console.log(
       `Evaluating auth condition: ${condition.name}, field: ${condition.fieldName}, comparator: ${condition.comparator}, value: ${condition.thresholdValue}`,
     )
     console.log(`Time window: ${timeWindow} minutes, start time: ${startTime.toISOString()}`)
 
-    // Query the auth table
     const authLogs = await db.auth.findMany({
       where: {
         timestamp: { gte: startTime },
@@ -608,22 +570,24 @@ async function evaluateAuthLogsCondition(condition: any) {
     console.log(`Found ${authLogs.length} auth logs in time window`)
 
     if (authLogs.length === 0) {
-      return { shouldTrigger: false, reason: "No auth logs found in time window" }
+      return {
+        shouldTrigger: false,
+        reason: "No auth logs found in time window",
+        violatedIds: [],
+        sourceTable: "auth",
+      }
     }
 
-    // Check if the condition is met
     let violationCount = 0
     let latestViolation = null
+    const violatedIds: number[] = []
 
     for (const log of authLogs) {
       let conditionMet = false
 
-      // For auth logs, we typically check if the log_entry contains certain text
       if (condition.comparator === "contains") {
-        // Check both log_entry and any command field if it exists
         if (log.log_entry.toLowerCase().includes(condition.thresholdValue.toLowerCase())) {
           conditionMet = true
-          console.log(`Auth log entry "${log.log_entry}" contains "${condition.thresholdValue}"`)
         }
       } else if (condition.comparator === "not_contains") {
         conditionMet = !log.log_entry.toLowerCase().includes(condition.thresholdValue.toLowerCase())
@@ -631,6 +595,7 @@ async function evaluateAuthLogsCondition(condition: any) {
 
       if (conditionMet) {
         violationCount++
+        violatedIds.push(log.id)
         if (!latestViolation) {
           latestViolation = log
         }
@@ -639,254 +604,233 @@ async function evaluateAuthLogsCondition(condition: any) {
 
     console.log(`Found ${violationCount} violations for auth condition: ${condition.name}`)
 
-    // If count threshold is specified, check if we've exceeded it
-    if (condition.countThreshold) {
-      return {
-        shouldTrigger: violationCount >= condition.countThreshold,
-        reason:
-          violationCount >= condition.countThreshold
-            ? `Found ${violationCount} matching logs (limit: ${condition.countThreshold})`
-            : `Found ${violationCount} matching logs, but below limit of ${condition.countThreshold}`,
-        latestViolation,
-      }
-    }
+    const shouldTrigger = condition.countThreshold
+      ? violationCount >= condition.countThreshold
+      : violationCount > 0
 
-    // Otherwise, trigger if any violation was found
+    const reason = condition.countThreshold
+      ? shouldTrigger
+        ? `Found ${violationCount} matching logs (limit: ${condition.countThreshold})`
+        : `Found ${violationCount} matching logs, but below limit of ${condition.countThreshold}`
+      : violationCount > 0
+        ? `Found ${violationCount} matching logs`
+        : "No matching logs found"
+
     return {
-      shouldTrigger: violationCount > 0,
-      reason: violationCount > 0 ? `Found ${violationCount} matching logs` : "No matching logs found",
+      shouldTrigger,
+      reason,
       latestViolation,
+      violatedIds,
+      sourceTable: "auth",
     }
   } catch (error) {
     console.error("Error evaluating auth logs condition:", error)
     throw error
   }
 }
+
 async function evaluateActivityLogsCondition(condition: any) {
   try {
-    const timeWindow = condition.timeWindowMin || 5 // Default to 5 minutes if not specified
-    const startTime = new Date(Date.now() - timeWindow * 60 * 1000 * 100) // 100x larger window for testing
+    const timeWindow = condition.timeWindowMin || 5
+    const startTime = new Date(Date.now() - timeWindow * 60 * 1000 * 100) // extended window for testing
 
     console.log(
       `Evaluating logs condition: ${condition.name}, field: ${condition.fieldName}, comparator: ${condition.comparator}, value: "${condition.thresholdValue}"`,
     )
     console.log(`Time window: ${timeWindow} minutes, start time: ${startTime.toISOString()}`)
 
-    // Query the logs table with no timestamp filter for debugging
     const systemLogs = await db.activityLog.findMany({
-      orderBy: {
-        timestamp: "desc",
-      },
+      orderBy: { timestamp: "desc" },
     })
 
     console.log(`Found ${systemLogs.length} total logs in database`)
 
-    // Log all commands for debugging
-    systemLogs.forEach((log) => {
-      console.log(`Log command: "${log.details || "null"}", timestamp: ${log.timestamp}`)
-    })
-
     if (systemLogs.length === 0) {
-      return { shouldTrigger: false, reason: "No system logs found in database" }
+      return {
+        shouldTrigger: false,
+        reason: "No activity logs found",
+        violatedIds: [],
+        sourceTable: "activityLog",
+      }
     }
 
-    // Check if the condition is met
     let violationCount = 0
     let latestViolation = null
+    const violatedIds: number[] = []
 
     for (const log of systemLogs) {
       let conditionMet = false
 
-      // For system logs, we can check various fields
-      if (condition.fieldName === "action") {
-        // Check if command contains the threshold value
-        if (log.actionType) {
-          const logCommand = String(log.actionType).trim().toLowerCase()
-          const thresholdValue = String(condition.thresholdValue).trim().toLowerCase()
+      if (condition.fieldName === "action" && log.actionType) {
+        const logAction = log.actionType.trim().toLowerCase()
+        const value = condition.thresholdValue.trim().toLowerCase()
 
-          if (condition.comparator === "contains") {
-            conditionMet = logCommand.includes(thresholdValue)
-            console.log(`Checking command: "${logCommand}" contains "${thresholdValue}" = ${conditionMet}`)
-          } else if (condition.comparator === "not_contains") {
-            conditionMet = !logCommand.includes(thresholdValue)
-          } else if (condition.comparator === "equals") {
-            conditionMet = logCommand === thresholdValue
-          }
+        if (condition.comparator === "contains") {
+          conditionMet = logAction.includes(value)
+        } else if (condition.comparator === "not_contains") {
+          conditionMet = !logAction.includes(value)
+        } else if (condition.comparator === "equals") {
+          conditionMet = logAction === value
         }
-      } else if (condition.fieldName === "command") {
-        // Check if command contains the threshold value
-        if (log.details) {
-          const logCommand = String(log.details).trim().toLowerCase()
-          const thresholdValue = String(condition.thresholdValue).trim().toLowerCase()
+      } else if (condition.fieldName === "command" && log.details) {
+        const logCommand = log.details.trim().toLowerCase()
+        const value = condition.thresholdValue.trim().toLowerCase()
 
-          if (condition.comparator === "contains") {
-            conditionMet = logCommand.includes(thresholdValue)
-            console.log(`Checking command: "${logCommand}" contains "${thresholdValue}" = ${conditionMet}`)
-          } else if (condition.comparator === "not_contains") {
-            conditionMet = !logCommand.includes(thresholdValue)
-          } else if (condition.comparator === "equals") {
-            conditionMet = logCommand === thresholdValue
-          }
+        if (condition.comparator === "contains") {
+          conditionMet = logCommand.includes(value)
+        } else if (condition.comparator === "not_contains") {
+          conditionMet = !logCommand.includes(value)
+        } else if (condition.comparator === "equals") {
+          conditionMet = logCommand === value
         }
       }
+
       if (conditionMet) {
         violationCount++
-        console.log(`Found matching log: ${JSON.stringify(log)}`)
+        violatedIds.push(log.id)
         if (!latestViolation) {
           latestViolation = log
         }
       }
     }
 
-    console.log(`Found ${violationCount} violations for condition: ${condition.name}`)
+    const shouldTrigger = condition.countThreshold
+      ? violationCount >= condition.countThreshold
+      : violationCount > 0
 
-    // If count threshold is specified, check if we've exceeded it
-    if (condition.countThreshold) {
-      return {
-        shouldTrigger: violationCount >= condition.countThreshold,
-        reason:
-          violationCount >= condition.countThreshold
-            ? `Found ${violationCount} matching logs (limit: ${condition.countThreshold})`
-            : `Found ${violationCount} matching logs, but below limit of ${condition.countThreshold}`,
-        latestViolation,
-      }
-    }
+    const reason = condition.countThreshold
+      ? shouldTrigger
+        ? `Found ${violationCount} matching logs (limit: ${condition.countThreshold})`
+        : `Found ${violationCount} matching logs, but below limit of ${condition.countThreshold}`
+      : violationCount > 0
+        ? `Found ${violationCount} matching logs`
+        : "No matching logs found"
 
-    // Otherwise, trigger if any violation was found
     return {
-      shouldTrigger: violationCount > 0,
-      reason: violationCount > 0 ? `Found ${violationCount} matching logs` : "No matching logs found",
+      shouldTrigger,
+      reason,
       latestViolation,
+      violatedIds,
+      sourceTable: "activityLog",
     }
   } catch (error) {
-    console.error("Error evaluating system logs condition:", error)
+    console.error("Error evaluating activity logs condition:", error)
     throw error
   }
 }
-// Helper function to evaluate system logs conditions
+
+
+
 async function evaluateSystemLogsCondition(condition: any) {
   try {
-    const timeWindow = condition.timeWindowMin || 5 // Default to 5 minutes if not specified
-    const startTime = new Date(Date.now() - timeWindow * 60 * 1000 * 100) // 100x larger window for testing
+    const timeWindow = condition.timeWindowMin || 5
+    const startTime = new Date(Date.now() - timeWindow * 60 * 1000 * 100)
 
     console.log(
       `Evaluating logs condition: ${condition.name}, field: ${condition.fieldName}, comparator: ${condition.comparator}, value: "${condition.thresholdValue}"`,
     )
     console.log(`Time window: ${timeWindow} minutes, start time: ${startTime.toISOString()}`)
 
-    // Query the logs table with no timestamp filter for debugging
     const systemLogs = await db.logs.findMany({
-      orderBy: {
-        timestamp: "desc",
-      },
+      orderBy: { timestamp: "desc" },
     })
 
     console.log(`Found ${systemLogs.length} total logs in database`)
 
-    // Log all commands for debugging
-    systemLogs.forEach((log) => {
-      console.log(`Log command: "${log.command || "null"}", timestamp: ${log.timestamp}`)
-    })
-
     if (systemLogs.length === 0) {
-      return { shouldTrigger: false, reason: "No system logs found in database" }
+      return {
+        shouldTrigger: false,
+        reason: "No logs found in database",
+        violatedIds: [],
+        sourceTable: "logs",
+      }
     }
 
-    // Check if the condition is met
     let violationCount = 0
     let latestViolation = null
+    const violatedIds: number[] = []
 
     for (const log of systemLogs) {
       let conditionMet = false
 
-      // For system logs, we can check various fields
       if (condition.fieldName === "cpu" || condition.fieldName === "mem") {
-        // Use type assertion to tell TypeScript this is a valid key
         const fieldName = condition.fieldName as keyof typeof log
         const fieldValue = log[fieldName]
-        const thresholdValue = Number.parseFloat(condition.thresholdValue)
+        const threshold = parseFloat(condition.thresholdValue)
 
-        if (fieldValue !== null && typeof fieldValue === "number") {
+        if (typeof fieldValue === "number") {
           switch (condition.comparator) {
             case ">":
-              conditionMet = fieldValue > thresholdValue
+              conditionMet = fieldValue > threshold
               break
             case ">=":
-              conditionMet = fieldValue >= thresholdValue
+              conditionMet = fieldValue >= threshold
               break
             case "<":
-              conditionMet = fieldValue < thresholdValue
+              conditionMet = fieldValue < threshold
               break
             case "<=":
-              conditionMet = fieldValue <= thresholdValue
+              conditionMet = fieldValue <= threshold
               break
             case "==":
-              conditionMet = fieldValue === thresholdValue
+              conditionMet = fieldValue === threshold
               break
             case "!=":
-              conditionMet = fieldValue !== thresholdValue
+              conditionMet = fieldValue !== threshold
               break
           }
         }
-      } else if (condition.fieldName === "command") {
-        // Check if command contains the threshold value
-        if (log.command) {
-          const logCommand = String(log.command).trim().toLowerCase()
-          const thresholdValue = String(condition.thresholdValue).trim().toLowerCase()
+      } else if (condition.fieldName === "command" && log.command) {
+        const command = log.command.toLowerCase().trim()
+        const value = condition.thresholdValue.toLowerCase().trim()
 
-          if (condition.comparator === "contains") {
-            conditionMet = logCommand.includes(thresholdValue)
-            console.log(`Checking command: "${logCommand}" contains "${thresholdValue}" = ${conditionMet}`)
-          } else if (condition.comparator === "not_contains") {
-            conditionMet = !logCommand.includes(thresholdValue)
-          } else if (condition.comparator === "equals") {
-            conditionMet = logCommand === thresholdValue
-          }
+        if (condition.comparator === "contains") {
+          conditionMet = command.includes(value)
+        } else if (condition.comparator === "not_contains") {
+          conditionMet = !command.includes(value)
+        } else if (condition.comparator === "equals") {
+          conditionMet = command === value
         }
-      } else if (condition.fieldName === "name") {
-        // Check if name contains the threshold value
-        if (log.name) {
-          const logName = String(log.name).trim().toLowerCase()
-          const thresholdValue = String(condition.thresholdValue).trim().toLowerCase()
+      } else if (condition.fieldName === "name" && log.name) {
+        const name = log.name.toLowerCase().trim()
+        const value = condition.thresholdValue.toLowerCase().trim()
 
-          if (condition.comparator === "contains") {
-            conditionMet = logName.includes(thresholdValue)
-          } else if (condition.comparator === "not_contains") {
-            conditionMet = !logName.includes(thresholdValue)
-          } else if (condition.comparator === "equals") {
-            conditionMet = logName === thresholdValue
-          }
+        if (condition.comparator === "contains") {
+          conditionMet = name.includes(value)
+        } else if (condition.comparator === "not_contains") {
+          conditionMet = !name.includes(value)
+        } else if (condition.comparator === "equals") {
+          conditionMet = name === value
         }
       }
 
       if (conditionMet) {
         violationCount++
-        console.log(`Found matching log: ${JSON.stringify(log)}`)
+        violatedIds.push(log.id)
         if (!latestViolation) {
           latestViolation = log
         }
       }
     }
 
-    console.log(`Found ${violationCount} violations for condition: ${condition.name}`)
+    const shouldTrigger = condition.countThreshold
+      ? violationCount >= condition.countThreshold
+      : violationCount > 0
 
-    // If count threshold is specified, check if we've exceeded it
-    if (condition.countThreshold) {
-      return {
-        shouldTrigger: violationCount >= condition.countThreshold,
-        reason:
-          violationCount >= condition.countThreshold
-            ? `Found ${violationCount} matching logs (limit: ${condition.countThreshold})`
-            : `Found ${violationCount} matching logs, but below limit of ${condition.countThreshold}`,
-        latestViolation,
-      }
-    }
+    const reason = condition.countThreshold
+      ? shouldTrigger
+        ? `Found ${violationCount} matching logs (limit: ${condition.countThreshold})`
+        : `Found ${violationCount} matching logs, but below limit of ${condition.countThreshold}`
+      : violationCount > 0
+        ? `Found ${violationCount} matching logs`
+        : "No matching logs found"
 
-    // Otherwise, trigger if any violation was found
     return {
-      shouldTrigger: violationCount > 0,
-      reason: violationCount > 0 ? `Found ${violationCount} matching logs` : "No matching logs found",
+      shouldTrigger,
+      reason,
       latestViolation,
+      violatedIds,
+      sourceTable: "logs",
     }
   } catch (error) {
     console.error("Error evaluating system logs condition:", error)
@@ -913,8 +857,14 @@ export async function runAlertEvaluation() {
         )
 
         if (evaluation.shouldTrigger) {
-          // Create an alert event
-          const notes = evaluation.data?.reason || "Alert condition met"
+          const violatedIds = evaluation.data?.violatedIds || []
+          const sourceTable = evaluation.data?.sourceTable || "unknown"
+        
+          const notes = [
+            evaluation.data?.reason || "Alert condition met",
+            `Table: ${sourceTable}`,
+            `Violated IDs: ${violatedIds.join(", ") || "None"}`,
+          ].join("\n")
           console.log(`Creating alert event for condition ${condition.name} with notes: ${notes}`)
 
           try {
