@@ -223,6 +223,8 @@ model User {
   receivedPermissions DriveFilePermission[] @relation("DriveFilePermissionToUser")
   addressedMatches    CommandMatch[]        @relation("addressedBy")
   PollVote            PollVote[]
+  leaveRequests       Leave[]               @relation("LeaveRequester")
+  leaveApprovals      Leave[]               @relation("LeaveApprover")
 }
 
 model Group {
@@ -1001,4 +1003,24 @@ model PollVote {
   poll      Poll       @relation(fields: [pollId], references: [id], onDelete: Cascade)
 
   @@unique([userId, optionId, pollId])
+}
+
+model Leave {
+  id              Int       @id @default(autoincrement())
+  startDate       DateTime
+  endDate         DateTime
+  leaveType       String    // FULL_DAY, AM, PM
+  reason          String
+  status          String    // PENDING, APPROVED, REJECTED
+  approverComment String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @default(now()) @updatedAt
+  approvedAt      DateTime?
+  rejectedAt      DateTime?
+  
+  // Relations
+  userId          Int
+  user            User      @relation("LeaveRequester", fields: [userId], references: [id])
+  approverId      Int
+  approver        User      @relation("LeaveApprover", fields: [approverId], references: [id])
 }

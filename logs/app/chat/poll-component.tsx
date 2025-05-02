@@ -177,7 +177,7 @@ export function PollComponent({
                       </div>
                     </RadioGroup>
                   )}
-                  <Label htmlFor={`option-${option.id}`} className="cursor-pointer">
+                  <Label htmlFor={`option-${option.id}`} className="cursor-pointer text-primary">
                     {option.text}
                   </Label>
                 </div>

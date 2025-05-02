@@ -846,6 +846,22 @@ exports.Prisma.PollVoteScalarFieldEnum = {
   createdAt: 'createdAt'
 };
 
+exports.Prisma.LeaveScalarFieldEnum = {
+  id: 'id',
+  startDate: 'startDate',
+  endDate: 'endDate',
+  leaveType: 'leaveType',
+  reason: 'reason',
+  status: 'status',
+  approverComment: 'approverComment',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  approvedAt: 'approvedAt',
+  rejectedAt: 'rejectedAt',
+  userId: 'userId',
+  approverId: 'approverId'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -1004,7 +1020,8 @@ exports.Prisma.ModelName = {
   BidSubmission: 'BidSubmission',
   Poll: 'Poll',
   PollOption: 'PollOption',
-  PollVote: 'PollVote'
+  PollVote: 'PollVote',
+  Leave: 'Leave'
 };
 
 /**
