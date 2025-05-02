@@ -41,6 +41,7 @@ import {
   Eye,
   EyeOff,
   User,
+  Wand2,
 } from "lucide-react"
 import { toast } from "sonner"
 import {
@@ -58,6 +59,7 @@ import * as XLSX from "xlsx"
 import { MultiCombobox } from "@/components/multi-combobox"
 import { Textarea } from "@/components/ui/textarea"
 import ScrollableRoles from "./Scroll"
+import { generatePassword } from "@/lib/utils"
 
 // Debounce function to limit how often a function can run
 function debounce<T extends (...args: any[]) => any>(func: T, wait: number): (...args: Parameters<T>) => void {
@@ -662,6 +664,15 @@ export default function UsersTable() {
       setStatus("❌ Upload error occurred.")
     }
   }
+  const handleGeneratePassword = () => {
+    const newPassword = generatePassword()
+    setUserForm((prev) => ({
+      ...prev,
+      password: newPassword,
+    }))
+    setShowPassword(true) // Show the password when generated
+    toast.success("Password generated")
+  }
   return (
     <div className="space-y-4">
       <div className="flex flex-col sm:flex-row gap-4 justify-between">
@@ -960,16 +971,29 @@ export default function UsersTable() {
                     className="pr-10"
                     required
                   />
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="icon"
-                    className="absolute right-0 top-0 h-full"
-                    onClick={() => setShowPassword(!showPassword)}
-                  >
-                    {showPassword ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
-                    <span className="sr-only">{showPassword ? "Hide password" : "Show password"}</span>
-                  </Button>
+                  <div className="absolute right-0 top-0 h-full flex">
+                                      <Button
+                                        type="button"
+                                        variant="ghost"
+                                        size="icon"
+                                        className="h-full"
+                                        onClick={() => setShowPassword(!showPassword)}
+                                      >
+                                        {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                                        <span className="sr-only">{showPassword ? "Hide password" : "Show password"}</span>
+                                      </Button>
+                                      <Button
+                                        type="button"
+                                        variant="ghost"
+                                        size="icon"
+                                        className="h-full"
+                                        onClick={handleGeneratePassword}
+                                        title="Generate Password"
+                                      >
+                                        <Wand2 className="h-4 w-4" />
+                                        <span className="sr-only">Generate Password</span>
+                                      </Button>
+                                    </div>
                 </div>
               </div>
             </div>
@@ -1104,16 +1128,29 @@ export default function UsersTable() {
                     className="pr-10"
                     placeholder="Leave blank to keep current password"
                   />
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="icon"
-                    className="absolute right-0 top-0 h-full"
-                    onClick={() => setShowPassword(!showPassword)}
-                  >
-                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                    <span className="sr-only">{showPassword ? "Hide password" : "Show password"}</span>
-                  </Button>
+                  <div className="absolute right-0 top-0 h-full flex">
+                                      <Button
+                                        type="button"
+                                        variant="ghost"
+                                        size="icon"
+                                        className="h-full"
+                                        onClick={() => setShowPassword(!showPassword)}
+                                      >
+                                        {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                                        <span className="sr-only">{showPassword ? "Hide password" : "Show password"}</span>
+                                      </Button>
+                                      <Button
+                                        type="button"
+                                        variant="ghost"
+                                        size="icon"
+                                        className="h-full"
+                                        onClick={handleGeneratePassword}
+                                        title="Generate Password"
+                                      >
+                                        <Wand2 className="h-4 w-4" />
+                                        <span className="sr-only">Generate Password</span>
+                                      </Button>
+                                    </div>
                 </div>
               </div>
             </div>

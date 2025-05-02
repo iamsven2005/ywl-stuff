@@ -7,7 +7,16 @@ import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
 import { sendMessage } from "../actions/chat-actions"
 import { toast } from "sonner"
-import { Loader2, Send, Paperclip, X, Upload } from "lucide-react"
+import { Loader2, Send, Paperclip, X, Upload, Command } from "lucide-react"
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
+
+// Define slash commands
+interface SlashCommand {
+  command: string
+  description: string
+  icon: React.ReactNode
+  action: () => string | Promise<string>
+}
 
 export function ChatInput({ groupId }: { groupId: number }) {
   const [message, setMessage] = useState("")
@@ -15,9 +24,90 @@ export function ChatInput({ groupId }: { groupId: number }) {
   const [uploading, setUploading] = useState(false)
   const [selectedFiles, setSelectedFiles] = useState<File[]>([])
   const [isDragging, setIsDragging] = useState(false)
+  const [showCommands, setShowCommands] = useState(false)
+  const [filteredCommands, setFilteredCommands] = useState<SlashCommand[]>([])
+  const [commandInput, setCommandInput] = useState("")
+  const [selectedCommandIndex, setSelectedCommandIndex] = useState(0)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const dropZoneRef = useRef<HTMLDivElement>(null)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
+  const commandsRef = useRef<HTMLDivElement>(null)
+
+  // Define available slash commands
+  const slashCommands: SlashCommand[] = [
+    {
+      command: "/password",
+      description: "Generate a secure random password",
+      icon: <span className="text-blue-500 mr-2">🔑</span>,
+      action: () => {
+        const length = 12
+        const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_-+=<>?"
+        let password = ""
+        for (let i = 0; i < length; i++) {
+          const randomIndex = Math.floor(Math.random() * charset.length)
+          password += charset[randomIndex]
+        }
+        return `Generated password: \`${password}\``
+      },
+    },
+    {
+      command: "/time",
+      description: "Insert current date and time",
+      icon: <span className="text-green-500 mr-2">🕒</span>,
+      action: () => {
+        return `Current time: ${new Date().toLocaleString()}`
+      },
+    },
+    {
+      command: "/shrug",
+      description: "Insert shrug emoticon",
+      icon: <span className="text-yellow-500 mr-2">😏</span>,
+      action: () => {
+        return "¯\\_(ツ)_/¯"
+      },
+    },
+    {
+      command: "/tableflip",
+      description: "Insert table flip emoticon",
+      icon: <span className="text-red-500 mr-2">😠</span>,
+      action: () => {
+        return "(╯°□°)╯︵ ┻━┻"
+      },
+    },
+    {
+      command: "/unflip",
+      description: "Insert table unflip emoticon",
+      icon: <span className="text-purple-500 mr-2">😌</span>,
+      action: () => {
+        return "┬─┬ノ( º _ ºノ)"
+      },
+    },
+    {
+      command: "/lorem",
+      description: "Insert lorem ipsum text",
+      icon: <span className="text-gray-500 mr-2">📝</span>,
+      action: () => {
+        return "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
+      },
+    },
+    {
+      command: "/dice",
+      description: "Roll a dice (1-6)",
+      icon: <span className="text-indigo-500 mr-2">🎲</span>,
+      action: () => {
+        const roll = Math.floor(Math.random() * 6) + 1
+        return `🎲 You rolled a ${roll}`
+      },
+    },
+    {
+      command: "/coin",
+      description: "Flip a coin (heads/tails)",
+      icon: <span className="text-amber-500 mr-2">🪙</span>,
+      action: () => {
+        return Math.random() > 0.5 ? "Coin flip: Heads" : "Coin flip: Tails"
+      },
+    },
+  ]
 
   const handleSendMessage = async () => {
     if (!message.trim() && selectedFiles.length === 0) return
@@ -72,7 +162,7 @@ export function ChatInput({ groupId }: { groupId: number }) {
       // Reset state
       setMessage("")
       setSelectedFiles([])
-f
+
       toast.success(
         selectedFiles.length === 1
           ? "File uploaded successfully"
@@ -87,9 +177,64 @@ f
   }
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    if (e.key === "Enter" && !e.shiftKey) {
+    if (showCommands) {
+      // Handle command selection with arrow keys
+      if (e.key === "ArrowDown") {
+        e.preventDefault()
+        setSelectedCommandIndex((prev) => (prev < filteredCommands.length - 1 ? prev + 1 : prev))
+      } else if (e.key === "ArrowUp") {
+        e.preventDefault()
+        setSelectedCommandIndex((prev) => (prev > 0 ? prev - 1 : 0))
+      } else if (e.key === "Enter" || e.key === "Tab") {
+        e.preventDefault()
+        executeCommand(filteredCommands[selectedCommandIndex])
+      } else if (e.key === "Escape") {
+        e.preventDefault()
+        setShowCommands(false)
+      }
+    } else if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault()
       handleSendMessage()
+    } else if (e.key === "/" && message === "") {
+      // Show commands when typing / at the beginning
+      setCommandInput("")
+      setShowCommands(true)
+      setSelectedCommandIndex(0)
+    }
+  }
+
+  const handleMessageChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const newValue = e.target.value
+    setMessage(newValue)
+
+    // Check for slash commands
+    if (newValue.startsWith("/")) {
+      const commandText = newValue.slice(1)
+      setCommandInput(commandText)
+
+      // Filter commands based on input
+      const filtered = slashCommands.filter((cmd) =>
+        cmd.command.slice(1).toLowerCase().includes(commandText.toLowerCase()),
+      )
+
+      setFilteredCommands(filtered)
+      setSelectedCommandIndex(0)
+      setShowCommands(filtered.length > 0)
+    } else {
+      setShowCommands(false)
+    }
+  }
+
+  const executeCommand = async (command: SlashCommand) => {
+    try {
+      const result = await command.action()
+      setMessage(result)
+      setShowCommands(false)
+      // Focus the textarea after executing command
+      textareaRef.current?.focus()
+    } catch (error) {
+      console.error(`Error executing command ${command.command}:`, error)
+      toast.error(`Failed to execute ${command.command}`)
     }
   }
 
@@ -233,6 +378,24 @@ f
     }
   }, [])
 
+  // Update filtered commands when command input changes
+  useEffect(() => {
+    if (commandInput !== "") {
+      const filtered = slashCommands.filter((cmd) =>
+        cmd.command.slice(1).toLowerCase().includes(commandInput.toLowerCase()),
+      )
+      setFilteredCommands(filtered)
+      setShowCommands(filtered.length > 0)
+    } else {
+      setFilteredCommands(slashCommands)
+    }
+  }, [commandInput])
+
+  // Initialize filtered commands
+  useEffect(() => {
+    setFilteredCommands(slashCommands)
+  }, [])
+
   return (
     <div
       ref={dropZoneRef}
@@ -296,17 +459,48 @@ f
         </div>
       )}
 
-      <div className="flex gap-2">
+      <div className="flex gap-2 relative">
         <Textarea
           ref={textareaRef}
-          placeholder="Type a message or paste files..."
+          placeholder="Type a message, paste files, or type / for commands..."
           className="resize-none dark:bg-gray-700 dark:text-gray-200 dark:border-gray-600 dark:placeholder:text-gray-400"
           value={message}
-          onChange={(e) => setMessage(e.target.value)}
+          onChange={handleMessageChange}
           onKeyDown={handleKeyDown}
           disabled={sending || uploading}
           rows={1}
         />
+
+        {showCommands && filteredCommands.length > 0 && (
+          <div
+            ref={commandsRef}
+            className="absolute bottom-full left-0 w-full max-w-md bg-white dark:bg-gray-800 border dark:border-gray-700 rounded-md shadow-lg z-10 mb-1 max-h-60 overflow-y-auto"
+          >
+            <div className="p-2 border-b dark:border-gray-700 bg-gray-50 dark:bg-gray-900 sticky top-0">
+              <div className="flex items-center">
+                <Command className="h-4 w-4 mr-2 text-gray-500 dark:text-gray-400" />
+                <span className="text-sm font-medium">Commands</span>
+              </div>
+            </div>
+            <div>
+              {filteredCommands.map((cmd, index) => (
+                <div
+                  key={cmd.command}
+                  className={`p-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer flex items-center ${
+                    index === selectedCommandIndex ? "bg-gray-100 dark:bg-gray-700" : ""
+                  }`}
+                  onClick={() => executeCommand(cmd)}
+                >
+                  {cmd.icon}
+                  <div>
+                    <div className="font-medium text-sm">{cmd.command}</div>
+                    <div className="text-xs text-gray-500 dark:text-gray-400">{cmd.description}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
         <input
           type="file"
@@ -316,6 +510,43 @@ f
           accept=".pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png,.gif"
           multiple
         />
+
+        <Popover>
+          <PopoverTrigger asChild>
+            <Button
+              variant="outline"
+              size="icon"
+              disabled={sending || uploading}
+              title="Commands"
+              className="dark:bg-gray-700 dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-600"
+            >
+              <Command className="h-4 w-4" />
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="w-80 p-0" align="end">
+            <div className="p-2 border-b dark:border-gray-700 bg-gray-50 dark:bg-gray-900">
+              <div className="text-sm font-medium">Available Commands</div>
+            </div>
+            <div className="max-h-60 overflow-y-auto">
+              {slashCommands.map((cmd) => (
+                <div
+                  key={cmd.command}
+                  className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer flex items-center"
+                  onClick={() => {
+                    setMessage(cmd.command + " ")
+                    textareaRef.current?.focus()
+                  }}
+                >
+                  {cmd.icon}
+                  <div>
+                    <div className="font-medium text-sm">{cmd.command}</div>
+                    <div className="text-xs text-gray-500 dark:text-gray-400">{cmd.description}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </PopoverContent>
+        </Popover>
 
         <Button
           variant="outline"
@@ -340,4 +571,3 @@ f
     </div>
   )
 }
-

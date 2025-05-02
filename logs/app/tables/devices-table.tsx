@@ -53,6 +53,7 @@ import { DeviceStatusIndicator } from "@/components/device-status-indicator"
 // Import the DeviceStatusIndicator component
 import { useDeviceStatus } from "../hooks/use-device-status" // Adjust path if needed
 import { devices } from "@/prisma/generated/main"
+import { generatePassword } from "@/lib/utils"
 
 // Debounce function to limit how often a function can run
 function debounce<T extends (...args: any[]) => any>(func: T, wait: number): (...args: Parameters<T>) => void {
@@ -590,32 +591,7 @@ export default function DevicesTable() {
   
   // Remove already assigned IPs
   const availableIps = allIps.filter(ip => !assignedIps.includes(ip))
-  const generatePassword = (length = 12) => {
-    const uppercase = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-    const lowercase = "abcdefghijklmnopqrstuvwxyz"
-    const numbers = "0123456789"
-    const symbols = "!@#$%^&*()_+=-[]{}|;:,.<>?"
-  
-    const allChars = uppercase + lowercase + numbers + symbols
-    let password = ""
-  
-    // Ensure at least one character from each category
-    password += uppercase.charAt(Math.floor(Math.random() * uppercase.length))
-    password += lowercase.charAt(Math.floor(Math.random() * lowercase.length))
-    password += numbers.charAt(Math.floor(Math.random() * numbers.length))
-    password += symbols.charAt(Math.floor(Math.random() * symbols.length))
-  
-    // Fill the rest of the password
-    for (let i = 4; i < length; i++) {
-      password += allChars.charAt(Math.floor(Math.random() * allChars.length))
-    }
-  
-    // Shuffle the password characters
-    return password
-      .split("")
-      .sort(() => 0.5 - Math.random())
-      .join("")
-  }
+
   const handleGeneratePassword = () => {
     const newPassword = generatePassword()
     setDeviceForm((prev) => ({

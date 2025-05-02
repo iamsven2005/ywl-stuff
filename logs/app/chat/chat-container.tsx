@@ -7,7 +7,7 @@ import { ChatInput } from "./chat-input"
 import { Button } from "@/components/ui/button"
 import { UsersListDialog } from "./users-list-dialog"
 import { ImportExportDialog } from "./import-export-dialog"
-import { Camera, Moon, Sun, Users, FileUp } from "lucide-react"
+import { Camera,Users, FileUp } from "lucide-react"
 import { useTheme } from "next-themes"
 import { takeScreenshot } from "../utils/screenshot"
 import { toast } from "sonner"
@@ -17,13 +17,8 @@ export function ChatContainer({ id }: { id: number }) {
   const groupId = searchParams.get("groupId")
   const [isUsersListOpen, setIsUsersListOpen] = useState(false)
   const [isImportExportOpen, setIsImportExportOpen] = useState(false)
-  const { theme, setTheme } = useTheme()
-  const [isMounted, setIsMounted] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
-  useEffect(() => {
-    setIsMounted(true)
-  }, [])
 
   const handleScreenshot = async () => {
     if (!groupId) return
@@ -44,10 +39,6 @@ export function ChatContainer({ id }: { id: number }) {
     }
   }
 
-  const toggleTheme = () => {
-    setTheme(theme === "dark" ? "light" : "dark")
-  }
-
   if (!groupId) {
     return (
       <div className="flex-1 flex items-center justify-center bg-muted/20 dark:bg-gray-900">
@@ -65,15 +56,6 @@ export function ChatContainer({ id }: { id: number }) {
               <Users className="h-4 w-4 mr-2" />
               View All Users
             </Button>
-            {isMounted && (
-              <Button
-                variant="outline"
-                onClick={toggleTheme}
-                className="dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700"
-              >
-                {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
-              </Button>
-            )}
           </div>
         </div>
         <UsersListDialog open={isUsersListOpen} onOpenChange={setIsUsersListOpen} />
@@ -102,16 +84,6 @@ export function ChatContainer({ id }: { id: number }) {
           <Camera className="h-4 w-4 mr-2" />
           Screenshot
         </Button>
-        {isMounted && (
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={toggleTheme}
-            className="dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700"
-          >
-            {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
-          </Button>
-        )}
       </div>
       <ChatMessages groupId={Number.parseInt(groupId)} id={id} />
       <ChatInput groupId={Number.parseInt(groupId)} />
