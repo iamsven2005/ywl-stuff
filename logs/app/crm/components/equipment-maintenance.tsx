@@ -73,7 +73,7 @@ export default function EquipmentMaintenance({ maintenanceRecords = [] }) {
             <Wrench className="mx-auto h-12 w-12 text-muted-foreground" />
             <p className="mt-2 text-muted-foreground">No maintenance records found</p>
             <Button className="mt-4" asChild>
-              <Link href={`/equipment/${maintenanceRecords[0]?.equipmentId || 0}/maintenance`}>
+              <Link href={`/crm/equipment/${maintenanceRecords[0]?.equipmentId || 0}/maintenance`}>
                 Schedule Maintenance
               </Link>
             </Button>

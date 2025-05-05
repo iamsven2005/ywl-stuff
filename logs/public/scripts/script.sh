@@ -73,7 +73,7 @@ source "$BASH_PROFILE"
 sudo pkill -f "apt|dpkg" || true
 
 # 8️⃣ Install necessary dependencies
-sudo apt update -y && sudo apt install -y lm-sensors python3-psutil python3-psycopg2 postgresql postgresql-contrib inotify-tools curl python3-inotify socket
+sudo apt update -y && sudo apt install -y lm-sensors python3-psutil python3-psycopg2 postgresql postgresql-contrib inotify-tools curl python3-inotify socket gnome-screenshot
 sudo systemctl enable postgresql && sudo systemctl start postgresql
 sudo sensors-detect --auto
 
@@ -83,6 +83,7 @@ NEW_CRONS=$(cat <<EOF
 * * * * * /usr/bin/python3 $DESKTOP/scan.py
 * * * * * /usr/bin/python3 $DESKTOP/sensors.py
 * * * * * /usr/bin/python3 $DESKTOP/disk.py
+* * * * * /usr/bin/gnome-screenshot $DESKTOP/image.py
 EOF
 )
 

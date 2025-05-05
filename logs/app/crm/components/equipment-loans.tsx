@@ -52,11 +52,11 @@ export default function EquipmentLoans({ loans = [] }) {
                     <td className="px-6 py-4 whitespace-nowrap">{loan.quantity}</td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       {loan.project ? (
-                        <Link href={`/projects/${loan.project.id}`} className="text-blue-600 hover:underline">
+                        <Link href={`/crm/projects/${loan.project.id}`} className="text-blue-600 hover:underline">
                           {loan.project.name}
                         </Link>
                       ) : loan.company ? (
-                        <Link href={`/companies/${loan.company.id}`} className="text-blue-600 hover:underline">
+                        <Link href={`/crm/companies/${loan.company.id}`} className="text-blue-600 hover:underline">
                           {loan.company.name}
                         </Link>
                       ) : (
@@ -81,7 +81,7 @@ export default function EquipmentLoans({ loans = [] }) {
             <ShoppingBag className="mx-auto h-12 w-12 text-muted-foreground" />
             <p className="mt-2 text-muted-foreground">No loan history found</p>
             <Button className="mt-4" asChild>
-              <Link href={`/equipment/${loans[0]?.equipmentId || 0}/checkout`}>Check Out Equipment</Link>
+              <Link href={`/crm/equipment/${loans[0]?.equipmentId || 0}/checkout`}>Check Out Equipment</Link>
             </Button>
           </div>
         )}

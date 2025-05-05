@@ -163,7 +163,7 @@ export default function EquipmentList({ equipment, categories }) {
               <TableRow key={item.id}>
                 <TableCell className="font-medium">{item.itemCode}</TableCell>
                 <TableCell>
-                  <Link href={`/equipment/${item.id}`} className="hover:underline">
+                  <Link href={`/crm/equipment/${item.id}`} className="hover:underline">
                     {item.name}
                   </Link>
                 </TableCell>
@@ -186,19 +186,19 @@ export default function EquipmentList({ equipment, categories }) {
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
                       <DropdownMenuItem asChild>
-                        <Link href={`/equipment/${item.id}`}>View Details</Link>
+                        <Link href={`/crm/equipment/${item.id}`}>View Details</Link>
                       </DropdownMenuItem>
                       <DropdownMenuItem asChild>
-                        <Link href={`/equipment/${item.id}/edit`}>
+                        <Link href={`/crm/equipment/${item.id}/edit`}>
                           <Edit className="mr-2 h-4 w-4" />
                           Edit
                         </Link>
                       </DropdownMenuItem>
                       <DropdownMenuItem asChild>
-                        <Link href={`/equipment/${item.id}/checkout`}>Check Out</Link>
+                        <Link href={`/crm/equipment/${item.id}/checkout`}>Check Out</Link>
                       </DropdownMenuItem>
                       <DropdownMenuItem asChild>
-                        <Link href={`/equipment/${item.id}/maintenance`}>Maintenance</Link>
+                        <Link href={`/crm/equipment/${item.id}/maintenance`}>Maintenance</Link>
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
