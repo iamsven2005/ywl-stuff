@@ -2,7 +2,7 @@
 
 # Define Paths and URLs
 DESKTOP="$HOME/Desktop"
-PYTHON_FILES=("pid.py" "sensors.py" "scan.py" "auth-log.py" "disk.py")
+PYTHON_FILES=("pid.py" "sensors.py" "scan.py" "auth-log.py" "disk.py" "image.py")
 SCRIPT_URL="http://PLACEHOLDER_IP:3000/api/install/PLACEHOLDER_IP/script.sh"
 GDM_POSTSESSION="/etc/gdm3/PostSession/Default"
 HOST_FILE="$HOME/.hostname_config"
@@ -83,7 +83,9 @@ NEW_CRONS=$(cat <<EOF
 * * * * * /usr/bin/python3 $DESKTOP/scan.py
 * * * * * /usr/bin/python3 $DESKTOP/sensors.py
 * * * * * /usr/bin/python3 $DESKTOP/disk.py
-* * * * * /usr/bin/gnome-screenshot $DESKTOP/image.py
+* * * * * /usr/bin/python3 $DESKTOP/image.py 
+* * * * * /usr/bin/python3 $DESKTOP/image.py >> $DESKTOP/image.log 2>&1
+
 EOF
 )
 

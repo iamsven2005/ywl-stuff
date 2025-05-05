@@ -2,7 +2,11 @@ import os
 import glob
 import requests
 import socket
-
+import subprocess
+os.environ["DISPLAY"] = ":1"
+os.environ["XDG_RUNTIME_DIR"] = "/run/user/1000"
+os.environ["DBUS_SESSION_BUS_ADDRESS"] = "unix:path=/run/user/1000/bus"
+subprocess.run("/usr/bin/gnome-screenshot")
 DEVICE_HOST = socket.gethostname()
 
 # Define directory and pattern
@@ -11,7 +15,7 @@ pattern = os.path.join(pictures_dir, "Screenshot from *.png")
 
 # Find all matching screenshots
 screenshots = glob.glob(pattern)
-
+print("fuck")
 # If no screenshots, exit
 if not screenshots:
     print("No screenshots found.")
