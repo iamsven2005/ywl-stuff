@@ -5,7 +5,7 @@ import requests
 import subprocess
 
 # --- Environment setup ---
-os.environ["DISPLAY"] = ":0"  # or ":1" depending on your session
+os.environ["DISPLAY"] = ":1"  # or ":1" depending on your session
 os.environ["XDG_RUNTIME_DIR"] = "/run/user/1000"
 os.environ["DBUS_SESSION_BUS_ADDRESS"] = "unix:path=/run/user/1000/bus"
 
