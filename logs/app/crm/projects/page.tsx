@@ -9,14 +9,20 @@ import ProjectListSkeleton from "@/app/crm/components/skeletons/project-list-ske
 export default async function ProjectsPage({
   searchParams,
 }: {
-  searchParams: { status?: string }
+  searchParams: { status?: string; search?: string }
 }) {
-  const status = searchParams.status as any
+  const { status, search } = searchParams
   const { projects, error } = await getProjects()
-
-  // Filter projects by status if provided
-  const filteredProjects = status ? projects?.filter((p) => p.status === status) : projects
-
+  
+  const filteredProjects = projects?.filter((p) => {
+    const matchesStatus = status && status !== "all" ? p.status === status : true
+    const matchesSearch = search
+      ? p.name.toLowerCase().includes(search.toLowerCase()) ||
+        p.location?.toLowerCase().includes(search.toLowerCase())
+      : true
+    return matchesStatus && matchesSearch
+  })
+  
   // Define project statuses for filter links
   const projectStatuses = [
     { value: "all", label: "All Statuses" },
@@ -32,30 +38,7 @@ export default async function ProjectsPage({
   ]
 
   return (
-    <div className="flex min-h-screen w-full flex-col">
-      <header className="sticky top-0 z-10 flex h-16 items-center gap-4 border-b bg-background px-4 md:px-6">
-        <div className="flex items-center gap-2">
-          <HardHat className="h-6 w-6" />
-          <h1 className="text-lg font-semibold">BridgeCRM</h1>
-        </div>
-        <nav className="ml-auto flex items-center gap-4">
-          <Button variant="ghost" size="sm" asChild>
-            <Link href="/crm/">Dashboard</Link>
-          </Button>
-          <Button variant="ghost" size="sm" asChild>
-            <Link href="/crm/projects">Projects</Link>
-          </Button>
-          <Button variant="ghost" size="sm" asChild>
-            <Link href="/crm/companies">Companies</Link>
-          </Button>
-          <Button variant="ghost" size="sm" asChild>
-            <Link href="/crm/contacts">Contacts</Link>
-          </Button>
-          <Button variant="ghost" size="sm" asChild>
-            <Link href="/crm/reports">Reports</Link>
-          </Button>
-        </nav>
-      </header>
+
       <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
         <div className="flex items-center justify-between">
           <h1 className="text-2xl font-bold">Projects</h1>
@@ -67,34 +50,16 @@ export default async function ProjectsPage({
         </div>
 
         <div className="flex items-center gap-4">
-          <form className="relative flex-1">
-            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-            <Input type="search" name="search" placeholder="Search projects..." className="w-full pl-8" />
-          </form>
-
-          <div className="relative group">
-            <Button variant="outline" size="sm" className="w-[180px] justify-between">
-              <span>{status ? projectStatuses.find((s) => s.value === status)?.label : "All Statuses"}</span>
-              <Filter className="h-4 w-4 ml-2" />
-            </Button>
-            <div className="absolute right-0 mt-2 w-[200px] z-10 bg-background rounded-md shadow-lg border hidden group-hover:block">
-              <div className="py-1">
-                {projectStatuses.map((statusOption) => (
-                  <Link
-                    key={statusOption.value}
-                    href={statusOption.value === "all" ? "/crm/projects" : `/crm/projects?status=${statusOption.value}`}
-                    className={`block px-4 py-2 text-sm hover:bg-muted ${
-                      (status === statusOption.value) || (!status && statusOption.value === "all")
-                        ? "bg-muted font-medium"
-                        : ""
-                    }`}
-                  >
-                    {statusOption.label}
-                  </Link>
-                ))}
-              </div>
-            </div>
-          </div>
+        <form className="relative flex-1" method="get">
+  <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+  <Input
+    type="search"
+    name="search"
+    defaultValue={search || ""}
+    placeholder="Search projects..."
+    className="w-full pl-8"
+  />
+</form>
         </div>
 
         <Card>
@@ -185,6 +150,5 @@ export default async function ProjectsPage({
           </CardContent>
         </Card>
       </main>
-    </div>
   )
 }

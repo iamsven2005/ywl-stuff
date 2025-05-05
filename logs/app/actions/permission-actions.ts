@@ -186,7 +186,6 @@ export async function updatePagePermission(
 // Delete a page permission
 export async function deletePagePermission(id: number) {
   try {
-    // Get the permission before deleting for logging
     const permission = await db.pagePermission.findUnique({
       where: { id },
     })
@@ -195,7 +194,16 @@ export async function deletePagePermission(id: number) {
       throw new Error("Permission not found")
     }
 
-    // Delete the permission (cascade will delete related role and user permissions)
+    // 🔥 Delete related rolePermission and userPermission records first
+    await db.rolePermission.deleteMany({
+      where: { pagePermissionId: id },
+    })
+
+    await db.userPermission.deleteMany({
+      where: { pagePermissionId: id },
+    })
+
+    // ✅ Now delete the main page permission
     await db.pagePermission.delete({
       where: { id },
     })
@@ -214,6 +222,7 @@ export async function deletePagePermission(id: number) {
     throw new Error("Failed to delete permission")
   }
 }
+
 
 // Check if a user has permission to access a route
 export async function checkUserPermission(userId: number, route: string) {

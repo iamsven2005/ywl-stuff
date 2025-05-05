@@ -26,30 +26,7 @@ export default async function CompaniesPage({
   const { companies, error } = await getCompanies(type ? { type } : undefined)
 
   return (
-    <div className="flex min-h-screen w-full flex-col">
-      <header className="sticky top-0 z-10 flex h-16 items-center gap-4 border-b bg-background px-4 md:px-6">
-        <div className="flex items-center gap-2">
-          <HardHat className="h-6 w-6" />
-          <h1 className="text-lg font-semibold">BridgeCRM</h1>
-        </div>
-        <nav className="ml-auto flex items-center gap-4">
-          <Button variant="ghost" size="sm" asChild>
-            <Link href="/crm/">Dashboard</Link>
-          </Button>
-          <Button variant="ghost" size="sm" asChild>
-            <Link href="/crm/projects">Projects</Link>
-          </Button>
-          <Button variant="ghost" size="sm" asChild>
-            <Link href="/crm/companies">Companies</Link>
-          </Button>
-          <Button variant="ghost" size="sm" asChild>
-            <Link href="/crm/contacts">Contacts</Link>
-          </Button>
-          <Button variant="ghost" size="sm" asChild>
-            <Link href="/crm/reports">Reports</Link>
-          </Button>
-        </nav>
-      </header>
+   
       <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
         <div className="flex items-center justify-between">
           <h1 className="text-2xl font-bold">Companies</h1>
@@ -61,10 +38,6 @@ export default async function CompaniesPage({
         </div>
 
         <div className="flex items-center gap-4">
-          <form className="relative flex-1">
-            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-            <Input type="search" name="search" placeholder="Search companies..." className="w-full pl-8" />
-          </form>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="outline" size="sm">
@@ -117,22 +90,7 @@ export default async function CompaniesPage({
           </DropdownMenu>
         </div>
 
-        <Tabs defaultValue="all">
-          <TabsList>
-            <TabsTrigger value="all" asChild>
-              <Link href="/crm/companies">All Companies</Link>
-            </TabsTrigger>
-            <TabsTrigger value="contractors" asChild>
-              <Link href="/crm/companies?type=CONTRACTOR">Contractors</Link>
-            </TabsTrigger>
-            <TabsTrigger value="vendors" asChild>
-              <Link href="/crm/companies?type=VENDOR">Vendors</Link>
-            </TabsTrigger>
-            <TabsTrigger value="partners" asChild>
-              <Link href="/crm/companies?type=PARTNER">Partners</Link>
-            </TabsTrigger>
-          </TabsList>
-          <TabsContent value="all" className="border-none p-0 pt-4">
+
             <Card>
               <CardHeader className="px-6 py-4">
                 <CardTitle>
@@ -148,9 +106,6 @@ export default async function CompaniesPage({
                 {error ? <CompanyListSkeleton /> : <CompanyList companies={companies || []} />}
               </CardContent>
             </Card>
-          </TabsContent>
-        </Tabs>
       </main>
-    </div>
   )
 }

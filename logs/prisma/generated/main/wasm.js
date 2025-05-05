@@ -862,6 +862,149 @@ exports.Prisma.LeaveScalarFieldEnum = {
   approverId: 'approverId'
 };
 
+exports.Prisma.HolidayScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  date: 'date',
+  description: 'description',
+  isRecurring: 'isRecurring',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.ReminderScalarFieldEnum = {
+  id: 'id',
+  title: 'title',
+  date: 'date',
+  description: 'description',
+  color: 'color',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  userId: 'userId'
+};
+
+exports.Prisma.FormScalarFieldEnum = {
+  id: 'id',
+  title: 'title',
+  description: 'description',
+  creatorId: 'creatorId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.QuestionScalarFieldEnum = {
+  id: 'id',
+  formId: 'formId',
+  text: 'text',
+  type: 'type',
+  required: 'required',
+  order: 'order'
+};
+
+exports.Prisma.QuestionOptionScalarFieldEnum = {
+  id: 'id',
+  questionId: 'questionId',
+  text: 'text',
+  value: 'value'
+};
+
+exports.Prisma.FormResponseScalarFieldEnum = {
+  id: 'id',
+  formId: 'formId',
+  responderId: 'responderId',
+  submittedAt: 'submittedAt'
+};
+
+exports.Prisma.AnswerScalarFieldEnum = {
+  id: 'id',
+  questionId: 'questionId',
+  responseId: 'responseId',
+  textAnswer: 'textAnswer',
+  selectedOptionIds: 'selectedOptionIds',
+  fileUrl: 'fileUrl'
+};
+
+exports.Prisma.EquipmentCategoryScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  description: 'description',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.EquipmentScalarFieldEnum = {
+  id: 'id',
+  itemCode: 'itemCode',
+  name: 'name',
+  description: 'description',
+  categoryId: 'categoryId',
+  manufacturer: 'manufacturer',
+  model: 'model',
+  serialNumber: 'serialNumber',
+  purchaseDate: 'purchaseDate',
+  purchasePrice: 'purchasePrice',
+  warrantyExpiry: 'warrantyExpiry',
+  location: 'location',
+  status: 'status',
+  condition: 'condition',
+  lastMaintenanceDate: 'lastMaintenanceDate',
+  nextMaintenanceDate: 'nextMaintenanceDate',
+  notes: 'notes',
+  totalQuantity: 'totalQuantity',
+  availableQuantity: 'availableQuantity',
+  onLoanQuantity: 'onLoanQuantity',
+  damagedQuantity: 'damagedQuantity',
+  repairQuantity: 'repairQuantity',
+  inStoreQuantity: 'inStoreQuantity',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.EquipmentLoanScalarFieldEnum = {
+  id: 'id',
+  equipmentId: 'equipmentId',
+  projectId: 'projectId',
+  companyId: 'companyId',
+  contactId: 'contactId',
+  quantity: 'quantity',
+  checkoutDate: 'checkoutDate',
+  expectedReturnDate: 'expectedReturnDate',
+  actualReturnDate: 'actualReturnDate',
+  checkedOutBy: 'checkedOutBy',
+  checkedOutNotes: 'checkedOutNotes',
+  returnCondition: 'returnCondition',
+  returnNotes: 'returnNotes',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.EquipmentMaintenanceScalarFieldEnum = {
+  id: 'id',
+  equipmentId: 'equipmentId',
+  maintenanceType: 'maintenanceType',
+  startDate: 'startDate',
+  endDate: 'endDate',
+  cost: 'cost',
+  performedBy: 'performedBy',
+  description: 'description',
+  notes: 'notes',
+  attachments: 'attachments',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.ProjectEquipmentAllocationScalarFieldEnum = {
+  id: 'id',
+  projectId: 'projectId',
+  equipmentId: 'equipmentId',
+  quantity: 'quantity',
+  startDate: 'startDate',
+  endDate: 'endDate',
+  notes: 'notes',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -953,6 +1096,39 @@ exports.BidStatus = exports.$Enums.BidStatus = {
   WITHDRAWN: 'WITHDRAWN'
 };
 
+exports.QuestionType = exports.$Enums.QuestionType = {
+  TEXT: 'TEXT',
+  TEXTAREA: 'TEXTAREA',
+  RADIO: 'RADIO',
+  CHECKBOX: 'CHECKBOX',
+  DROPDOWN: 'DROPDOWN',
+  FILE: 'FILE'
+};
+
+exports.EquipmentStatus = exports.$Enums.EquipmentStatus = {
+  AVAILABLE: 'AVAILABLE',
+  ON_LOAN: 'ON_LOAN',
+  IN_MAINTENANCE: 'IN_MAINTENANCE',
+  DAMAGED: 'DAMAGED',
+  RETIRED: 'RETIRED'
+};
+
+exports.EquipmentCondition = exports.$Enums.EquipmentCondition = {
+  EXCELLENT: 'EXCELLENT',
+  GOOD: 'GOOD',
+  FAIR: 'FAIR',
+  POOR: 'POOR',
+  UNUSABLE: 'UNUSABLE'
+};
+
+exports.MaintenanceType = exports.$Enums.MaintenanceType = {
+  ROUTINE: 'ROUTINE',
+  REPAIR: 'REPAIR',
+  CALIBRATION: 'CALIBRATION',
+  INSPECTION: 'INSPECTION',
+  REPLACEMENT: 'REPLACEMENT'
+};
+
 exports.Prisma.ModelName = {
   logs: 'logs',
   auth: 'auth',
@@ -1021,7 +1197,19 @@ exports.Prisma.ModelName = {
   Poll: 'Poll',
   PollOption: 'PollOption',
   PollVote: 'PollVote',
-  Leave: 'Leave'
+  Leave: 'Leave',
+  Holiday: 'Holiday',
+  Reminder: 'Reminder',
+  Form: 'Form',
+  Question: 'Question',
+  QuestionOption: 'QuestionOption',
+  FormResponse: 'FormResponse',
+  Answer: 'Answer',
+  EquipmentCategory: 'EquipmentCategory',
+  Equipment: 'Equipment',
+  EquipmentLoan: 'EquipmentLoan',
+  EquipmentMaintenance: 'EquipmentMaintenance',
+  ProjectEquipmentAllocation: 'ProjectEquipmentAllocation'
 };
 
 /**

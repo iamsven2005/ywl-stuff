@@ -18,34 +18,11 @@ export default async function ProjectDetailPage({ params }: { params: { id: stri
 
   if (error) {
     return (
-      <div className="flex min-h-screen w-full flex-col">
-        <header className="sticky top-0 z-10 flex h-16 items-center gap-4 border-b bg-background px-4 md:px-6">
-          <div className="flex items-center gap-2">
-            <HardHat className="h-6 w-6" />
-            <h1 className="text-lg font-semibold">BridgeCRM</h1>
-          </div>
-          <nav className="ml-auto flex items-center gap-4">
-            <Button variant="ghost" size="sm" asChild>
-              <Link href="/">Dashboard</Link>
-            </Button>
-            <Button variant="ghost" size="sm" asChild>
-              <Link href="/projects">Projects</Link>
-            </Button>
-            <Button variant="ghost" size="sm" asChild>
-              <Link href="/companies">Companies</Link>
-            </Button>
-            <Button variant="ghost" size="sm" asChild>
-              <Link href="/contacts">Contacts</Link>
-            </Button>
-            <Button variant="ghost" size="sm" asChild>
-              <Link href="/reports">Reports</Link>
-            </Button>
-          </nav>
-        </header>
+     
         <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
           <div className="flex items-center gap-4">
             <Button variant="outline" size="icon" asChild>
-              <Link href="/projects">
+              <Link href="/crm/projects">
                 <ArrowLeft className="h-4 w-4" />
                 <span className="sr-only">Back</span>
               </Link>
@@ -57,11 +34,10 @@ export default async function ProjectDetailPage({ params }: { params: { id: stri
             <h2 className="text-xl font-semibold text-red-500">Error loading project</h2>
             <p className="mt-2 text-muted-foreground">{error}</p>
             <Button className="mt-6" asChild>
-              <Link href="/projects">Return to Projects</Link>
+              <Link href="/crm/projects">Return to Projects</Link>
             </Button>
           </div>
         </main>
-      </div>
     )
   }
 
@@ -89,34 +65,11 @@ export default async function ProjectDetailPage({ params }: { params: { id: stri
   const materials = project.bridgeProject?.materials || []
 
   return (
-    <div className="flex min-h-screen w-full flex-col">
-      <header className="sticky top-0 z-10 flex h-16 items-center gap-4 border-b bg-background px-4 md:px-6">
-        <div className="flex items-center gap-2">
-          <HardHat className="h-6 w-6" />
-          <h1 className="text-lg font-semibold">BridgeCRM</h1>
-        </div>
-        <nav className="ml-auto flex items-center gap-4">
-          <Button variant="ghost" size="sm" asChild>
-            <Link href="/">Dashboard</Link>
-          </Button>
-          <Button variant="ghost" size="sm" asChild>
-            <Link href="/projects">Projects</Link>
-          </Button>
-          <Button variant="ghost" size="sm" asChild>
-            <Link href="/companies">Companies</Link>
-          </Button>
-          <Button variant="ghost" size="sm" asChild>
-            <Link href="/contacts">Contacts</Link>
-          </Button>
-          <Button variant="ghost" size="sm" asChild>
-            <Link href="/reports">Reports</Link>
-          </Button>
-        </nav>
-      </header>
+   
       <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
         <div className="flex items-center gap-4">
           <Button variant="outline" size="icon" asChild>
-            <Link href="/projects">
+            <Link href="/crm/projects">
               <ArrowLeft className="h-4 w-4" />
               <span className="sr-only">Back</span>
             </Link>
@@ -297,6 +250,5 @@ export default async function ProjectDetailPage({ params }: { params: { id: stri
           </TabsContent>
         </Tabs>
       </main>
-    </div>
   )
 }

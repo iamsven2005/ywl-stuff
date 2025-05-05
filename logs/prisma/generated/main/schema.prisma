@@ -225,6 +225,9 @@ model User {
   PollVote            PollVote[]
   leaveRequests       Leave[]               @relation("LeaveRequester")
   leaveApprovals      Leave[]               @relation("LeaveApprover")
+  Reminder            Reminder[]
+  Form                Form[]
+  FormResponse        FormResponse[]
 }
 
 model Group {
@@ -468,25 +471,27 @@ model ProjectType {
 }
 
 model Project {
-  id               Int                  @id @default(autoincrement())
-  businessCode     String
-  projectCode      String
-  name             String
-  description      String? // New field
-  location         String? // New field for project location
-  startDate        DateTime? // New field
-  estimatedEndDate DateTime? // New field
-  actualEndDate    DateTime? // New field
-  budget           Decimal? // New field
-  status           ProjectStatus? // New field
-  createDate       DateTime             @default(now())
-  projectTypeId    Int?
-  models           ModelEntry[]
-  projectType      ProjectType?         @relation(fields: [projectTypeId], references: [id])
-  assignments      ProjectAssignment[]
-  companies        ProjectCompanyLink[]
-  interactions     CRMInteraction[]
-  bridgeProject    BridgeProject? // New relation
+  id                         Int                          @id @default(autoincrement())
+  businessCode               String
+  projectCode                String
+  name                       String
+  description                String? // New field
+  location                   String? // New field for project location
+  startDate                  DateTime? // New field
+  estimatedEndDate           DateTime? // New field
+  actualEndDate              DateTime? // New field
+  budget                     Decimal? // New field
+  status                     ProjectStatus? // New field
+  createDate                 DateTime                     @default(now())
+  projectTypeId              Int?
+  models                     ModelEntry[]
+  projectType                ProjectType?                 @relation(fields: [projectTypeId], references: [id])
+  assignments                ProjectAssignment[]
+  companies                  ProjectCompanyLink[]
+  interactions               CRMInteraction[]
+  bridgeProject              BridgeProject? // New relation
+  EquipmentLoan              EquipmentLoan[]
+  ProjectEquipmentAllocation ProjectEquipmentAllocation[]
 }
 
 model ModelEntry {
@@ -763,6 +768,7 @@ model Company {
   interactions   CRMInteraction[]
   bids           BidSubmission[] // New relation
   materialOrders MaterialOrder[] // New relation
+  EquipmentLoan  EquipmentLoan[]
 }
 
 enum CompanyType {
@@ -775,18 +781,19 @@ enum CompanyType {
 }
 
 model ContactPerson {
-  id           Int              @id @default(autoincrement())
-  name         String
-  title        String?
-  email        String?
-  phone        String?
-  remarks      String?
-  expertise    String? // New field for bridge-specific expertise
-  companyId    Int
-  company      Company          @relation(fields: [companyId], references: [id], onDelete: Cascade)
-  createdAt    DateTime         @default(now())
-  updatedAt    DateTime         @updatedAt
-  interactions CRMInteraction[]
+  id            Int              @id @default(autoincrement())
+  name          String
+  title         String?
+  email         String?
+  phone         String?
+  remarks       String?
+  expertise     String? // New field for bridge-specific expertise
+  companyId     Int
+  company       Company          @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  createdAt     DateTime         @default(now())
+  updatedAt     DateTime         @updatedAt
+  interactions  CRMInteraction[]
+  EquipmentLoan EquipmentLoan[]
 }
 
 model CRMInteraction {
@@ -1023,4 +1030,209 @@ model Leave {
   user       User @relation("LeaveRequester", fields: [userId], references: [id])
   approverId Int
   approver   User @relation("LeaveApprover", fields: [approverId], references: [id])
+}
+
+model Holiday {
+  id          Int      @id @default(autoincrement())
+  name        String
+  date        DateTime
+  description String?
+  isRecurring Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Reminder {
+  id          Int      @id @default(autoincrement())
+  title       String
+  date        DateTime
+  description String?
+  color       String?  @default("#6366f1") // Default indigo color
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  userId Int
+  user   User @relation(fields: [userId], references: [id])
+}
+
+model Form {
+  id          Int            @id @default(autoincrement())
+  title       String
+  description String?
+  creator     User           @relation(fields: [creatorId], references: [id])
+  creatorId   Int
+  questions   Question[]
+  responses   FormResponse[]
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @default(now()) @updatedAt
+}
+
+model Question {
+  id       Int              @id @default(autoincrement())
+  form     Form             @relation(fields: [formId], references: [id])
+  formId   Int
+  text     String
+  type     QuestionType
+  required Boolean          @default(false)
+  order    Int
+  options  QuestionOption[] // for radio, checkbox, dropdown
+  answers  Answer[]
+}
+
+model QuestionOption {
+  id         Int      @id @default(autoincrement())
+  question   Question @relation(fields: [questionId], references: [id])
+  questionId Int
+  text       String
+  value      String
+}
+
+model FormResponse {
+  id          Int      @id @default(autoincrement())
+  form        Form     @relation(fields: [formId], references: [id])
+  formId      Int
+  responder   User?    @relation(fields: [responderId], references: [id])
+  responderId Int?
+  submittedAt DateTime @default(now())
+  answers     Answer[]
+}
+
+model Answer {
+  id                Int          @id @default(autoincrement())
+  question          Question     @relation(fields: [questionId], references: [id])
+  questionId        Int
+  response          FormResponse @relation(fields: [responseId], references: [id])
+  responseId        Int
+  textAnswer        String? // for text or dropdown
+  selectedOptionIds Int[] // for checkbox, radio; store selected option IDs
+  fileUrl           String? // for file uploads
+}
+
+enum QuestionType {
+  TEXT
+  TEXTAREA
+  RADIO
+  CHECKBOX
+  DROPDOWN
+  FILE
+}
+
+model EquipmentCategory {
+  id          Int         @id @default(autoincrement())
+  name        String      @unique
+  description String?
+  equipment   Equipment[]
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+}
+
+model Equipment {
+  id                  Int                          @id @default(autoincrement())
+  itemCode            String                       @unique
+  name                String
+  description         String?
+  categoryId          Int
+  category            EquipmentCategory            @relation(fields: [categoryId], references: [id])
+  manufacturer        String?
+  model               String?
+  serialNumber        String?
+  purchaseDate        DateTime?
+  purchasePrice       Decimal?
+  warrantyExpiry      DateTime?
+  location            String? // Storage location
+  status              EquipmentStatus              @default(AVAILABLE)
+  condition           EquipmentCondition           @default(GOOD)
+  lastMaintenanceDate DateTime?
+  nextMaintenanceDate DateTime?
+  notes               String?
+  totalQuantity       Int                          @default(1)
+  availableQuantity   Int                          @default(1)
+  onLoanQuantity      Int                          @default(0)
+  damagedQuantity     Int                          @default(0)
+  repairQuantity      Int                          @default(0)
+  inStoreQuantity     Int                          @default(1)
+  loans               EquipmentLoan[]
+  maintenanceRecords  EquipmentMaintenance[]
+  allocations         ProjectEquipmentAllocation[]
+  createdAt           DateTime                     @default(now())
+  updatedAt           DateTime                     @updatedAt
+}
+
+enum EquipmentStatus {
+  AVAILABLE
+  ON_LOAN
+  IN_MAINTENANCE
+  DAMAGED
+  RETIRED
+}
+
+enum EquipmentCondition {
+  EXCELLENT
+  GOOD
+  FAIR
+  POOR
+  UNUSABLE
+}
+
+model EquipmentLoan {
+  id                 Int                 @id @default(autoincrement())
+  equipmentId        Int
+  equipment          Equipment           @relation(fields: [equipmentId], references: [id])
+  projectId          Int?
+  project            Project?            @relation(fields: [projectId], references: [id])
+  companyId          Int?
+  company            Company?            @relation(fields: [companyId], references: [id])
+  contactId          Int?
+  contact            ContactPerson?      @relation(fields: [contactId], references: [id])
+  quantity           Int                 @default(1)
+  checkoutDate       DateTime
+  expectedReturnDate DateTime
+  actualReturnDate   DateTime?
+  checkedOutBy       String
+  checkedOutNotes    String?
+  returnCondition    EquipmentCondition?
+  returnNotes        String?
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime            @updatedAt
+}
+
+model EquipmentMaintenance {
+  id              Int             @id @default(autoincrement())
+  equipmentId     Int
+  equipment       Equipment       @relation(fields: [equipmentId], references: [id])
+  maintenanceType MaintenanceType
+  startDate       DateTime
+  endDate         DateTime?
+  cost            Decimal?
+  performedBy     String? // Person or company who performed maintenance
+  description     String?
+  notes           String?
+  attachments     String[] // URLs or references to maintenance documents
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+}
+
+enum MaintenanceType {
+  ROUTINE
+  REPAIR
+  CALIBRATION
+  INSPECTION
+  REPLACEMENT
+}
+
+model ProjectEquipmentAllocation {
+  id          Int       @id @default(autoincrement())
+  projectId   Int
+  project     Project   @relation(fields: [projectId], references: [id])
+  equipmentId Int
+  equipment   Equipment @relation(fields: [equipmentId], references: [id])
+  quantity    Int       @default(1)
+  startDate   DateTime
+  endDate     DateTime?
+  notes       String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@unique([projectId, equipmentId])
 }

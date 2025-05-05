@@ -6,34 +6,25 @@ import { HardHat, Search, Plus, Filter, Mail, Phone } from "lucide-react"
 import { getContacts } from "../actions/contacts"
 import ContactListSkeleton from "../components/skeletons/contact-list-skeleton"
 
-export default async function ContactsPage() {
+export default async function ContactsPage({
+  searchParams,
+}: {
+  searchParams: { search?: string }
+}) {
   const { contacts, error } = await getContacts()
 
+  const search = searchParams.search?.toLowerCase() || ""
+  
+  const filteredContacts = search
+    ? contacts?.filter((c) =>
+        [c.name, c.title, c.email, c.phone, c.company?.name]
+          .filter(Boolean)
+          .some((field) => field.toLowerCase().includes(search))
+      )
+    : contacts
+  
   return (
-    <div className="flex min-h-screen w-full flex-col">
-      <header className="sticky top-0 z-10 flex h-16 items-center gap-4 border-b bg-background px-4 md:px-6">
-        <div className="flex items-center gap-2">
-          <HardHat className="h-6 w-6" />
-          <h1 className="text-lg font-semibold">BridgeCRM</h1>
-        </div>
-        <nav className="ml-auto flex items-center gap-4">
-          <Button variant="ghost" size="sm" asChild>
-            <Link href="/crm/">Dashboard</Link>
-          </Button>
-          <Button variant="ghost" size="sm" asChild>
-            <Link href="/crm/projects">Projects</Link>
-          </Button>
-          <Button variant="ghost" size="sm" asChild>
-            <Link href="/crm/companies">Companies</Link>
-          </Button>
-          <Button variant="ghost" size="sm" asChild>
-            <Link href="/crm/contacts">Contacts</Link>
-          </Button>
-          <Button variant="ghost" size="sm" asChild>
-            <Link href="/crm/reports">Reports</Link>
-          </Button>
-        </nav>
-      </header>
+
       <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
         <div className="flex items-center justify-between">
           <h1 className="text-2xl font-bold">Contacts</h1>
@@ -45,14 +36,16 @@ export default async function ContactsPage() {
         </div>
 
         <div className="flex items-center gap-4">
-          <form className="relative flex-1">
-            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-            <Input type="search" name="search" placeholder="Search contacts..." className="w-full pl-8" />
-          </form>
-          <Button variant="outline" size="sm">
-            <Filter className="mr-2 h-4 w-4" />
-            Filter
-          </Button>
+        <form method="get" className="relative flex-1">
+  <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+  <Input
+    type="search"
+    name="search"
+    placeholder="Search contacts..."
+    className="w-full pl-8"
+    defaultValue={searchParams.search || ""}
+  />
+</form>
         </div>
 
         <Card>
@@ -74,8 +67,9 @@ export default async function ContactsPage() {
                   <div>Actions</div>
                 </div>
                 <div className="divide-y">
-                  {contacts && contacts.length > 0 ? (
-                    contacts.map((contact) => (
+                {filteredContacts && filteredContacts.length > 0 ? (
+  filteredContacts.map((contact) => (
+
                       <div key={contact.id} className="grid grid-cols-6 p-4 hover:bg-muted/50">
                         <div className="font-medium">
                           <Link href={`/crm/contacts/${contact.id}`} className="hover:underline">
@@ -133,6 +127,5 @@ export default async function ContactsPage() {
           </CardContent>
         </Card>
       </main>
-    </div>
   )
 }

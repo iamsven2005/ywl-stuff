@@ -1,60 +1,118 @@
-import { CalendarDays, Users } from "lucide-react"
-import { formatRelativeTime } from "@/lib/utils"
 import Link from "next/link"
+import { format } from "date-fns"
+import { Building2, Calendar, Clock, FileText, User } from "lucide-react"
 
-export default function InteractionList({ interactions }) {
-  if (!interactions || interactions.length === 0) {
-    return (
-      <div className="p-8 text-center">
-        <p className="text-muted-foreground">No interactions found</p>
-      </div>
-    )
-  }
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
+
+type Interaction = {
+  id: number
+  title: string
+  notes?: string | null
+  interactionType: string
+  interactionDate: Date
+  outcome?: string | null
+  followUpRequired: boolean
+  followUpDate?: Date | null
+  contactId?: number | null
+  companyId?: number | null
+  projectId?: number | null
+  contact?: {
+    id: number
+    firstName: string
+    lastName: string
+  } | null
+  company?: {
+    id: number
+    name: string
+  } | null
+  project?: {
+    id: number
+    name: string
+  } | null
+}
+
+interface InteractionListProps {
+  interactions: Interaction[]
+  showViewAll?: boolean
+  limit?: number
+}
+
+export function InteractionList({ interactions, showViewAll = false, limit }: InteractionListProps) {
+  const displayedInteractions = limit ? interactions.slice(0, limit) : interactions
 
   return (
     <div className="space-y-4">
-      {interactions.map((interaction) => (
-        <div key={interaction.id} className="flex items-start gap-4 rounded-lg border p-4">
-          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10">
-            {interaction.interactionType.includes("Meeting") ? (
-              <Users className="h-5 w-5 text-primary" />
-            ) : (
-              <CalendarDays className="h-5 w-5 text-primary" />
-            )}
-          </div>
-          <div className="flex-1 space-y-1">
-            <div className="flex items-center gap-2">
-              <div className="font-semibold">{interaction.title}</div>
-              <div className="text-xs text-muted-foreground">{formatRelativeTime(interaction.interactionDate)}</div>
-            </div>
-            <div className="text-sm text-muted-foreground">{interaction.notes || "No notes provided"}</div>
-            <div className="flex flex-wrap items-center gap-2 pt-2">
-              {interaction.project && (
-                <span className="text-xs text-muted-foreground">
-                  Project:{" "}
-                  <Link href={`/crm/projects/${interaction.project.id}`} className="hover:underline">
-                    {interaction.project.name}
-                  </Link>
-                </span>
-              )}
-              {interaction.company && (
-                <span className="text-xs text-muted-foreground">
-                  Company:{" "}
-                  <Link href={`/crm/companies/${interaction.company.id}`} className="hover:underline">
-                    {interaction.company.name}
-                  </Link>
-                </span>
-              )}
-              {interaction.contact && (
-                <span className="text-xs text-muted-foreground">Contact: {interaction.contact.name}</span>
-              )}
-              {interaction.outcome && (
-                <span className="text-xs text-muted-foreground">Outcome: {interaction.outcome}</span>
-              )}
-            </div>
-          </div>
+      {displayedInteractions.length === 0 ? (
+        <Card>
+          <CardContent className="py-6 text-center text-muted-foreground">No interactions found.</CardContent>
+        </Card>
+      ) : (
+        displayedInteractions.map((interaction) => (
+          <Link
+            href={`/crm/interactions/${interaction.id}`}
+            key={interaction.id}
+            className="block transition-all hover:shadow-md"
+          >
+            <Card>
+              <CardHeader className="pb-2">
+                <div className="flex items-center justify-between">
+                  <CardTitle className="text-lg">{interaction.title}</CardTitle>
+                  <Badge>{interaction.interactionType}</Badge>
+                </div>
+                <div className="text-sm text-muted-foreground flex items-center">
+                  <Calendar className="mr-1 h-4 w-4" />
+                  {format(new Date(interaction.interactionDate), "PPP")}
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  {interaction.company && (
+                    <div className="flex items-center">
+                      <Building2 className="mr-2 h-4 w-4 text-muted-foreground" />
+                      <span className="text-sm">{interaction.company.name}</span>
+                    </div>
+                  )}
+
+                  {interaction.contact && (
+                    <div className="flex items-center">
+                      <User className="mr-2 h-4 w-4 text-muted-foreground" />
+                      <span className="text-sm">
+                        {interaction.contact.firstName} {interaction.contact.lastName}
+                      </span>
+                    </div>
+                  )}
+
+                  {interaction.project && (
+                    <div className="flex items-center">
+                      <FileText className="mr-2 h-4 w-4 text-muted-foreground" />
+                      <span className="text-sm">{interaction.project.name}</span>
+                    </div>
+                  )}
+                </div>
+
+                {interaction.followUpRequired && interaction.followUpDate && (
+                  <div className="mt-4 flex items-center text-sm text-amber-600">
+                    <Clock className="mr-2 h-4 w-4" />
+                    Follow-up on {format(new Date(interaction.followUpDate), "PPP")}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </Link>
+        ))
+      )}
+
+      {showViewAll && interactions.length > 0 && (
+        <div className="flex justify-center">
+          <Button asChild variant="outline">
+            <Link href="/interactions">View All Interactions</Link>
+          </Button>
         </div>
-      ))}
+      )}
     </div>
   )
 }
+
+export default InteractionList
