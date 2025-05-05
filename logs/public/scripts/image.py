@@ -1,40 +1,43 @@
 import os
-import glob
-import requests
+import time
 import socket
+import requests
 import subprocess
-os.environ["DISPLAY"] = ":1"
+
+# --- Environment setup ---
+os.environ["DISPLAY"] = ":0"  # or ":1" depending on your session
 os.environ["XDG_RUNTIME_DIR"] = "/run/user/1000"
 os.environ["DBUS_SESSION_BUS_ADDRESS"] = "unix:path=/run/user/1000/bus"
-subprocess.run("/usr/bin/gnome-screenshot")
+
 DEVICE_HOST = socket.gethostname()
+timestamp = time.strftime("%Y%m%d_%H%M%S")
+filename = f"screenshot_{timestamp}.png"
+screenshot_path = f"/home/sven/Pictures/{filename}"
 
-# Define directory and pattern
-pictures_dir = "/home/sven/Pictures"
-pattern = os.path.join(pictures_dir, "Screenshot from *.png")
+# --- Take screenshot with custom filename ---
+subprocess.run(["/usr/bin/gnome-screenshot", "-f", screenshot_path])
 
-# Find all matching screenshots
-screenshots = glob.glob(pattern)
-print("fuck")
-# If no screenshots, exit
-if not screenshots:
-    print("No screenshots found.")
-    exit(0)
+# --- Wait for file to be created ---
+for _ in range(10):  # wait max 5 seconds
+    if os.path.exists(screenshot_path):
+        break
+    time.sleep(0.5)
+else:
+    print(f"Error: Screenshot file not found after waiting: {screenshot_path}")
+    exit(1)
 
-# Get the latest screenshot by modified time
-latest_screenshot = max(screenshots, key=os.path.getmtime)
-server_url = "http://PLACEHOLDER_IP:3000/api/screenshot"  # Replace with actual IP
+# --- Upload ---
+server_url = "http://PLACEHOLDER_IP:3000/api/screenshot"  # Replace with real IP
 
-# Upload
 try:
-    with open(latest_screenshot, "rb") as f:
-        files = {"file": ("screenshot.png", f, "image/png")}
+    with open(screenshot_path, "rb") as f:
+        files = {"file": (filename, f, "image/png")}
         response = requests.post(server_url, files=files)
         if response.status_code == 200:
-            print(f"Uploaded: {latest_screenshot}")
-            os.remove(latest_screenshot)
+            print(f"Uploaded: {screenshot_path}")
+            os.remove(screenshot_path)
             print("Deleted after upload.")
         else:
             print(f"Failed to upload. Status: {response.status_code}")
 except Exception as e:
-    print(f"Error: {e}")
+    print(f"Upload error: {e}")
