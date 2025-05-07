@@ -27,7 +27,10 @@ else:
     exit(1)
 
 # --- Upload ---
-server_url = "http://PLACEHOLDER_IP:3000/api/screenshot"  # Replace with real IP
+s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+s.connect(("8.8.8.8", 80))
+ip = s.getsockname()[0]
+server_url = f"http://PLACEHOLDER_IP:3000/api/screenshot/{ip}"  # Replace with real IP
 
 try:
     with open(screenshot_path, "rb") as f:
