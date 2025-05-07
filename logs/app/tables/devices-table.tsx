@@ -54,6 +54,7 @@ import { DeviceStatusIndicator } from "@/components/device-status-indicator"
 import { useDeviceStatus } from "../hooks/use-device-status" // Adjust path if needed
 import { devices } from "@/prisma/generated/main"
 import { generatePassword } from "@/lib/utils"
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 
 // Debounce function to limit how often a function can run
 function debounce<T extends (...args: any[]) => any>(func: T, wait: number): (...args: Parameters<T>) => void {
@@ -692,11 +693,28 @@ export default function DevicesTable() {
                   </TableCell>
                   <TableCell>{device.id}</TableCell>
                   <TableCell>
-                    <div className="flex items-center gap-2">
-                      <Server className="h-4 w-4 text-blue-500" />
-                      <span className="font-medium">{device.name}</span>
-                    </div>
-                  </TableCell>
+  <TooltipProvider>
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <div className="flex items-center gap-2 cursor-pointer">
+          <Server className="h-4 w-4 text-blue-500" />
+          <span className="font-medium">{device.name}</span>
+        </div>
+      </TooltipTrigger>
+      <TooltipContent side="right" className="p-2 border bg-white shadow-lg w-auto h-auto">
+        <img
+          src={`http://192.168.1.26:3000/uploads/${device.ip_address}.png`}
+          alt={`Screenshot of ${device.name}`}
+          className="w-[300px] h-auto rounded"
+          onError={(e) => {
+            e.currentTarget.style.display = "none"
+          }}
+        />
+      </TooltipContent>
+    </Tooltip>
+  </TooltipProvider>
+</TableCell>
+
                   <TableCell>
                     {device.ip_address ? (
                       <Badge variant="outline" className="font-mono">
