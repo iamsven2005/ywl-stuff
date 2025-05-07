@@ -9,10 +9,10 @@ os.environ["DISPLAY"] = ":1"  # or ":1" depending on your session
 os.environ["XDG_RUNTIME_DIR"] = "/run/user/1000"
 os.environ["DBUS_SESSION_BUS_ADDRESS"] = "unix:path=/run/user/1000/bus"
 
-DEVICE_HOST = socket.gethostname()
+user_home = os.path.expanduser("~")
 timestamp = time.strftime("%Y%m%d_%H%M%S")
 filename = f"screenshot_{timestamp}.png"
-screenshot_path = f"/home/sven/Pictures/{filename}"
+screenshot_path = f"{user_home}/Pictures/{filename}"
 
 # --- Take screenshot with custom filename ---
 subprocess.run(["/usr/bin/gnome-screenshot", "-f", screenshot_path])
