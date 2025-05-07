@@ -55,6 +55,7 @@ import { useDeviceStatus } from "../hooks/use-device-status" // Adjust path if n
 import { devices } from "@/prisma/generated/main"
 import { generatePassword } from "@/lib/utils"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
+import Link from "next/link"
 
 // Debounce function to limit how often a function can run
 function debounce<T extends (...args: any[]) => any>(func: T, wait: number): (...args: Parameters<T>) => void {
@@ -702,14 +703,17 @@ export default function DevicesTable() {
         </div>
       </TooltipTrigger>
       <TooltipContent side="right" className="p-2 border bg-white shadow-lg w-auto h-auto">
-        <img
-          src={`http://192.168.1.26:3000/uploads/${device.ip_address}.png`}
-          alt={`Screenshot of ${device.name}`}
-          className="w-[300px] h-auto rounded"
-          onError={(e) => {
-            e.currentTarget.style.display = "none"
-          }}
-        />
+      <Link href={`/uploads/${device.ip_address}.png`}>
+      <img
+  src={`/uploads/${device.ip_address}.png`}
+  alt={`Screenshot of ${device.name}`}
+  className="w-[300px] h-auto rounded cursor-zoom-in"
+  onError={(e) => {
+    e.currentTarget.style.display = "none"
+  }}
+/>
+</Link>
+
       </TooltipContent>
     </Tooltip>
   </TooltipProvider>
@@ -1230,6 +1234,9 @@ export default function DevicesTable() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+
+
     </div>
   )
 }

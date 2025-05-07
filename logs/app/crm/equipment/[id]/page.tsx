@@ -5,10 +5,10 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Badge } from "@/components/ui/badge"
 import { HardHat, ArrowLeft, Edit, PenToolIcon as Tool, Calendar, Clock, Wrench, ShoppingBag } from "lucide-react"
-import { getEquipmentById } from "@/app/actions/equipment"
+import { getEquipmentById } from "@/app//crm/actions/equipment"
 import { formatDate, formatCurrency } from "@/lib/utils"
-import EquipmentLoans from "@/components/equipment-loans"
-import EquipmentMaintenance from "@/components/equipment-maintenance"
+import EquipmentLoans from "@/app/crm/components/equipment-loans"
+import EquipmentMaintenance from "@/app/crm/components/equipment-maintenance"
 
 export default async function EquipmentDetailPage({ params }: { params: { id: string } }) {
   const equipmentId = Number.parseInt(params.id)
