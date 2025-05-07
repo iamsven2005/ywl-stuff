@@ -91,7 +91,37 @@ EOF
 
 # Filter out old related lines and append the new ones
 ( sudo crontab -l 2>/dev/null | grep -vE 'script\.sh|scan\.py|sensors\.py|disk\.py'; echo "$NEW_CRONS" ) | crontab -
+cat <<EOF | sudo tee /etc/X11/xorg.conf
+Section "Device"
+    Identifier  "DummyDevice"
+    Driver      "dummy"
+    VideoRam    256000
+EndSection
 
+Section "Monitor"
+    Identifier  "DummyMonitor"
+    HorizSync   28.0-80.0
+    VertRefresh 48.0-75.0
+EndSection
+
+Section "Screen"
+    Identifier "DummyScreen"
+    Monitor    "DummyMonitor"
+    Device     "DummyDevice"
+    SubSection "Display"
+        Depth     24
+        Modes     "1920x1080"
+    EndSubSection
+EndSection
+
+Section "ServerLayout"
+    Identifier "DummyLayout"
+    Screen     "DummyScreen"
+EndSection
+EOF
+
+sudo X :1 -config /etc/X11/xorg.conf & disown
+export DISPLAY=:1
 # 🔟 Create and restart daemons for pid.py & auth-log.py
 cat <<EOF | sudo tee /etc/systemd/system/python_daemon_pid.service
 [Unit]
